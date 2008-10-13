@@ -1,0 +1,5 @@
+[test-environment]
+collmex_customer = 4711
+collmex_company = 1
+collmex_username = user
+collmex_password = pass
