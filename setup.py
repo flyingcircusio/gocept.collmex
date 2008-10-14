@@ -10,7 +10,7 @@ setup(
     version='0.2dev',
     author='gocept',
     author_email='mail@gocept.com',
-    description='A Python API for Collmex import/export',
+    description='Python-bindings for the Collmex import/export API',
     long_description = (
         open('README.txt').read() +
         '\n\n' +
