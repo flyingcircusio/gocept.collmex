@@ -1,4 +1,8 @@
-0.1 (unreleased)
+0.2 (unreleased)
+----------------
+
+
+0.1 (2008-10-14)
 ----------------
 
 - first release. Supports getting and storing invoices.
