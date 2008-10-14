@@ -1,4 +1,3 @@
-===========
 Collmex API
 ===========
 
@@ -7,6 +6,7 @@ that provides methods for the various CSV record types.
 API documentation is available at <http://www.collmex.de/cgi-bin/cgi.exe?1005,1,help,api>.
 
 First we need to clean up the Collmex environment:
+
 >>> import gocept.collmex.testing
 >>> gocept.collmex.testing.cleanup_collmex()
 
@@ -21,9 +21,8 @@ Invalid login information raises an exception:
 Traceback (most recent call last):
 APIError: ('204008', 'Fehler in Zeile 1: Benutzer oder Kennwort nicht korrekt')
 
-
 Invoices
-========
+--------
 
 Invoices can be looked up again, however, the invoice was only registered for
 addition and the transaction needs to be committed first:
