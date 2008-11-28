@@ -88,8 +88,11 @@ class Collmex(object):
     # XXX should go on CollmexDialect but the csv module's magic prevents it
     NULL = gocept.collmex.interfaces.NULL
 
+    system_identifier = 'gocept.collmex'
+
     model_factory = {
         'CMXINV': gocept.collmex.model.InvoiceItem,
+        'CMXKND': gocept.collmex.model.Customer,
     }
 
     def __init__(self, customer_id, company_id, username, password):
@@ -125,7 +128,17 @@ class Collmex(object):
             customer_id,
             date_to_collmex(start_date),
             date_to_collmex(end_date),
-            0, 0, 0, 'gocept.collmex')
+            0, 0,
+            0, self.system_identifier)
+
+    def get_customers(self, customer_id=NULL, text=NULL):
+        return self._query_objects(
+            'CUSTOMER_GET',
+            customer_id,
+            self.company_id,
+            text,
+            0, self.NULL, self.NULL, self.NULL, self.NULL, self.NULL,
+            0, self.system_identifier)
 
     def _query_objects(self, function, *args):
         data = StringIO.StringIO()

@@ -5,6 +5,7 @@ Changes
 ----------------
 
 - Modifications for changed Collmex API.
+- Added ``get_customers`` to query customers (API ``CUSTOMER_GET``).
 
 0.1 (2008-10-14)
 ----------------

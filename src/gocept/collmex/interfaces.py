@@ -2,6 +2,7 @@
 # See also LICENSE.txt
 
 import zope.interface
+import zope.interface.common.mapping
 
 # NULL aka None for Collmex
 NULL = "(NULL)"
@@ -17,9 +18,28 @@ class ICollmex(zope.interface.Interface):
                      start_date=NULL, end_date=NULL):
         """Returns a list of IInvoiceItems maching given criteria."""
 
+    def get_customers(customer_id=NULL, text=NULL):
+        """Returns a list of ICustomers matching given criteria."""
 
-class IInvoiceItem(zope.interface.Interface):
-    """An invoice item from Collmex.
 
-    Must be able to convert itself into a list.
+
+class IModel(zope.interface.common.mapping.IFullMapping):
+    """A collmex model.
+
+    A collmex model mapps the field names specified by the API to their
+    respective values.
+
     """
+
+    satzart = zope.interface.Attribute("The collmex model indicator.")
+
+    def __iter__(self):
+        """Iterate over vields in order specified by collmex API."""
+
+
+class IInvoiceItem(IModel):
+    """An invoice item from Collmex CMXINV"""
+
+
+class ICustomer(IModel):
+    """A customer CMXKND."""

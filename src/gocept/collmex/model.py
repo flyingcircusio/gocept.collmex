@@ -38,7 +38,7 @@ class InvoiceItem(Model):
     zope.interface.implements(gocept.collmex.interfaces.IInvoiceItem)
 
     satzart = 'CMXINV'
-    fields = [
+    fields = (
         'Satzart',
         'Rechnungsnummer',
         'Position',
@@ -121,4 +121,50 @@ class InvoiceItem(Model):
         'Steuer auch im Ausland',
         'Kundenauftragsposition',
         'Erlösart',
-        ]
+        )
+
+
+class Customer(Model):
+
+    zope.interface.implements(gocept.collmex.interfaces.ICustomer)
+
+    satzart = 'CMXKND'
+    fields = (
+        'Satzart',
+        'Kundennummer',
+        'Firma Nr',
+        'Anrede',
+        'Titel',
+        'Vorname',
+        'Name',
+        'Firma',
+        'Abteilung',
+        'Strasse',
+        'PLZ',
+        'Ort',
+        'Reserviert',
+        'Reserviert',
+        'Land',
+        'Telefon',
+        'Telefax',
+        'E-Mail',
+        'Kontonr',
+        'Blz',
+        'Iban',
+        'Bic',
+        'Bankname',
+        'Steuernummer',
+        'USt.IdNr',
+        'Zahlungsbedingung',
+        'Rabattgruppe',
+        'Lieferbedingung',
+        'Lieferbedingung Zusatz',
+        'Ausgabemedium',
+        'Kontoinhaber',
+        'Adressgruppe',
+        'Privatperson',
+        'Preisgruppe',
+        'Währung (ISO-Codes)',
+        'Vermittler',
+        'Kostenstelle',
+    )
