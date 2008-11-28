@@ -26,7 +26,7 @@ Transaction integration
 gocept.collmex has support for transaction integration. All modifying calls are
 buffered until the transaction is commited. XXX explain more.
 
-[#pre-flight-cleanup]_[#invalid-login]_
+[#pre-flight-cleanup]_ [#invalid-login]_
 
 
 
