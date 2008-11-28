@@ -4,6 +4,7 @@ Changes
 0.2 (unreleased)
 ----------------
 
+- Modifications for changed Collmex API.
 
 0.1 (2008-10-14)
 ----------------
