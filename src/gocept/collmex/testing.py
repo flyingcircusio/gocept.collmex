@@ -52,3 +52,6 @@ def cleanup_collmex():
     b.getLink('Verkauf', index=1).click()
     b.getControl(name='preis_1_preis').value = '5,00'
     b.getControl('Speichern').click()
+
+    # Explicitly close response to not leave open http objects.
+    b.mech_browser._response.close()

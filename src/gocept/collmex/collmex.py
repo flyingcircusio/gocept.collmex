@@ -125,23 +125,24 @@ class Collmex(object):
 
     def _post(self, data):
         data = 'LOGIN;%s;%s\n' % (self.username, self.password) + data
-
         content_type, body = gocept.collmex.utils.encode_multipart_formdata(
             [], [('fileName', 'api.csv', data)])
-
         request = urllib2.Request(
             'https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange'
             % self.customer_id, body)
         request.add_header('Content-type', content_type)
-        result = urllib2.urlopen(request)
-        lines = list(csv.reader(result, dialect=CollmexDialect))
-        response = lines.pop()
-        assert len(response) >= 4
+        response = urllib2.urlopen(request)
+
+        lines = list(csv.reader(response, dialect=CollmexDialect))
+        response.close()
+        result = lines.pop()
+        assert len(result) >= 4
+
         record_type, message_type, message_id, message_text = (
-            response[:4])
+            result[:4])
         if record_type != 'MESSAGE':
             raise TypeError('API returned invalid response record: %r' %
-                            response)
+                            result)
         if message_type != 'S':
             raise APIError(message_id, message_text)
         return lines
