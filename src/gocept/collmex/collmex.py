@@ -3,14 +3,15 @@
 # See also LICENSE.txt
 
 import StringIO
-import UserDict
 import csv
 import gocept.collmex.interfaces
 import gocept.collmex.utils
+import gocept.collmex.model
 import threading
 import transaction
 import transaction.interfaces
 import urllib2
+import zope.deprecation
 import zope.interface
 
 
@@ -87,6 +88,10 @@ class Collmex(object):
     # XXX should go on CollmexDialect but the csv module's magic prevents it
     NULL = gocept.collmex.interfaces.NULL
 
+    model_factory = {
+        'CMXINV': gocept.collmex.model.InvoiceItem,
+    }
+
     def __init__(self, customer_id, company_id, username, password):
         self.customer_id = customer_id
         self.company_id = company_id
@@ -113,15 +118,30 @@ class Collmex(object):
 
     def get_invoices(self, invoice_id=NULL, customer_id=NULL,
                      start_date=NULL, end_date=NULL):
+        return self._query_objects(
+            'INVOICE_GET',
+            invoice_id,
+            self.company_id,
+            customer_id,
+            date_to_collmex(start_date),
+            date_to_collmex(end_date),
+            0, 0, 0, 'gocept.collmex')
+
+    def _query_objects(self, function, *args):
         data = StringIO.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
-        writer.writerow(
-            ['INVOICE_GET', invoice_id, self.company_id, customer_id,
-             date_to_collmex(start_date), date_to_collmex(end_date),
-             0, 0, 0, 'gocept.collmex'])
+        writer.writerow((function,) + args)
         lines = self._post(data.getvalue())
-        return [InvoiceItem(line) for line in lines
-                if line[0] == 'CMXINV']
+        result = []
+        for line in lines:
+            record_type = line[0]
+            factory = self.model_factory.get(record_type)
+            if factory is None:
+                continue
+            result.append(factory(line))
+        return result
+
+
 
     def _post(self, data):
         data = 'LOGIN;%s;%s\n' % (self.username, self.password) + data
@@ -155,112 +175,8 @@ def date_to_collmex(date):
         return date.strftime('%Y%m%d')
 
 
-class InvoiceItem(UserDict.UserDict):
-    zope.interface.implements(gocept.collmex.interfaces.IInvoiceItem)
-
-    def __init__(self, row=[]):
-        UserDict.UserDict.__init__(self)
-
-        self['Satzart'] = 'CMXINV'
-        self['Rechnungsart'] = 0 # type invoice
-
-        for i in range(len(row)):
-            if row[i] == '':
-                row[i] = None
-            self[self.fields[i]] = row[i]
-
-    def __iter__(self):
-        result = []
-        for field in self.fields:
-            if field in self:
-                value = self[field]
-                if isinstance(value, unicode):
-                    value = value.encode('iso-8859-1')
-                yield value
-            else:
-                yield Collmex.NULL
-
-    fields = [
-        'Satzart',
-        'Rechnungsnummer',
-        'Position',
-        'Rechnungsart',
-        'Firma Nr',
-        'Auftrag Nr',
-        'Kunden-Nr',
-        'Anrede',
-        'Titel',
-        'Vorname',
-        'Name',
-        'Firma',
-        'Abteilung',
-        'Strasse',
-        'PLZ',
-        'Ort',
-        'Land',
-        'Telefon',
-        'Telefon2',
-        'Telefax',
-        'E-Mail',
-        'Kontonr',
-        'Blz',
-        'Abweichender Kontoinhaber',
-        'IBAN',
-        'BIC',
-        'Bank',
-        'USt.IdNr',
-        'Privatperson',
-        'Rechnungsdatum',
-        'Preisdatum',
-        'Zahlungsbedingung',
-        'Währung',
-        'Preisgruppe',
-        'Rabattgruppe',
-        'Schluss-Rabatt',
-        'Rabattgrund',
-        'Rechnungstext',
-        'Schlusstext',
-        'Internes Memo',
-        'Gelöscht',
-        'Sprache',
-        'Bearbeiter',
-        'Reserviert',
-        'Reserviert',
-        'Reserviert',
-        'Reserviert',
-        'Reserviert',
-        'Versandart',
-        'Versandkosten',
-        'Nachnahmegebühr',
-        'Lieferdatum',
-        'Lieferbedingung',
-        'Lieferbedingung Zusatz',
-        'Anrede Lieferung',
-        'Titel Lieferung',
-        'Vorname Lieferung',
-        'Name Lieferung',
-        'Firma Lieferung',
-        'Abteilung Lieferung',
-        'Strasse Lieferung',
-        'PLZ Lieferung',
-        'Ort Lieferung',
-        'Land Lieferung',
-        'Telefon Lieferung',
-        'Telefon2 Lieferung',
-        'Telefax Lieferung',
-        'E-Mail Lieferung',
-        'Positionstyp',
-        'Produktnummer',
-        'Produktbeschreibung',
-        'Mengeneinheit',
-        'Menge',
-        'Einzelpreis',
-        'Preismenge',
-        'Positionsrabatt',
-        'Positionswert',
-        'Produktart',
-        'Steuerklassifikation',
-        'Steuer auch im Ausland',
-        'Kundenauftragsposition',
-        'Erlösart',
-        ]
+# Backward compatibility
+InvoiceItem = gocept.collmex.model.InvoiceItem
+zope.deprecation.deprecated(
+    'InvoiceItem',
+    'InvoiceItem has been moved to gocept.collmex.model.InvoiceItem')

@@ -26,6 +26,7 @@ setup(
     install_requires=[
         'setuptools',
         'transaction',
+        'zope.deprecation',
         'zope.interface',
         ],
     extras_require=dict(
