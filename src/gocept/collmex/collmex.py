@@ -85,7 +85,7 @@ class Collmex(object):
     zope.interface.implements(gocept.collmex.interfaces.ICollmex)
 
     # XXX should go on CollmexDialect but the csv module's magic prevents it
-    NULL = '(NULL)'
+    NULL = gocept.collmex.interfaces.NULL
 
     def __init__(self, customer_id, company_id, username, password):
         self.customer_id = customer_id
