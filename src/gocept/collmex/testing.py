@@ -2,6 +2,7 @@
 # Copyright (c) 2008 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+import os
 import zope.testbrowser.browser
 
 
@@ -11,11 +12,11 @@ def cleanup_collmex():
     b.open('http://www.collmex.de')
 
     # Login
-    b.getControl('Kunden Nr').value = '42779'
+    b.getControl('Kunden Nr').value = os.environ['collmex_customer']
     b.getControl('anmelden...').click()
 
-    b.getControl('Benutzer').value = '1141688'
-    b.getControl('Kennwort').value = '1416678'
+    b.getControl('Benutzer').value = os.environ['collmex_username']
+    b.getControl('Kennwort').value = os.environ['collmex_password']
     b.getControl('Anmelden').click()
 
     # Firma loeschen
