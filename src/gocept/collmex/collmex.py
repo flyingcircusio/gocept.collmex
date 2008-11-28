@@ -57,7 +57,8 @@ class CollmexDataManager(object):
 
     def commit(self, transaction):
         assert transaction is self._transaction
-        # We need to do our work in tpc_vote as we're a single-phase-only data manager.
+        # We need to do our work in tpc_vote as we're a single-phase-only data 
+        # manager.
         pass
 
     def tpc_vote(self, transaction):
@@ -114,11 +115,13 @@ class Collmex(object):
                      start_date=NULL, end_date=NULL):
         data = StringIO.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
-        writer.writerow(['INVOICE_GET', invoice_id, self.company_id, customer_id,
-                         date_to_collmex(start_date), date_to_collmex(end_date),
-                         0, 0, 0, 'gocept.collmex'])
+        writer.writerow(
+            ['INVOICE_GET', invoice_id, self.company_id, customer_id,
+             date_to_collmex(start_date), date_to_collmex(end_date),
+             0, 0, 0, 'gocept.collmex'])
         lines = self._post(data.getvalue())
-        return [InvoiceItem(line) for line in lines]
+        return [InvoiceItem(line) for line in lines
+                if line[0] == 'CMXINV']
 
     def _post(self, data):
         data = 'LOGIN;%s;%s\n' % (self.username, self.password) + data
@@ -126,15 +129,19 @@ class Collmex(object):
         content_type, body = gocept.collmex.utils.encode_multipart_formdata(
             [], [('fileName', 'api.csv', data)])
 
-        request = urllib2.Request('https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange'
-                                  % self.customer_id, body)
+        request = urllib2.Request(
+            'https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange'
+            % self.customer_id, body)
         request.add_header('Content-type', content_type)
         result = urllib2.urlopen(request)
         lines = list(csv.reader(result, dialect=CollmexDialect))
         response = lines.pop()
-        record_type, message_type, message_id, message_text = response
+        assert len(response) >= 4
+        record_type, message_type, message_id, message_text = (
+            response[:4])
         if record_type != 'MESSAGE':
-            raise TypeError('API returned invalid response record: %r' % response)
+            raise TypeError('API returned invalid response record: %r' %
+                            response)
         if message_type != 'S':
             raise APIError(message_id, message_text)
         return lines
