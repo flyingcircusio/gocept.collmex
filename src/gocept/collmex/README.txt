@@ -26,7 +26,7 @@ Invoices are created using the ``create_invoice`` method:
 ...     os.environ['collmex_customer'], os.environ['collmex_company'],
 ...     os.environ['collmex_username'], os.environ['collmex_password'])
 >>> start_date = datetime.datetime.now()
->>> item = gocept.collmex.collmex.InvoiceItem()
+>>> item = gocept.collmex.model.InvoiceItem()
 >>> item['Kunden-Nr'] = '10000'
 >>> item['Rechnungsnummer'] = 100000
 >>> item['Menge'] = 3
