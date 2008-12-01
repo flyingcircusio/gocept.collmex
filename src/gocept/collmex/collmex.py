@@ -5,8 +5,9 @@
 import StringIO
 import csv
 import gocept.collmex.interfaces
-import gocept.collmex.utils
 import gocept.collmex.model
+import gocept.collmex.utils
+import logging
 import threading
 import transaction
 import transaction.interfaces
@@ -14,6 +15,8 @@ import urllib2
 import zope.deprecation
 import zope.interface
 
+
+log = logging.getLogger(__name__)
 
 class CollmexDialect(csv.Dialect):
     quoting = csv.QUOTE_ALL
@@ -39,6 +42,7 @@ class CollmexDataManager(object):
         self.data = StringIO.StringIO()
         self._joined = False
         self._transaction = None
+        self.voted = False
 
     def register_data(self, data):
         """Registers one or more CSV lines for writing."""
@@ -158,6 +162,7 @@ class Collmex(object):
 
     def _post(self, data):
         data = 'LOGIN;%s;%s\n' % (self.username, self.password) + data
+        log.debug(data)
         content_type, body = gocept.collmex.utils.encode_multipart_formdata(
             [], [('fileName', 'api.csv', data)])
         request = urllib2.Request(
