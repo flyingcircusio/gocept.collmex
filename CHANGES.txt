@@ -4,6 +4,9 @@ Changes
 0.3 (unreleased)
 ----------------
 
+- Using Windows-1252 as encoding when uploading data (used to be ISO-8601-1).
+
+
 0.2 (2008-11-28)
 ----------------
 
