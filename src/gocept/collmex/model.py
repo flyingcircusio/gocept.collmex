@@ -27,7 +27,7 @@ class Model(object, UserDict.UserDict):
             if field in self:
                 value = self[field]
                 if isinstance(value, unicode):
-                    value = value.encode('iso-8859-1')
+                    value = value.encode('Windows-1252')
                 yield value
             else:
                 yield gocept.collmex.interfaces.NULL
