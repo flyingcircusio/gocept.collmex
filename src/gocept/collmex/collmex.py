@@ -131,6 +131,13 @@ class Collmex(object):
         writer.writerow(list(product))
         self.connection.register_data(data.getvalue())
 
+    def create_customer(self, customer):
+        data = StringIO.StringIO()
+        writer = csv.writer(data, dialect=CollmexDialect)
+        customer['Firma Nr'] = self.company_id
+        writer.writerow(list(customer))
+        self.connection.register_data(data.getvalue())
+
     def get_invoices(self, invoice_id=NULL, customer_id=NULL,
                      start_date=NULL, end_date=NULL):
         return self._query_objects(

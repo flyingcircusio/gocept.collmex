@@ -29,16 +29,5 @@ def cleanup_collmex():
 
     assert 'Daten erfolgreich gel' in b.contents
 
-    # Beispielkunden anlegen
-    b.getLink('Warenwirtschaft').click()
-    add_link = b.getLink(u'Anzeigen und ändern', index=2)
-    assert add_link.url.endswith('cu')
-    add_link.click() # XXX Magic number
-    b.getLink('Anlegen').click()
-    b.getControl('Kunde Nr', index=0).value = '10000'
-    b.getControl('Kunde anlegen').click()
-    b.getControl('Firma').value = 'Testkunden'
-    b.getControl('Speichern').click()
-
     # Explicitly close response to not leave open http objects.
     b.mech_browser._response.close()
