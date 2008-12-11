@@ -4,6 +4,11 @@ Changes
 0.4 (unreleased)
 ----------------
 
+- Added `get_products` and `create_product`.
+- Added `create_customer`.
+- gocept.collmex.testing.cleanup_collmex() now only deletes any existing data,
+  it does not add any sample customers or products, use the API for that.
+
 0.3.1 (2008-12-02)
 ------------------
 
@@ -12,7 +17,7 @@ Changes
 0.3 (2008-12-01)
 ----------------
 
-- Using Windows-1252 as encoding when uploading data (used to be ISO-8601-1).
+- Using Windows-1252 as encoding when uploading data (used to be ISO-8859-1).
 - Fixed transaction integration when upload fails.
 
 0.2 (2008-11-28)
