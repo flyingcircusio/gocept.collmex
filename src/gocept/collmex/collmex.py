@@ -97,6 +97,7 @@ class Collmex(object):
     model_factory = {
         'CMXINV': gocept.collmex.model.InvoiceItem,
         'CMXKND': gocept.collmex.model.Customer,
+        'CMXPRD': gocept.collmex.model.Product,
     }
 
     def __init__(self, customer_id, company_id, username, password):
@@ -123,6 +124,13 @@ class Collmex(object):
             writer.writerow(list(item))
         self.connection.register_data(data.getvalue())
 
+    def create_product(self, product):
+        data = StringIO.StringIO()
+        writer = csv.writer(data, dialect=CollmexDialect)
+        product['Firma'] = self.company_id
+        writer.writerow(list(product))
+        self.connection.register_data(data.getvalue())
+
     def get_invoices(self, invoice_id=NULL, customer_id=NULL,
                      start_date=NULL, end_date=NULL):
         return self._query_objects(
@@ -144,6 +152,16 @@ class Collmex(object):
             0, self.NULL, self.NULL, self.NULL, self.NULL, self.NULL,
             0, self.system_identifier)
 
+    def get_products(self, product_id=NULL,
+                     product_group=NULL, price_group=NULL):
+        return self._query_objects(
+            'PRODUCT_GET',
+            self.company_id,
+            product_id,
+            product_group,
+            price_group,
+            0, self.system_identifier)
+
     def _query_objects(self, function, *args):
         data = StringIO.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
@@ -157,8 +175,6 @@ class Collmex(object):
                 continue
             result.append(factory(line))
         return result
-
-
 
     def _post(self, data):
         data = 'LOGIN;%s;%s\n' % (self.username, self.password) + data
