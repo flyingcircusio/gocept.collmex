@@ -63,6 +63,22 @@ The second customer is one created during test setup:
 >>> customer['Firma']
 'Testkunden'
 
+Products: ``create_product`` and ``get_products``
+-------------------------------------------------
+
+Products are created using the ``create_product`` method:
+
+>>> product = gocept.collmex.model.Product()
+>>> product['Produktnummer'] = 'TEST'
+>>> product['Bezeichnung'] = 'Testprodukt'
+>>> product['Produktart'] = 0 # Ware
+>>> product['Verkaufs-Preis'] = 5
+>>> collmex.create_product(product)
+>>> import transaction
+>>> transaction.commit()
+>>> collmex.get_products()[0]['Bezeichnung']
+'Testprodukt'
+
 Invoices: ``create_invoice`` and ``get_invoices``
 -------------------------------------------------
 
@@ -74,12 +90,10 @@ Invoices are created using the ``create_invoice`` method:
 >>> item['Kunden-Nr'] = '10000'
 >>> item['Rechnungsnummer'] = 100000
 >>> item['Menge'] = 3
->>> item['Produktnummer'] = 'TRAFFIC'
+>>> item['Produktnummer'] = 'TEST'
 >>> item['Rechnungstext'] = 'item text'
 >>> item['Positionstyp'] = 0
 >>> collmex.create_invoice([item])
-
-
 
 Invoices can be looked up again, using the ``get_invoices`` method. However, as
 discussed above the invoice was only registered for addition. Querying right
@@ -90,13 +104,10 @@ now does *not* return the invoice:
 
 After committing, the invoice is found:
 
->>> import transaction
 >>> transaction.commit()
 >>> collmex.get_invoices(customer_id='10000',
 ...                      start_date=start_date)[0]['Rechnungstext']
 'item text'
-
-
 
 .. [#pre-flight-cleanup] First we need to clean up the Collmex environment:
 

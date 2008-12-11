@@ -40,18 +40,5 @@ def cleanup_collmex():
     b.getControl('Firma').value = 'Testkunden'
     b.getControl('Speichern').click()
 
-    # Beispielprodukt anlegen
-    b.getLink('Warenwirtschaft').click()
-    add_link = b.getLink(u'Anlegen', index=4)
-    assert add_link.url.endswith('prcr')
-    add_link.click() # XXX Magic number
-    b.getControl('Produkt', index=1).value = 'TRAFFIC'
-    b.getControl('Produkt anlegen').click()
-    b.getControl('Bezeichnung').value = 'Testprodukt'
-    b.getControl('Speichern').click()
-    b.getLink('Verkauf', index=1).click()
-    b.getControl(name='preis_1_preis').value = '5,00'
-    b.getControl('Speichern').click()
-
     # Explicitly close response to not leave open http objects.
     b.mech_browser._response.close()

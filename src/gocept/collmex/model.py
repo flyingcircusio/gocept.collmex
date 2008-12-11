@@ -23,7 +23,6 @@ class Model(object, UserDict.UserDict):
             self[self.fields[i]] = row[i]
 
     def __iter__(self):
-        result = []
         for field in self.fields:
             if field in self:
                 value = self[field]
@@ -168,4 +167,39 @@ class Customer(Model):
         'Währung (ISO-Codes)',
         'Vermittler',
         'Kostenstelle',
+    )
+
+
+class Product(Model):
+
+    zope.interface.implements(gocept.collmex.interfaces.IProduct)
+
+    satzart = 'CMXPRD'
+    fields = (
+        'Satzart',
+        'Produktnummer',
+        'Bezeichnung',
+        'Bezeichnung Eng',
+        'Basismengeneinheit',
+        'Produktgruppe',
+        'Firma',
+        'Steuerklassifikation',
+        'Gewicht',
+        'Gewicht Mengeneinheit',
+        'Preismenge',
+        'Produktart',
+        'Inaktiv',
+        'Preisgruppe',
+        'Verkaufs-Preis',
+        'EAN',
+        'Hersteller',
+        'Versandgruppe',
+        'Mindestbestand',
+        'Bestellmenge',
+        'Chargenpflicht',
+        'Beschaffungsart',
+        'Produktionsdauer',
+        'Lohnkosten',
+        'Lohnkosten-Bezugsmenge',
+        'Reserviert',
     )

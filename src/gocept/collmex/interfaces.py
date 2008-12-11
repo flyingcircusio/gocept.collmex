@@ -14,6 +14,9 @@ class ICollmex(zope.interface.Interface):
     def create_invoice(items):
         """Creates an invoice consisting of the given IInvoiceItems."""
 
+    def create_product(product):
+        """Creates a product for the given IProduct."""
+
     def get_invoices(invoice_id=NULL, customer_id=NULL,
                      start_date=NULL, end_date=NULL):
         """Returns a list of IInvoiceItems maching given criteria."""
@@ -21,6 +24,8 @@ class ICollmex(zope.interface.Interface):
     def get_customers(customer_id=NULL, text=NULL):
         """Returns a list of ICustomers matching given criteria."""
 
+    def get_products(product_id=NULL, product_group=NULL, price_group=NULL):
+        """Returns a list of IProducts matching given criteria."""
 
 
 class IModel(zope.interface.common.mapping.IFullMapping):
@@ -38,8 +43,12 @@ class IModel(zope.interface.common.mapping.IFullMapping):
 
 
 class IInvoiceItem(IModel):
-    """An invoice item from Collmex CMXINV"""
+    """An invoice item (CMXINV)"""
 
 
 class ICustomer(IModel):
-    """A customer CMXKND."""
+    """A customer (CMXKND)."""
+
+
+class IProduct(IModel):
+    """A product (CMXPRD)."""
