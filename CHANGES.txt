@@ -1,7 +1,10 @@
 Changes
 =======
 
-0.4 (unreleased)
+0.5 (unreleased)
+----------------
+
+0.4 (2008-12-11)
 ----------------
 
 - Added `get_products` and `create_product`.
