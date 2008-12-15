@@ -18,9 +18,10 @@ class Model(object, UserDict.UserDict):
         self['Rechnungsart'] = 0 # type invoice
 
         for i in range(len(row)):
-            if row[i] == '':
-                row[i] = None
-            self[self.fields[i]] = row[i]
+            if row[i] == '' or row[i] is None:
+                self[self.fields[i]] = None
+            else:
+                self[self.fields[i]] = unicode(row[i], 'Windows-1252')
 
     def __iter__(self):
         for field in self.fields:
