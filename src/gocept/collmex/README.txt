@@ -1,3 +1,5 @@
+coding: utf-8
+
 Collmex API
 ===========
 
@@ -53,22 +55,22 @@ The first customer is the generic one:
 
 >>> customer = customers[0]
 >>> customer['Satzart']
-'CMXKND'
+u'CMXKND'
 >>> customer['Kundennummer']
-'9999'
+u'9999'
 >>> customer['Firma']
-'Allgemeiner Gesch\xe4ftspartner'
+u'Allgemeiner Gesch\xe4ftspartner'
 
 
 The second customer is one created during test setup:
 
 >>> customer = customers[1]
 >>> customer['Satzart']
-'CMXKND'
+u'CMXKND'
 >>> customer['Kundennummer']
-'10000'
+u'10000'
 >>> customer['Firma']
-'Testkunden'
+u'Testkunden'
 
 Products: ``create_product`` and ``get_products``
 -------------------------------------------------
@@ -83,7 +85,7 @@ Products are created using the ``create_product`` method:
 >>> collmex.create_product(product)
 >>> transaction.commit()
 >>> collmex.get_products()[0]['Bezeichnung']
-'Testprodukt'
+u'Testprodukt'
 
 Invoices: ``create_invoice`` and ``get_invoices``
 -------------------------------------------------
@@ -97,7 +99,7 @@ Invoices are created using the ``create_invoice`` method:
 >>> item['Rechnungsnummer'] = 100000
 >>> item['Menge'] = 3
 >>> item['Produktnummer'] = 'TEST'
->>> item['Rechnungstext'] = 'item text'
+>>> item['Rechnungstext'] = u'item text – with non-ascii characters'
 >>> item['Positionstyp'] = 0
 >>> collmex.create_invoice([item])
 
@@ -113,7 +115,7 @@ After committing, the invoice is found:
 >>> transaction.commit()
 >>> collmex.get_invoices(customer_id='10000',
 ...                      start_date=start_date)[0]['Rechnungstext']
-'item text'
+u'item text \u2013 with non-ascii characters'
 
 .. [#pre-flight-cleanup] First we need to clean up the Collmex environment:
 
