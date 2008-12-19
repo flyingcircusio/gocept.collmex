@@ -4,6 +4,9 @@ Changes
 0.5 (unreleased)
 ----------------
 
+- Values returned from Collmex are converted to unicode.
+- Cache results for the duration of the transaction.
+
 0.4 (2008-12-11)
 ----------------
 
