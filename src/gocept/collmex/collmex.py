@@ -4,6 +4,8 @@
 
 import StringIO
 import csv
+import gocept.cache.method
+import gocept.cache.property
 import gocept.collmex.interfaces
 import gocept.collmex.model
 import gocept.collmex.utils
@@ -62,7 +64,7 @@ class CollmexDataManager(object):
 
     def commit(self, transaction):
         assert transaction is self._transaction
-        # We need to do our work in tpc_vote as we're a single-phase-only data 
+        # We need to do our work in tpc_vote as we're a single-phase-only data
         # manager.
         pass
 
@@ -108,13 +110,14 @@ class Collmex(object):
 
         # Store thread-local (actually: transaction-local) information
         self._local = threading.local()
+        self._local.connection = None
+        self._local.cache = None
 
     @property
     def connection(self):
-        connection = getattr(self._local, 'connection', None)
-        if connection is None:
-            connection = self._local.connection = CollmexDataManager(self)
-        return connection
+        if self._local.connection is None:
+            self._local.connection = CollmexDataManager(self)
+        return self._local.connection
 
     def create_invoice(self, items):
         data = StringIO.StringIO()
@@ -169,6 +172,24 @@ class Collmex(object):
             price_group,
             0, self.system_identifier)
 
+    def _get_cache(self):
+        if self._local.cache is None:
+            self._local.cache = {}
+            dm = gocept.cache.property.CacheDataManager(
+                self, None, transaction.get())
+            transaction.get().join(dm)
+        return self._local.cache
+
+    def _set_cache(self, cache):
+        self._local.cache = cache
+
+    _cache = property(_get_cache, _set_cache)
+
+    # hook for gocept.cache.property.CacheDataManager
+    def invalidate(self, dummy):
+        self._cache = None
+
+    @gocept.cache.method.memoize_on_attribute('_cache', timeout=5*60)
     def _query_objects(self, function, *args):
         data = StringIO.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
