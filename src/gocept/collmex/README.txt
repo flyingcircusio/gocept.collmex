@@ -1,5 +1,3 @@
-coding: utf-8
-
 Collmex API
 ===========
 
@@ -99,7 +97,7 @@ Invoices are created using the ``create_invoice`` method:
 >>> item['Rechnungsnummer'] = 100000
 >>> item['Menge'] = 3
 >>> item['Produktnummer'] = 'TEST'
->>> item['Rechnungstext'] = u'item text – with non-ascii characters'
+>>> item['Rechnungstext'] = u'item text \u2013 with non-ascii characters'
 >>> item['Positionstyp'] = 0
 >>> collmex.create_invoice([item])
 
