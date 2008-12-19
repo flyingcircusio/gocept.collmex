@@ -96,12 +96,6 @@ class Collmex(object):
 
     system_identifier = 'gocept.collmex'
 
-    model_factory = {
-        'CMXINV': gocept.collmex.model.InvoiceItem,
-        'CMXKND': gocept.collmex.model.Customer,
-        'CMXPRD': gocept.collmex.model.Product,
-    }
-
     def __init__(self, customer_id, company_id, username, password):
         self.customer_id = customer_id
         self.company_id = company_id
@@ -198,7 +192,7 @@ class Collmex(object):
         result = []
         for line in lines:
             record_type = line[0]
-            factory = self.model_factory.get(record_type)
+            factory = gocept.collmex.model.factory(record_type)
             if factory is None:
                 continue
             result.append(factory(line))
