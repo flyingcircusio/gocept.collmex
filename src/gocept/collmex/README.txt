@@ -117,6 +117,47 @@ After committing, the invoice is found:
 ...                      start_date=start_date)[0]['Rechnungstext']
 u'item text \u2013 with non-ascii characters'
 
+
+Caching
+-------
+
+Results queried from Collmex are cached for the duration of the transaction.
+
+To demonstrate this, we instrument the _post() method that performs the actual
+HTTP communication to show when it is called:
+
+    >>> original_post = collmex._post
+    >>> def tracing_post(self, *args, **kw):
+    ...     print 'cache miss'
+    ...     return original_post(*args, **kw)
+    >>> collmex._post = tracing_post.__get__(collmex, type(collmex))
+
+The first time in an transaction is retrieved from Collmex, of course:
+
+    >>> transaction.abort()
+    >>> collmex.get_products()[0]['Bezeichnung']
+    cache miss
+    u'Testprodukt'
+
+But after that, values are cached:
+
+    >>> collmex.get_products()[0]['Bezeichnung']
+    u'Testprodukt'
+
+When the transaction ends, the cache is invalidated:
+
+    >>> transaction.commit()
+    >>> collmex.get_products()[0]['Bezeichnung']
+    cache miss
+    u'Testprodukt'
+    >>> collmex.get_products()[0]['Bezeichnung']
+    u'Testprodukt'
+ 
+Remove tracing instrumentation:
+
+    >>> collmex._post = original_post
+
+
 .. [#pre-flight-cleanup] First we need to clean up the Collmex environment:
 
     >>> import gocept.collmex.testing
