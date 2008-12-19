@@ -34,6 +34,16 @@ class Model(object, UserDict.UserDict):
                 yield gocept.collmex.interfaces.NULL
 
 
+def factory(record_type):
+    """looks up Model class representing the given `record_type`."""
+
+    for class_ in globals().values():
+        if isinstance(class_, type) and issubclass(class_, Model):
+            if class_.satzart == record_type:
+                return class_
+    return None
+
+
 class InvoiceItem(Model):
 
     zope.interface.implements(gocept.collmex.interfaces.IInvoiceItem)
