@@ -1,8 +1,37 @@
 # Copyright (c) 2008 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+import gocept.collmex.collmex
+import os
+import Queue
 import unittest
+import threading
 import zope.testing.doctest
+
+
+class Worker(threading.Thread):
+    def __init__(self, collmex, queue):
+        super(Worker, self).__init__()
+        self.collmex = collmex
+        self.queue = queue
+
+    def run(self):
+        self.queue.put_nowait(self.collmex.get_products())
+
+
+class ThreadTest(unittest.TestCase):
+    def test_two_threads_can_access_their_caches(self):
+        collmex = gocept.collmex.collmex.Collmex(
+            os.environ['collmex_customer'], os.environ['collmex_company'],
+            os.environ['collmex_username'], os.environ['collmex_password'])
+        queue = Queue.Queue(-1)
+        workers = []
+        for i in range(2):
+            w = Worker(collmex, queue)
+            workers.append(w)
+            w.start()
+        for w in workers: w.join()
+        self.assertEqual(2, queue.qsize())
 
 
 optionflags = (zope.testing.doctest.INTERPRET_FOOTNOTES |
@@ -10,7 +39,9 @@ optionflags = (zope.testing.doctest.INTERPRET_FOOTNOTES |
                zope.testing.doctest.ELLIPSIS)
 
 def test_suite():
-    suite = zope.testing.doctest.DocFileSuite(
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(ThreadTest))
+    suite.addTest(zope.testing.doctest.DocFileSuite(
         'README.txt',
-        optionflags=optionflags)
+        optionflags=optionflags))
     return suite
