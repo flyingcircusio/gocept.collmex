@@ -4,6 +4,12 @@ Changes
 0.6 (unreleased)
 ----------------
 
+0.5.1 (2009-01-08)
+------------------
+
+- Fixed multi-threading bug: thread-local data needs to be intialized for each
+  thread.
+
 0.5 (2008-12-19)
 ----------------
 
