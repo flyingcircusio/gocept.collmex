@@ -104,11 +104,14 @@ class Collmex(object):
 
         # Store thread-local (actually: transaction-local) information
         self._local = threading.local()
-        self._local.connection = None
-        self._local.cache = None
+
+    def _ensure_local_attribute(self, name):
+        if not getattr(self._local, name, None):
+            setattr(self._local, name, None)
 
     @property
     def connection(self):
+        self._ensure_local_attribute('connection')
         if self._local.connection is None:
             self._local.connection = CollmexDataManager(self)
         return self._local.connection
@@ -167,6 +170,7 @@ class Collmex(object):
             0, self.system_identifier)
 
     def _get_cache(self):
+        self._ensure_local_attribute('cache')
         if self._local.cache is None:
             self._local.cache = {}
             dm = gocept.cache.property.CacheDataManager(
