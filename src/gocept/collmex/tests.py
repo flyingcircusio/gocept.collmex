@@ -34,6 +34,25 @@ class ThreadTest(unittest.TestCase):
         self.assertEqual(2, queue.qsize())
 
 
+class ModelTest(unittest.TestCase):
+
+    def test_model_robust_agains_extension(self):
+
+        class TestModel(gocept.collmex.model.Model):
+
+            zope.interface.implements(gocept.collmex.interfaces.IInvoiceItem)
+
+            satzart = 'CMXINV'
+            fields = (
+                'Satzart',
+                'Rechnungsnummer',
+            )
+
+        tm = TestModel(['CMXINV', 'foo', 'bar', ''])
+        self.assertEqual('foo', tm['Rechnungsnummer'])
+        self.assertEqual(['bar', None], tm._unmapped)
+
+
 optionflags = (zope.testing.doctest.INTERPRET_FOOTNOTES |
                zope.testing.doctest.NORMALIZE_WHITESPACE |
                zope.testing.doctest.ELLIPSIS)
@@ -41,6 +60,7 @@ optionflags = (zope.testing.doctest.INTERPRET_FOOTNOTES |
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(ThreadTest))
+    suite.addTest(unittest.makeSuite(ModelTest))
     suite.addTest(zope.testing.doctest.DocFileSuite(
         'README.txt',
         optionflags=optionflags))

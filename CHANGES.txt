@@ -4,6 +4,9 @@ Changes
 0.6 (unreleased)
 ----------------
 
+- Make modles robust against API changes so they don't immediately break when
+  the set becomes longer.
+
 0.5.1 (2009-01-08)
 ------------------
 
