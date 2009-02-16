@@ -11,17 +11,23 @@ class Model(object, UserDict.UserDict):
 
     satzart = None
 
-    def __init__(self, row=[]):
+    def __init__(self, row=()):
         UserDict.UserDict.__init__(self)
 
         self['Satzart'] = self.satzart
-        self['Rechnungsart'] = 0 # type invoice
+        self._unmapped = []
 
-        for i in range(len(row)):
-            if row[i] == '' or row[i] is None:
-                self[self.fields[i]] = None
+        for i, value in enumerate(row):
+            if value == '' or value is None:
+                value = None
             else:
-                self[self.fields[i]] = unicode(row[i], 'Windows-1252')
+                value = unicode(value, 'Windows-1252')
+            try:
+                field_name = self.fields[i]
+            except IndexError:
+                self._unmapped.append(value)
+            else:
+                self[field_name] = value
 
     def __iter__(self):
         for field in self.fields:
@@ -133,6 +139,11 @@ class InvoiceItem(Model):
         'Kundenauftragsposition',
         'Erlösart',
         )
+
+    def __init__(self, row=()):
+        super(InvoiceItem, self).__init__(row)
+        if not self.get('Rechnungsart'):
+            self['Rechnungsart'] = 0  # type invoice
 
 
 class Customer(Model):
