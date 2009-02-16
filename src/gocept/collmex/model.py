@@ -189,6 +189,12 @@ class Customer(Model):
         'Währung (ISO-Codes)',
         'Vermittler',
         'Kostenstelle',
+        'Wiedervorlage am',
+        'Liefersperre',
+        'Baudienstleister',
+        'Lief-Nr. bei Kunde',
+        'Ausgabesprache',
+        'CC',
     )
 
 
