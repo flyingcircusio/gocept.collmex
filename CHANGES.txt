@@ -4,7 +4,7 @@ Changes
 0.6 (2009-02-16)
 ----------------
 
-- Make modles robust against API changes so they don't immediately break when
+- Make models robust against API changes so they don't immediately break when
   the record becomes longer.
 - Updated customer model to current API.
 
