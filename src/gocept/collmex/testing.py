@@ -1,23 +1,27 @@
 # coding: utf-8
-# Copyright (c) 2008 gocept gmbh & co. kg
+# Copyright (c) 2008-2009 gocept gmbh & co. kg
 # See also LICENSE.txt
 
 import os
 import zope.testbrowser.browser
 
 
-def cleanup_collmex():
-    # Prepare a clean environment in our Collmex testing.
+def collmex_login():
+    # Log into collmex
     b = zope.testbrowser.browser.Browser()
     b.open('http://www.collmex.de')
 
-    # Login
     b.getControl('Kunden Nr').value = os.environ['collmex_customer']
     b.getControl('anmelden...').click()
 
     b.getControl('Benutzer').value = os.environ['collmex_username']
     b.getControl('Kennwort').value = os.environ['collmex_password']
     b.getControl('Anmelden').click()
+    return b
+
+def cleanup_collmex():
+    # Prepare a clean environment in our Collmex testing.
+    b = collmex_login()
 
     # Firma loeschen
     b.getLink('Verwaltung').click()
@@ -31,3 +35,31 @@ def cleanup_collmex():
 
     # Explicitly close response to not leave open http objects.
     b.mech_browser._response.close()
+
+
+def create_projects():
+    # There is no API to create projects, so use the browser
+    b = collmex_login()
+
+    # Projekt anlegen
+    b.getLink('Verkauf').click()
+    b.getLink(url=',pjcr').click()
+    assert b.title == 'Projekt anlegen'
+
+    b.getControl('Projekt anlegen').click()
+    b.getControl('Bezeichnung').value = 'Testprojekt'
+    b.getControl('Kunde').value = '10000'
+    b.getControl(name='table_1_produktNr').value = 'TEST'
+
+    b.getControl('Speichern').click()
+
+
+def create_employee():
+    # There is no API to create employees, so use the browser
+    b = collmex_login()
+    b.getLink('Buchhaltung').click()
+    b.getLink('Mitarbeiter anlegen').click()
+    b.getControl('Mitarbeiter anlegen').click()
+    b.getControl('Vorname').value = 'Sebastian'
+    b.getControl('Name').value = 'Wehrmann'
+    b.getControl('Speichern').click()
