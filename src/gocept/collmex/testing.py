@@ -22,7 +22,7 @@ def cleanup_collmex():
     # Firma loeschen
     b.getLink('Verwaltung').click()
     b.getLink(u'Löschen').click()
-    b.getControl(u'Zu löschende Daten').displayValue = [
+    b.getControl(u'Umfang der Löschung').displayValue = [
         'Alle Belege und Stammdaten']
     b.getControl(u'Ja, wirklich löschen').selected = True
     b.getControl(u'Daten löschen').click()
