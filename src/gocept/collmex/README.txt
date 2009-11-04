@@ -78,7 +78,8 @@ Products are created using the ``create_product`` method:
 >>> product = gocept.collmex.model.Product()
 >>> product['Produktnummer'] = 'TEST'
 >>> product['Bezeichnung'] = 'Testprodukt'
->>> product['Produktart'] = 0 # Ware
+>>> product['Produktart'] = 1 # Dienstleistung
+>>> product['Basismengeneinheit'] = 'HR'
 >>> product['Verkaufs-Preis'] = 5
 >>> collmex.create_product(product)
 >>> transaction.commit()
@@ -114,6 +115,30 @@ After committing, the invoice is found:
 >>> collmex.get_invoices(customer_id='10000',
 ...                      start_date=start_date)[0]['Rechnungstext']
 u'item text \u2013 with non-ascii characters'
+
+Activities: ``create_activity``
+--------------------------
+
+Activities are created using the ``create_activity`` method:
+
+>>> import datetime
+>>> today = datetime.date(2009, 11, 4)
+>>> import gocept.collmex.testing
+>>> gocept.collmex.testing.create_projects()
+>>> gocept.collmex.testing.create_employee()
+>>> act = gocept.collmex.model.Activity()
+>>> act['Projekt Nr'] = '1' # Testprojekt
+>>> act['Mitarbeiter Nr'] = '1' # Sebastian Wehrmann
+>>> act['Satz Nr'] = '1' # TEST
+>>> act['Beschreibung'] = u'allgemeine T\xe4tigkeit'
+>>> act['Datum'] = today
+>>> act['Von'] = datetime.time(8, 7)
+>>> act['Bis'] = datetime.time(14, 28)
+>>> act['Pausen'] = datetime.timedelta(hours=1, minutes=12)
+>>> collmex.create_activity(act)
+>>> transaction.commit()
+
+[#check-activity-creation]_
 
 
 Caching
@@ -160,6 +185,23 @@ Remove tracing instrumentation:
 
     >>> import gocept.collmex.testing
     >>> gocept.collmex.testing.cleanup_collmex()
+
+.. [#check-activity-creation] Check if an activity was imported:
+
+    >>> import gocept.collmex.testing
+    >>> b = gocept.collmex.testing.collmex_login()
+    >>> b.getLink('Verkauf').click()
+    >>> b.getLink('T\xe4tigkeiten erfassen').click()
+    >>> b.getControl(name='table_1_datum').value
+    '04.11.2009'
+    >>> b.getControl(name='table_1_von').value
+    '08:07'
+    >>> b.getControl(name='table_1_bis').value
+    '14:28'
+    >>> b.getControl(name='table_1_pausen').value
+    '1:12'
+    >>> b.getControl(name='table_1_beschreibung').value
+    'allgemeine T\xe4tigkeit'
 
 .. [#invalid-login] Invalid login information raises an exception:
 

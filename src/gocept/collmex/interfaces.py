@@ -52,3 +52,7 @@ class ICustomer(IModel):
 
 class IProduct(IModel):
     """A product (CMXPRD)."""
+
+
+class IActivity(IModel):
+    """A product (CMXACT)."""

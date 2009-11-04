@@ -3,6 +3,7 @@
 # See also LICENSE.txt
 
 import UserDict
+import datetime
 import gocept.collmex.interfaces
 import zope.interface
 
@@ -32,12 +33,18 @@ class Model(object, UserDict.UserDict):
     def __iter__(self):
         for field in self.fields:
             if field in self:
-                value = self[field]
-                if isinstance(value, unicode):
-                    value = value.encode('Windows-1252')
-                yield value
+                yield self._convert(self[field])
             else:
                 yield gocept.collmex.interfaces.NULL
+
+    def _convert(self, value):
+        if isinstance(value, datetime.date):
+            return value.strftime('%Y%m%d')
+        elif isinstance(value, datetime.time):
+            return value.strftime('%H:%M')
+        elif isinstance(value, unicode):
+            value = value.encode('Windows-1252')
+        return value
 
 
 def factory(record_type):
@@ -230,4 +237,23 @@ class Product(Model):
         'Lohnkosten',
         'Lohnkosten-Bezugsmenge',
         'Reserviert',
+    )
+
+
+class Activity(Model):
+
+    zope.interface.implements(gocept.collmex.interfaces.IActivity)
+
+    satzart = 'CMXACT'
+    fields = (
+        'Satzart',
+        'Projekt Nr',
+        'Mitarbeiter Nr',
+        'Firma Nr',
+        'Satz Nr',
+        'Beschreibung',
+        'Datum',
+        'Von',
+        'Bis',
+        'Pausen',
     )
