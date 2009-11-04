@@ -116,34 +116,25 @@ class Collmex(object):
             self._local.connection = CollmexDataManager(self)
         return self._local.connection
 
-    def create_invoice(self, items):
+    def create(self, item):
         data = StringIO.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
-        for item in items:
-            item['Firma Nr'] = self.company_id
-            writer.writerow(list(item))
+        item.company = self.company_id
+        writer.writerow(list(item))
         self.connection.register_data(data.getvalue())
+
+    def create_invoice(self, items):
+        # This is an deprecated API. Use ``create`` instead.
+        for item in items:
+            self.create(item)
 
     def create_product(self, product):
-        data = StringIO.StringIO()
-        writer = csv.writer(data, dialect=CollmexDialect)
-        product['Firma'] = self.company_id
-        writer.writerow(list(product))
-        self.connection.register_data(data.getvalue())
+        # This is an deprecated API. Use ``create`` instead.
+        self.create(product)
 
     def create_customer(self, customer):
-        data = StringIO.StringIO()
-        writer = csv.writer(data, dialect=CollmexDialect)
-        customer['Firma Nr'] = self.company_id
-        writer.writerow(list(customer))
-        self.connection.register_data(data.getvalue())
-
-    def create_activity(self, activity):
-        data = StringIO.StringIO()
-        writer = csv.writer(data, dialect=CollmexDialect)
-        activity['Firma Nr'] = self.company_id
-        writer.writerow(list(activity))
-        self.connection.register_data(data.getvalue())
+        # This is an deprecated API. Use ``create`` instead.
+        self.create(customer)
 
     def get_invoices(self, invoice_id=NULL, customer_id=NULL,
                      start_date=NULL, end_date=NULL):
