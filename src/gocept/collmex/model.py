@@ -37,6 +37,14 @@ class Model(object, UserDict.UserDict):
             else:
                 yield gocept.collmex.interfaces.NULL
 
+    @property
+    def company(self):
+        return self['Firma Nr']
+
+    @company.setter
+    def company(self, company_id):
+        self['Firma Nr'] = company_id
+
     def _convert(self, value):
         if isinstance(value, datetime.date):
             return value.strftime('%Y%m%d')
@@ -238,6 +246,14 @@ class Product(Model):
         'Lohnkosten-Bezugsmenge',
         'Reserviert',
     )
+
+    @property
+    def company(self):
+        return self['Firma']
+
+    @company.setter
+    def company(self, company_id):
+        self['Firma'] = company_id
 
 
 class Activity(Model):

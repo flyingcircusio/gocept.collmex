@@ -116,10 +116,11 @@ After committing, the invoice is found:
 ...                      start_date=start_date)[0]['Rechnungstext']
 u'item text \u2013 with non-ascii characters'
 
-Activities: ``create_activity``
---------------------------
+Activities
+----------
 
-Activities are created using the ``create_activity`` method:
+This section describes the API for activities (Tätigkeiten erfassen). A
+project with one set and an employee are required to submit activities:
 
 >>> import datetime
 >>> today = datetime.date(2009, 11, 4)
@@ -135,7 +136,7 @@ Activities are created using the ``create_activity`` method:
 >>> act['Von'] = datetime.time(8, 7)
 >>> act['Bis'] = datetime.time(14, 28)
 >>> act['Pausen'] = datetime.timedelta(hours=1, minutes=12)
->>> collmex.create_activity(act)
+>>> collmex.create(act)
 >>> transaction.commit()
 
 [#check-activity-creation]_
