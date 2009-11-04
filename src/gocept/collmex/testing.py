@@ -49,8 +49,12 @@ def create_projects():
     b.getControl('Projekt anlegen').click()
     b.getControl('Bezeichnung').value = 'Testprojekt'
     b.getControl('Kunde').value = '10000'
-    b.getControl(name='table_1_produktNr').value = 'TEST'
 
+    b.getControl(name='table_1_produktNr').value = 'TEST'
+    b.getControl('Speichern').click()
+    b.getControl(name='table_2_produktNr').value = 'TEST'
+    b.getControl('Speichern').click()
+    b.getControl(name='table_2_satz').value = '9,65'
     b.getControl('Speichern').click()
 
 

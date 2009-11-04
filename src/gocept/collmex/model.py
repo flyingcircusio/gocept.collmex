@@ -273,3 +273,30 @@ class Activity(Model):
         'Bis',
         'Pausen',
     )
+
+
+class Project(Model):
+
+    zope.interface.implements(gocept.collmex.interfaces.IProject)
+
+    satzart = 'CMXPRJ'
+    fields = (
+        'Satzart',
+        'Projektnummer',
+        'Firma Nr',
+        'Bezeichnung',
+        'Kunde Nr',
+        'Name des Kunden',
+        'Abgeschlossen',
+        'Reserviert',
+        'Reserviert',
+        'Reserviert',
+        'Reserviert',
+        'Reserviert',
+        'Satz Nr',
+        'Satz Bezeichnung',
+        'Produktnummer',
+        'Satz',
+        'Währung',
+        'Mengeneinheit',
+    )

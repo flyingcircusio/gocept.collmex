@@ -56,3 +56,7 @@ class IProduct(IModel):
 
 class IActivity(IModel):
     """A product (CMXACT)."""
+
+
+class IProject(IModel):
+    """A project (CMXPRJ)."""
