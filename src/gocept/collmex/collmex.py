@@ -167,6 +167,13 @@ class Collmex(object):
             price_group,
             0, self.system_identifier)
 
+    def get_projects(self, project_id=NULL, customer_id=NULL):
+        return self._query_objects(
+            'PROJECT_GET',
+            project_id,
+            self.company_id,
+            customer_id)
+
     def _get_cache(self):
         self._ensure_local_attribute('cache')
         if self._local.cache is None:

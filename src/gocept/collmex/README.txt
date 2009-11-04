@@ -141,6 +141,22 @@ project with one set and an employee are required to submit activities:
 
 [#check-activity-creation]_
 
+Projects: ``get_projects``
+--------------------------
+
+Projects can be exported with the ``get_projects`` API. It returns an entry
+for every project set (Projektsatz) of each project (Projekt):
+
+>>> proj = collmex.get_projects()
+>>> len(proj)
+2
+>>> proj[0]['Projektnummer'] == proj[1]['Projektnummer']
+True
+
+>>> proj[0]['Satz']
+u'5,00'
+>>> proj[1]['Satz']
+u'9,65'
 
 Caching
 -------
