@@ -4,7 +4,7 @@ Changes
 0.7 (unreleased)
 ----------------
 
-- Added API for ``PROJECTS_GET`` and creation of activities.
+- Added API for retrieving projects and creation of activities.
 
 0.6 (2009-02-16)
 ----------------
