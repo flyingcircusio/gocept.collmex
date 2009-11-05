@@ -119,7 +119,7 @@ u'item text \u2013 with non-ascii characters'
 Activities
 ----------
 
-This section describes the API for activities (Tätigkeiten erfassen). A
+This section describes the API for activities (Taetigkeiten erfassen). A
 project with one set and an employee are required to submit activities:
 
 >>> import datetime
