@@ -19,6 +19,7 @@ def collmex_login():
     b.getControl('Anmelden').click()
     return b
 
+
 def cleanup_collmex():
     # Prepare a clean environment in our Collmex testing.
     b = collmex_login()
