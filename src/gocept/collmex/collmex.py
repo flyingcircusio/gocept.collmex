@@ -20,6 +20,7 @@ import zope.interface
 
 log = logging.getLogger(__name__)
 
+
 class CollmexDialect(csv.Dialect):
     quoting = csv.QUOTE_ALL
     delimiter = ';'
@@ -76,7 +77,8 @@ class CollmexDataManager(object):
     def tpc_abort(self, transaction):
         assert transaction is self._transaction
         if self.voted:
-            raise Exception('Single phase data manager: cannot abort after vote')
+            raise Exception(
+                'Single phase data manager: cannot abort after vote')
         self._reset()
 
     def tpc_finish(self, transaction):
@@ -84,7 +86,8 @@ class CollmexDataManager(object):
         self._reset()
 
     def sortKey(self):
-        # XXX make very small or add single-phase datamanager integration to the transaction module.
+        # XXX make very small or add single-phase datamanager integration to
+        # the transaction module.
         return None
 
 
