@@ -32,7 +32,7 @@ setup(
         ],
     extras_require=dict(
         test=[
-            'zope.testing',
+            'zope.testing < 4.0',
             'zope.testbrowser>=3.4.3',
             ]),
 )
