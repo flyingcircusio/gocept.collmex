@@ -123,7 +123,7 @@ This section describes the API for activities (Taetigkeiten erfassen). A
 project with one set and an employee are required to submit activities:
 
 >>> import datetime
->>> today = datetime.date(2009, 11, 4)
+>>> today = datetime.date.today()
 >>> import gocept.collmex.testing
 >>> gocept.collmex.testing.create_projects()
 >>> gocept.collmex.testing.create_employee()
@@ -192,7 +192,7 @@ When the transaction ends, the cache is invalidated:
     u'Testprodukt'
     >>> collmex.get_products()[0]['Bezeichnung']
     u'Testprodukt'
- 
+
 Remove tracing instrumentation:
 
     >>> collmex._post = original_post
@@ -209,8 +209,8 @@ Remove tracing instrumentation:
     >>> b = gocept.collmex.testing.collmex_login()
     >>> b.getLink('Verkauf').click()
     >>> b.getLink('T\xe4tigkeiten erfassen').click()
-    >>> b.getControl(name='table_1_datum').value
-    '04.11.2009'
+    >>> b.getControl(name='table_1_datum').value == today.strftime('%d.%m.%Y')
+    True
     >>> b.getControl(name='table_1_von').value
     '08:07'
     >>> b.getControl(name='table_1_bis').value
