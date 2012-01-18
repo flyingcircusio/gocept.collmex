@@ -45,7 +45,7 @@ def create_projects():
     # Projekt anlegen
     b.getLink('Verkauf').click()
     b.getLink(url=',pjcr').click()
-    assert b.title == 'Projekt anlegen'
+    assert b.title.startswith('Projekt anlegen')
 
     b.getControl('Projekt anlegen').click()
     b.getControl('Bezeichnung').value = 'Testprojekt'
