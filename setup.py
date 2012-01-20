@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gocept.collmex',
-    version='0.8',
+    version='0.9dev',
     author='gocept',
     author_email='mail@gocept.com',
     description='Python-bindings for the Collmex import/export API',
