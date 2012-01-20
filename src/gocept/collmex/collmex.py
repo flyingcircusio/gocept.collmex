@@ -177,6 +177,16 @@ class Collmex(object):
             self.company_id,
             customer_id)
 
+    def get_activities(self):
+        # XXX there is currently no API function for this call!
+        import gocept.collmex.testing
+        browser = gocept.collmex.testing.collmex_login()
+        browser.getLink('Verwaltung').click()
+        browser.getLink('Exportieren').click()
+        browser.getControl('tigkeiten').click()
+        browser.getControl('Daten exportieren').click()
+        return browser.contents
+
     def _get_cache(self):
         self._ensure_local_attribute('cache')
         if self._local.cache is None:
