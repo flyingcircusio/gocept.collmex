@@ -119,8 +119,12 @@ u'item text \u2013 with non-ascii characters'
 Activities
 ----------
 
-This section describes the API for activities (Taetigkeiten erfassen). A
-project with one set and an employee are required to submit activities:
+This section describes the API for activities (Taetigkeiten erfassen)
+
+Create an activity
+~~~~~~~~~~~~~~~~~~
+
+A project with one set and an employee are required to submit activities:
 
 >>> import datetime
 >>> today = datetime.date.today()
@@ -139,7 +143,16 @@ project with one set and an employee are required to submit activities:
 >>> collmex.create(act)
 >>> transaction.commit()
 
-[#check-activity-creation]_
+Export using ``get_activities``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Caution:** This method does not use the Collmex API as it does not provide
+this functionality. It uses a browser to navigate to the download in the UI
+and returns raw CSV data
+
+>>> collmex.get_activities()
+'Typkennung;Projekt;Mitarbeiter;Firma;Satz;Beschreibung;Datum;Von;Bis;Pausen\r\nCMXACT;1 Testprojekt;1 Sebastian Wehrmann;1 gocept apitest;1 Testprodukt;allgemeine T\xe4tigkeit;20120120;08:07;14:28;1:12\r\n'
+
 
 Projects: ``get_projects``
 --------------------------
@@ -202,23 +215,6 @@ Remove tracing instrumentation:
 
     >>> import gocept.collmex.testing
     >>> gocept.collmex.testing.cleanup_collmex()
-
-.. [#check-activity-creation] Check if an activity was imported:
-
-    >>> import gocept.collmex.testing
-    >>> b = gocept.collmex.testing.collmex_login()
-    >>> b.getLink('Verkauf').click()
-    >>> b.getLink('T\xe4tigkeiten erfassen').click()
-    >>> b.getControl(name='table_1_datum').value == today.strftime('%d.%m.%Y')
-    True
-    >>> b.getControl(name='table_1_von').value
-    '08:07'
-    >>> b.getControl(name='table_1_bis').value
-    '14:28'
-    >>> b.getControl(name='table_1_pausen').value
-    '1:12'
-    >>> b.getControl(name='table_1_beschreibung').value
-    'allgemeine T\xe4tigkeit'
 
 .. [#invalid-login] Invalid login information raises an exception:
 

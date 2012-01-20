@@ -4,6 +4,8 @@ Changes
 0.8 (unreleased)
 ----------------
 
+- Added API for retrieving activities (``get_activities``).
+
 - Updated tests and test infrastructure to recent changes in Collmex.
 
 
