@@ -1,9 +1,12 @@
 # coding: utf-8
-# Copyright (c) 2008-2009 gocept gmbh & co. kg
+# Copyright (c) 2008-2012 gocept gmbh & co. kg
 # See also LICENSE.txt
 
 import os
+import transaction
+import gocept.collmex.model
 import zope.testbrowser.browser
+import datetime
 
 
 def collmex_login():
@@ -68,3 +71,19 @@ def create_employee():
     b.getControl('Vorname').value = 'Sebastian'
     b.getControl('Name').value = 'Wehrmann'
     b.getControl('Speichern').click()
+
+
+def create_activity(collmex):
+    create_projects()
+    create_employee()
+    act = gocept.collmex.model.Activity()
+    act['Projekt Nr'] = '1' # Testprojekt
+    act['Mitarbeiter Nr'] = '1' # Sebastian Wehrmann
+    act['Satz Nr'] = '1' # TEST
+    act['Beschreibung'] = u'allgemeine T\xe4tigkeit'
+    act['Datum'] = datetime.date.today()
+    act['Von'] = datetime.time(8, 7)
+    act['Bis'] = datetime.time(14, 28)
+    act['Pausen'] = datetime.timedelta(hours=1, minutes=12)
+    collmex.create(act)
+    transaction.commit()
