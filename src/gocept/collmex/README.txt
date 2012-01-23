@@ -44,7 +44,7 @@ Customers: ``create_customer`` and ``get_customers``
 >>> customer = gocept.collmex.model.Customer()
 >>> customer['Kundennummer'] = 10000
 >>> customer['Firma'] = 'Testkunden'
->>> collmex.create_customer(customer)
+>>> collmex.create(customer)
 >>> transaction.commit()
 
 Customers can be listed using the get_customers method:
@@ -88,7 +88,7 @@ Products are created using the ``create_product`` method:
 >>> product['Produktart'] = 1 # Dienstleistung
 >>> product['Basismengeneinheit'] = 'HR'
 >>> product['Verkaufs-Preis'] = 5
->>> collmex.create_product(product)
+>>> collmex.create(product)
 >>> transaction.commit()
 >>> collmex.get_products()[0]['Bezeichnung']
 u'Testprodukt'
