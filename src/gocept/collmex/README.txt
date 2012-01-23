@@ -26,7 +26,7 @@ Transaction integration
 gocept.collmex has support for transaction integration. All modifying calls are
 buffered until the transaction is commited. XXX explain more.
 
-[#pre-flight-cleanup]_ [#invalid-login]_
+[#pre-flight-cleanup]_
 
 >>> import transaction
 
@@ -215,12 +215,3 @@ Remove tracing instrumentation:
     >>> import gocept.collmex.testing
     >>> gocept.collmex.testing.cleanup_collmex()
 
-.. [#invalid-login] Invalid login information raises an exception:
-
-    >>> collmex_invalid = gocept.collmex.collmex.Collmex(
-    ...     os.environ['collmex_customer'], os.environ['collmex_company'],
-    ...     os.environ['collmex_username'], 'invalid')
-    >>> collmex_invalid.get_invoices(customer_id='10000')
-    Traceback (most recent call last):
-        ...
-    APIError: ('101004', 'Benutzer oder Kennwort nicht korrekt')

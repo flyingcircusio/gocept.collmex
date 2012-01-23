@@ -1,7 +1,7 @@
 # Copyright (c) 2008-2012 gocept gmbh & co. kg
 # See also LICENSE.txt
 
-import gocept.collmex.collmex
+import gocept.collmex.testing
 import os
 import Queue
 import unittest
@@ -20,9 +20,7 @@ class Worker(threading.Thread):
 
 class ThreadTest(unittest.TestCase):
     def test_two_threads_can_access_their_caches(self):
-        collmex = gocept.collmex.collmex.Collmex(
-            os.environ['collmex_customer'], os.environ['collmex_company'],
-            os.environ['collmex_username'], os.environ['collmex_password'])
+        collmex = gocept.collmex.testing.get_collmex()
         queue = Queue.Queue(-1)
         workers = []
         for i in range(2):
