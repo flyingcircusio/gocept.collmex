@@ -113,15 +113,16 @@ def create_employee():
     b.getControl('Speichern').click()
 
 
-def create_activity(collmex):
+def create_activity():
     create_projects()
     create_employee()
+    collmex = get_collmex()
     act = gocept.collmex.model.Activity()
     act['Projekt Nr'] = '1' # Testprojekt
     act['Mitarbeiter Nr'] = '1' # Sebastian Wehrmann
     act['Satz Nr'] = '1' # TEST
     act['Beschreibung'] = u'allgemeine T\xe4tigkeit'
-    act['Datum'] = datetime.date.today()
+    act['Datum'] = datetime.date(2012, 1, 23)
     act['Von'] = datetime.time(8, 7)
     act['Bis'] = datetime.time(14, 28)
     act['Pausen'] = datetime.timedelta(hours=1, minutes=12)
