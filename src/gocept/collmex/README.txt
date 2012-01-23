@@ -20,13 +20,20 @@ it is a global utility:
 ...     os.environ['collmex_username'], os.environ['collmex_password'])
 
 
+Pre flight cleanup
+------------------
+
+First we need to clean up the Collmex environment:
+
+>>> import gocept.collmex.testing
+>>> gocept.collmex.testing.cleanup_collmex()
+
+
 Transaction integration
 -----------------------
 
 gocept.collmex has support for transaction integration. All modifying calls are
 buffered until the transaction is commited. XXX explain more.
-
-[#pre-flight-cleanup]_
 
 >>> import transaction
 
@@ -208,10 +215,4 @@ When the transaction ends, the cache is invalidated:
 Remove tracing instrumentation:
 
     >>> collmex._post = original_post
-
-
-.. [#pre-flight-cleanup] First we need to clean up the Collmex environment:
-
-    >>> import gocept.collmex.testing
-    >>> gocept.collmex.testing.cleanup_collmex()
 
