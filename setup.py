@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gocept.collmex',
-    version='0.10dev',
+    version='1.0dev',
     author='gocept',
     author_email='mail@gocept.com',
     description='Python-bindings for the Collmex import/export API',
@@ -40,11 +40,11 @@ setup(
         'transaction',
         'zope.deprecation',
         'zope.interface',
+        'zope.testbrowser>=3.4.3',
         ],
     extras_require=dict(
         test=[
             'zope.testing',
-            'zope.testbrowser>=3.4.3',
             'mock',
             ]),
 )

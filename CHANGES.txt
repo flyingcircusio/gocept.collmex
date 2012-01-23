@@ -9,6 +9,8 @@ Changes
 - Added testing helper ``get_collmex`` to create a collmex object from
   environment variables.
 
+- Made testing helper ``collmex_login()`` a method: ``gocept.collmex.collmex.Collmex.browser_login()``
+
 - Modified signature of testing helper ``create_activity``, so it no longer
   needs a parameter.
 

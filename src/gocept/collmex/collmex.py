@@ -16,6 +16,7 @@ import transaction.interfaces
 import urllib2
 import zope.deprecation
 import zope.interface
+import zope.testbrowser.browser
 
 
 log = logging.getLogger(__name__)
@@ -179,13 +180,25 @@ class Collmex(object):
 
     def get_activities(self):
         # XXX there is currently no API function for this call!
-        import gocept.collmex.testing
-        browser = gocept.collmex.testing.collmex_login()
+        browser = self.browser_login()
         browser.getLink('Verwaltung').click()
         browser.getLink('Exportieren').click()
         browser.getControl('tigkeiten').click()
         browser.getControl('Daten exportieren').click()
         return browser.contents
+
+    def browser_login(self):
+        """Log into Collmex using a browser."""
+        b = zope.testbrowser.browser.Browser()
+        b.open('http://www.collmex.de')
+
+        b.getControl('Kunden Nr').value = self.customer_id
+        b.getControl('anmelden...').click()
+
+        b.getControl('Benutzer').value = self.username
+        b.getControl('Kennwort').value = self.password
+        b.getControl('Anmelden').click()
+        return b
 
     def _get_cache(self):
         self._ensure_local_attribute('cache')
