@@ -1,10 +1,13 @@
 Changes
 =======
 
-0.10 (unreleased)
------------------
+1.0 (unreleased)
+----------------
 
-- Nothing changed yet.
+- Forced usage of Python 2.7.
+
+- Added testing helper ``get_collmex`` to create a collmex object from
+  environment variables.
 
 
 0.9 (2012-01-20)

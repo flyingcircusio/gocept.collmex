@@ -11,6 +11,17 @@ setup(
     author='gocept',
     author_email='mail@gocept.com',
     description='Python-bindings for the Collmex import/export API',
+    classifiers=[
+      'Development Status :: 5 - Production/Stable',
+      'Environment :: Plugins',
+      'Intended Audience :: Developers',
+      'License :: OSI Approved',
+      'License :: OSI Approved :: Zope Public License',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python',
+      'Programming Language :: Python :: 2.7',
+      'Programming Language :: Python :: 2 :: Only',
+    ],
     long_description = (
         open('README.txt').read() +
         '\n\n' +
