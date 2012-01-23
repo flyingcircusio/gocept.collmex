@@ -127,7 +127,6 @@ Create an activity
 A project with one set and an employee are required to submit activities:
 
 >>> import datetime
->>> today = datetime.date.today()
 >>> import gocept.collmex.testing
 >>> gocept.collmex.testing.create_projects()
 >>> gocept.collmex.testing.create_employee()
@@ -136,7 +135,7 @@ A project with one set and an employee are required to submit activities:
 >>> act['Mitarbeiter Nr'] = '1' # Sebastian Wehrmann
 >>> act['Satz Nr'] = '1' # TEST
 >>> act['Beschreibung'] = u'allgemeine T\xe4tigkeit'
->>> act['Datum'] = today
+>>> act['Datum'] = datetime.date(2012, 1, 23)
 >>> act['Von'] = datetime.time(8, 7)
 >>> act['Bis'] = datetime.time(14, 28)
 >>> act['Pausen'] = datetime.timedelta(hours=1, minutes=12)
@@ -151,7 +150,7 @@ this functionality. It uses a browser to navigate to the download in the UI
 and returns raw CSV data
 
 >>> collmex.get_activities()
-'Typkennung;Projekt;Mitarbeiter;Firma;Satz;Beschreibung;Datum;Von;Bis;Pausen\r\nCMXACT;1 Testprojekt;1 Sebastian Wehrmann;1 gocept apitest;1 Testprodukt;allgemeine T\xe4tigkeit;20120120;08:07;14:28;1:12\r\n'
+'Typkennung;Projekt;Mitarbeiter;Firma;Satz;Beschreibung;Datum;Von;Bis;Pausen\r\nCMXACT;1 Testprojekt;1 Sebastian Wehrmann;1 gocept apitest;1 Testprodukt;allgemeine T\xe4tigkeit;20120123;08:07;14:28;1:12\r\n'
 
 
 Projects: ``get_projects``
