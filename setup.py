@@ -43,7 +43,7 @@ setup(
         ],
     extras_require=dict(
         test=[
-            'zope.testing < 4.0',
+            'zope.testing',
             'zope.testbrowser>=3.4.3',
             'mock',
             ]),

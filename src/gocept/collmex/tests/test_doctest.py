@@ -1,16 +1,12 @@
 # Copyright (c) 2008-2012 gocept gmbh & co. kg
 # See also LICENSE.txt
 
-import zope.testing.doctest
-
-
-optionflags = (zope.testing.doctest.INTERPRET_FOOTNOTES |
-               zope.testing.doctest.NORMALIZE_WHITESPACE |
-               zope.testing.doctest.ELLIPSIS)
+import doctest
 
 
 def test_suite():
-    return zope.testing.doctest.DocFileSuite(
+    return doctest.DocFileSuite(
         'README.txt',
         package='gocept.collmex',
-        optionflags=optionflags)
+        optionflags=(doctest.NORMALIZE_WHITESPACE |
+                     doctest.ELLIPSIS))
