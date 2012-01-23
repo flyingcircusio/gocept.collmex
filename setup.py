@@ -34,5 +34,6 @@ setup(
         test=[
             'zope.testing < 4.0',
             'zope.testbrowser>=3.4.3',
+            'mock',
             ]),
 )
