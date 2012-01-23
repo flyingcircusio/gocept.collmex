@@ -4,6 +4,7 @@
 
 import os
 import transaction
+import gocept.collmex.collmex
 import gocept.collmex.model
 import zope.testbrowser.browser
 import datetime
@@ -21,6 +22,14 @@ def collmex_login():
     b.getControl('Kennwort').value = os.environ['collmex_password']
     b.getControl('Anmelden').click()
     return b
+
+
+def get_collmex(password=None):
+    return gocept.collmex.collmex.Collmex(
+        os.environ['collmex_customer'],
+        os.environ['collmex_company'],
+        os.environ['collmex_username'],
+        os.environ['collmex_password'] if password is None else password)
 
 
 def cleanup_collmex():
