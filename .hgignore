@@ -1,0 +1,8 @@
+syntax:glob
+.installed.cfg
+parts
+bin
+develop-eggs
+*.egg-info
+*.pyc
+local.cfg
