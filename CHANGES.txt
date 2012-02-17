@@ -4,7 +4,7 @@ Changes
 1.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Do not honour Collmex' robots.txt as of 2012-02-09. :(
 
 
 1.0 (2012-01-23)

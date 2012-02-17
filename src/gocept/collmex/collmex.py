@@ -190,6 +190,7 @@ class Collmex(object):
     def browser_login(self):
         """Log into Collmex using a browser."""
         b = zope.testbrowser.browser.Browser()
+        b.mech_browser.set_handle_robots(False)
         b.open('http://www.collmex.de')
 
         b.getControl('Kunden Nr').value = self.customer_id
