@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.1 (unreleased)
+1.1 (2012-02-17)
 ----------------
 
 - Do not honour Collmex' robots.txt as of 2012-02-09. :(
