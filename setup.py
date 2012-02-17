@@ -11,6 +11,7 @@ setup(
     author='gocept',
     author_email='mail@gocept.com',
     description='Python-bindings for the Collmex import/export API',
+    url='http://pypi.python.org/pypi/gocept.collmex',
     classifiers=[
       'Development Status :: 5 - Production/Stable',
       'Environment :: Plugins',
