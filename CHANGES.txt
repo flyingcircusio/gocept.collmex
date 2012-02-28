@@ -4,7 +4,11 @@ Changes
 1.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+Note: This version was accidentally released without the changes in 1.1.1,
+however, the release itself contained the changes of 1.1 and thus isn't
+broken.
+
+- Add ``Inaktiv`` attribute on ``CMXPRJ`` (projects)
 
 
 1.1.1 (2012-02-17)

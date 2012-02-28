@@ -176,6 +176,8 @@ True
 u'5,00'
 >>> proj[1]['Satz']
 u'9,65'
+>>> proj[0]['Inaktiv']
+u'0'
 
 Caching
 -------

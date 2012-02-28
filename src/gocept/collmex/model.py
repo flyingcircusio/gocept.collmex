@@ -299,4 +299,5 @@ class Project(Model):
         'Satz',
         'Währung',
         'Mengeneinheit',
+        'Inaktiv',
     )
