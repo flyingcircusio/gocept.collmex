@@ -193,8 +193,8 @@ class Collmex(object):
         b.mech_browser.set_handle_robots(False)
         b.open('http://www.collmex.de')
 
-        b.getControl('Kunden Nr').value = self.customer_id
-        b.getControl('anmelden...').click()
+        b.getControl(name='Kunde').value = self.customer_id
+        b.getControl('Anmelden').click()
 
         b.getControl('Benutzer').value = self.username
         b.getControl('Kennwort').value = self.password
