@@ -4,7 +4,9 @@ Changes
 1.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fix ``gocept.collmex.collmex.Collmex.browser_login()`` after collmex website
+  changed wich included a rename of form elements.
+
 
 
 1.2 (2012-02-21)
