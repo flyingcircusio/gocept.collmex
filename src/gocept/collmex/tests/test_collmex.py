@@ -6,6 +6,10 @@ import unittest
 
 class TestCollmex(unittest.TestCase):
 
+    def setUp(self):
+        import gocept.collmex.testing
+        gocept.collmex.testing.cleanup_collmex()
+
     @property
     def collmex(self):
         import gocept.collmex.testing
@@ -26,3 +30,24 @@ class TestCollmex(unittest.TestCase):
         browser = self.collmex.browser_login()
         self.assertTrue(
             browser.getLink('Projekt-Verbrauch').url.endswith(',vbrp'))
+
+    @unittest.expectedFailure  # API bug
+    def test_get_activities_should_support_passing_project_id(self):
+        import datetime
+        import gocept.collmex.testing
+        import transaction
+        gocept.collmex.testing.create_employee()
+        gocept.collmex.testing.create_project(title=u'Testprojekt')
+        gocept.collmex.testing.create_project(title=u'Projektil')
+        gocept.collmex.testing.create_activity(
+            u'Activity in test project',
+            project_id='1', employee_id='1',
+            date=datetime.date(2012, 1, 1))
+        gocept.collmex.testing.create_activity(
+            u'Activity in projektil',
+            project_id='2', employee_id='1',
+            date=datetime.date(2012, 1, 2))
+        transaction.commit()
+        activities = self.collmex.get_activities(project_id='2')
+        self.assertEqual(1, len(activities))
+

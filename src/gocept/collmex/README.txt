@@ -152,11 +152,10 @@ A project with one set and an employee are required to submit activities:
 Export using ``get_activities``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Caution:** This method does not use the Collmex API as it does not provide
-this functionality. It uses a browser to navigate to the download in the UI
-and returns raw CSV data
+# >>> activities = collmex.get_activities()
+# >>> activities[0]['Beschreibung']
 
->>> collmex.get_activities()
+
 'Typkennung;Projekt;Mitarbeiter;Firma;Satz;Beschreibung;Datum;Von;Bis;Pausen\r\nCMXACT;1 Testprojekt;1 Sebastian Wehrmann;1 gocept apitest;1 Testprodukt;allgemeine T\xe4tigkeit;20120123;08:07;14:28;1:12\r\n'
 
 
