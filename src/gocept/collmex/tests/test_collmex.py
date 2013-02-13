@@ -6,6 +6,11 @@ import unittest
 
 class TestCollmex(unittest.TestCase):
 
+    @property
+    def collmex(self):
+        import gocept.collmex.testing
+        return gocept.collmex.testing.get_collmex()
+
     def test_invalid_login_information_raises_an_exception(self):
         import gocept.collmex.collmex
         import gocept.collmex.testing
@@ -18,8 +23,6 @@ class TestCollmex(unittest.TestCase):
                          str(err.exception))
 
     def test_browser_login_authenticates_user_using_browser(self):
-        import gocept.collmex.testing
-        collmex = gocept.collmex.testing.get_collmex()
-        browser = collmex.browser_login()
+        browser = self.collmex.browser_login()
         self.assertTrue(
             browser.getLink('Projekt-Verbrauch').url.endswith(',vbrp'))
