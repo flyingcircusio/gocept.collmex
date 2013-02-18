@@ -1,6 +1,7 @@
 # Copyright (c) 2012 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+import mock
 import unittest
 
 
@@ -50,3 +51,28 @@ class TestCollmex(unittest.TestCase):
         activities = self.collmex.get_activities(project_id='2')
         self.assertEqual(1, len(activities))
 
+    def test_get_activities_should_pass_all_parameters(self):
+        collmex = self.collmex
+        query = collmex._query_objects = mock.Mock()
+        collmex.get_activities(
+            project_id=mock.sentinel.project_id,
+            employee_id=mock.sentinel.employee_id,
+            start_date=mock.sentinel.start_date,
+            end_date=mock.sentinel.end_date,
+            only_non_billed=mock.sentinel.only_non_billed,
+            billable=mock.sentinel.billable,
+            only_non_internal=mock.sentinel.only_non_internal,
+            only_changed=mock.sentinel.only_changed,
+            systemname=mock.sentinel.systemname)
+        query.assert_called_with(
+            'ACTIVITIES_GET',
+            mock.sentinel.project_id,
+            '1',  # Company id
+            mock.sentinel.employee_id,
+            mock.sentinel.start_date,
+            mock.sentinel.end_date,
+            mock.sentinel.only_non_billed,
+            mock.sentinel.billable,
+            mock.sentinel.only_non_internal,
+            mock.sentinel.only_changed,
+            'gocept.collmex')  # system identifier
