@@ -154,6 +154,8 @@ Export using ``get_activities``
 
 ``get_activities`` returns Activity objects.
 
+.. ATTENTION:: In previous versions this method returnd a raw CSV string. This
+      was due to Collmex not having an actual API. 
 
 
 >>> activities = collmex.get_activities()
