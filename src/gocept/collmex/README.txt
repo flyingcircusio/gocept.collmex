@@ -152,11 +152,13 @@ A project with one set and an employee are required to submit activities:
 Export using ``get_activities``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# >>> activities = collmex.get_activities()
-# >>> activities[0]['Beschreibung']
+``get_activities`` returns Activity objects.
 
 
-'Typkennung;Projekt;Mitarbeiter;Firma;Satz;Beschreibung;Datum;Von;Bis;Pausen\r\nCMXACT;1 Testprojekt;1 Sebastian Wehrmann;1 gocept apitest;1 Testprodukt;allgemeine T\xe4tigkeit;20120123;08:07;14:28;1:12\r\n'
+
+>>> activities = collmex.get_activities()
+>>> activities[0]['Beschreibung']
+u'allgemeine T\xe4tigkeit'
 
 
 Projects: ``get_projects``
