@@ -31,7 +31,6 @@ class TestCollmex(unittest.TestCase):
         self.assertTrue(
             browser.getLink('Projekt-Verbrauch').url.endswith(',vbrp'))
 
-    @unittest.expectedFailure  # API bug
     def test_get_activities_should_support_passing_project_id(self):
         import datetime
         import gocept.collmex.testing
