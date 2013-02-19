@@ -62,8 +62,7 @@ class TestCollmex(unittest.TestCase):
             only_non_billed=mock.sentinel.only_non_billed,
             billable=mock.sentinel.billable,
             only_non_internal=mock.sentinel.only_non_internal,
-            only_changed=mock.sentinel.only_changed,
-            systemname=mock.sentinel.systemname)
+            only_changed=mock.sentinel.only_changed)
         query.assert_called_with(
             'ACTIVITIES_GET',
             mock.sentinel.project_id,
