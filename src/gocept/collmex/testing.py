@@ -62,7 +62,7 @@ def create_product():
     assert 'TEST' in [prod['Produktnummer'] for prod in collmex.get_products()]
 
 
-def create_projects():
+def create_project(title):
     # There is no API to create projects, so use the browser
     create_product()
 
@@ -73,7 +73,7 @@ def create_projects():
     assert b.title.startswith('Projekt anlegen')
 
     b.getControl('Projekt anlegen').click()
-    b.getControl('Bezeichnung').value = 'Testprojekt'
+    b.getControl('Bezeichnung').value = title.encode('utf8')
     b.getControl('Kunde').value = '10000'
 
     b.getControl(name='table_1_produktNr').value = 'TEST'
@@ -98,16 +98,17 @@ def create_employee():
     b.getControl('Speichern').click()
 
 
-def create_activity():
-    create_projects()
-    create_employee()
+def create_activity(title,
+                    date=datetime.date(2012, 1, 23),
+                    project_id='1',
+                    employee_id='1'):
     collmex = get_collmex()
     act = gocept.collmex.model.Activity()
-    act['Projekt Nr'] = '1' # Testprojekt
-    act['Mitarbeiter Nr'] = '1' # Sebastian Wehrmann
+    act['Projekt Nr'] = project_id
+    act['Mitarbeiter Nr'] = employee_id
     act['Satz Nr'] = '1' # TEST
-    act['Beschreibung'] = u'allgemeine T\xe4tigkeit'
-    act['Datum'] = datetime.date(2012, 1, 23)
+    act['Beschreibung'] = title
+    act['Datum'] = date
     act['Von'] = datetime.time(8, 7)
     act['Bis'] = datetime.time(14, 28)
     act['Pausen'] = datetime.timedelta(hours=1, minutes=12)

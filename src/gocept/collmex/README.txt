@@ -135,7 +135,7 @@ A project with one set and an employee are required to submit activities:
 
 >>> import datetime
 >>> import gocept.collmex.testing
->>> gocept.collmex.testing.create_projects()
+>>> gocept.collmex.testing.create_project(u'Testprojekt')
 >>> gocept.collmex.testing.create_employee()
 >>> act = gocept.collmex.model.Activity()
 >>> act['Projekt Nr'] = '1' # Testprojekt
@@ -152,12 +152,15 @@ A project with one set and an employee are required to submit activities:
 Export using ``get_activities``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Caution:** This method does not use the Collmex API as it does not provide
-this functionality. It uses a browser to navigate to the download in the UI
-and returns raw CSV data
+``get_activities`` returns Activity objects.
 
->>> collmex.get_activities()
-'Typkennung;Projekt;Mitarbeiter;Firma;Satz;Beschreibung;Datum;Von;Bis;Pausen\r\nCMXACT;1 Testprojekt;1 Sebastian Wehrmann;1 gocept apitest;1 Testprodukt;allgemeine T\xe4tigkeit;20120123;08:07;14:28;1:12\r\n'
+.. ATTENTION:: In previous versions this method returnd a raw CSV string. This
+      was due to Collmex not having an actual API. 
+
+
+>>> activities = collmex.get_activities()
+>>> activities[0]['Beschreibung']
+u'allgemeine T\xe4tigkeit'
 
 
 Projects: ``get_projects``

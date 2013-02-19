@@ -42,25 +42,8 @@ class TestCreateProjects(unittest.TestCase):
 
     def test_creates_product_if_missing(self):
         import gocept.collmex.testing
-        gocept.collmex.testing.create_projects()
+        gocept.collmex.testing.create_project(u'project title')
         collmex = gocept.collmex.testing.get_collmex()
         self.assertEqual(
             ['TEST'],
             [prod['Produktnummer'] for prod in collmex.get_products()])
-
-
-class TestCreateActivity(unittest.TestCase):
-
-    def setUp(self):
-        import gocept.collmex.testing
-        gocept.collmex.testing.cleanup_collmex()
-
-    def test_create_activity(self):
-        import gocept.collmex.testing
-        gocept.collmex.testing.create_activity()
-        collmex = gocept.collmex.testing.get_collmex()
-        self.assertEqual(
-            'Typkennung;Projekt;Mitarbeiter;Firma;Satz;Beschreibung;Datum;Von;'
-            'Bis;Pausen\r\nCMXACT;1 Testprojekt;1 Sebastian Wehrmann;1 gocept '
-            'apitest;1 Testprodukt;allgemeine T\xe4tigkeit;20120123;08:07;14:'
-            '28;1:12\r\n', collmex.get_activities())
