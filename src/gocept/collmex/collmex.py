@@ -178,14 +178,21 @@ class Collmex(object):
             self.company_id,
             customer_id)
 
-    def get_activities(self):
-        # XXX there is currently no API function for this call!
-        browser = self.browser_login()
-        browser.getLink('Verwaltung').click()
-        browser.getLink('Exportieren').click()
-        browser.getControl('tigkeiten').click()
-        browser.getControl('Daten exportieren').click()
-        return browser.contents
+    def get_activities(self, project_id=NULL,
+                       employee_id=NULL,
+                       start_date=NULL, end_date=NULL,
+                       only_non_billed=NULL, billable=NULL,
+                       only_non_internal=NULL,
+                       only_changed=NULL):
+        return self._query_objects(
+            'ACTIVITIES_GET',
+            project_id,
+            self.company_id,
+            employee_id,
+            start_date, end_date,
+            only_non_billed, billable,
+            only_non_internal,
+            only_changed, self.system_identifier)
 
     def browser_login(self):
         """Log into Collmex using a browser."""
