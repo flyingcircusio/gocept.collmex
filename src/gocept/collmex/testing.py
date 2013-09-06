@@ -2,12 +2,13 @@
 # Copyright (c) 2008-2012 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+from __future__ import unicode_literals
 import datetime
 import gocept.collmex.collmex
 import gocept.collmex.model
 import os
 import transaction
-import zope.testbrowser.browser
+import logging
 
 
 def get_collmex(password=None):
@@ -23,11 +24,11 @@ def cleanup_collmex():
 
     # Firma loeschen
     b.getLink('Verwaltung').click()
-    b.getLink(u'Löschen').click()
-    b.getControl(u'Umfang der Löschung').displayValue = [
+    b.getLink('Löschen').click()
+    b.getControl('Umfang der Löschung').displayValue = [
         'Alle Belege und Stammdaten']
-    b.getControl(u'Ja, wirklich löschen').selected = True
-    b.getControl(u'Daten löschen').click()
+    b.getControl('Ja, wirklich löschen').selected = True
+    b.getControl('Daten löschen').click()
 
     assert 'Daten erfolgreich gel' in b.contents
 

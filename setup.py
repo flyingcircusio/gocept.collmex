@@ -41,7 +41,7 @@ setup(
         'transaction',
         'zope.deprecation',
         'zope.interface',
-        'zope.testbrowser>=3.4.3',
+        'requests',
         ],
     extras_require=dict(
         test=[

@@ -2,18 +2,23 @@
 # Copyright (c) 2008 gocept gmbh & co. kg
 # See also LICENSE.txt
 
-import UserDict
+from __future__ import unicode_literals
+try:
+    from collections import UserDict
+except ImportError:
+    from UserDict import UserDict
 import datetime
 import gocept.collmex.interfaces
 import zope.interface
+from zope.interface import implementer
 
-class Model(object, UserDict.UserDict):
+class Model(UserDict):
     """Base for collmex models."""
 
     satzart = None
 
     def __init__(self, row=()):
-        UserDict.UserDict.__init__(self)
+        UserDict.__init__(self)
 
         self['Satzart'] = self.satzart
         self._unmapped = []
@@ -21,8 +26,6 @@ class Model(object, UserDict.UserDict):
         for i, value in enumerate(row):
             if value == '' or value is None:
                 value = None
-            else:
-                value = unicode(value, 'Windows-1252')
             try:
                 field_name = self.fields[i]
             except IndexError:
@@ -50,9 +53,13 @@ class Model(object, UserDict.UserDict):
             return value.strftime('%Y%m%d')
         elif isinstance(value, datetime.time):
             return value.strftime('%H:%M')
-        elif isinstance(value, unicode):
-            value = value.encode('Windows-1252')
         return value
+
+    def __repr__(self):
+        return '<%s.%s object at %s>' % (
+            self.__class__.__module__,
+            self.__class__.__name__,
+            hex(id(self)))
 
 
 def factory(record_type):
@@ -65,9 +72,8 @@ def factory(record_type):
     return None
 
 
+@implementer(gocept.collmex.interfaces.IInvoiceItem)
 class InvoiceItem(Model):
-
-    zope.interface.implements(gocept.collmex.interfaces.IInvoiceItem)
 
     satzart = 'CMXINV'
     fields = (
@@ -161,9 +167,8 @@ class InvoiceItem(Model):
             self['Rechnungsart'] = 0  # type invoice
 
 
+@implementer(gocept.collmex.interfaces.ICustomer)
 class Customer(Model):
-
-    zope.interface.implements(gocept.collmex.interfaces.ICustomer)
 
     satzart = 'CMXKND'
     fields = (
@@ -213,9 +218,8 @@ class Customer(Model):
     )
 
 
+@implementer(gocept.collmex.interfaces.IProduct)
 class Product(Model):
-
-    zope.interface.implements(gocept.collmex.interfaces.IProduct)
 
     satzart = 'CMXPRD'
     fields = (
@@ -256,9 +260,8 @@ class Product(Model):
         self['Firma'] = company_id
 
 
+@implementer(gocept.collmex.interfaces.IActivity)
 class Activity(Model):
-
-    zope.interface.implements(gocept.collmex.interfaces.IActivity)
 
     satzart = 'CMXACT'
     fields = (
@@ -275,9 +278,8 @@ class Activity(Model):
     )
 
 
+@implementer(gocept.collmex.interfaces.IProject)
 class Project(Model):
-
-    zope.interface.implements(gocept.collmex.interfaces.IProject)
 
     satzart = 'CMXPRJ'
     fields = (

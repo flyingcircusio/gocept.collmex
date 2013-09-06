@@ -5,11 +5,10 @@ import gocept.collmex.interfaces
 import gocept.collmex.model
 import unittest
 import zope.interface
+from zope.interface import implementer
 
-
+@implementer(gocept.collmex.interfaces.IInvoiceItem)
 class TestModel(gocept.collmex.model.Model):
-
-    zope.interface.implements(gocept.collmex.interfaces.IInvoiceItem)
 
     satzart = 'CMXINV'
     fields = (
