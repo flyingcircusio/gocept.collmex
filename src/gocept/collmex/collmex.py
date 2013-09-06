@@ -2,7 +2,11 @@
 # Copyright (c) 2008 gocept gmbh & co. kg
 # See also LICENSE.txt
 
-import StringIO
+from __future__ import unicode_literals
+try:
+    import io as StringIO
+except ImportError:
+    import StringIO
 import csv
 import gocept.cache.method
 import gocept.cache.property
@@ -13,10 +17,13 @@ import logging
 import threading
 import transaction
 import transaction.interfaces
-import urllib2
+try:
+    import urllib.request as urllib2
+except ImportError:
+    import urllib2
 import zope.deprecation
 import zope.interface
-import zope.testbrowser.browser
+from zope.interface import implementer
 
 
 log = logging.getLogger(__name__)
@@ -35,8 +42,8 @@ class APIError(Exception):
     pass
 
 
+@implementer(transaction.interfaces.IDataManager)
 class CollmexDataManager(object):
-    zope.interface.implements(transaction.interfaces.IDataManager)
 
     def __init__(self, utility):
         self.utility = utility
@@ -89,11 +96,11 @@ class CollmexDataManager(object):
     def sortKey(self):
         # XXX make very small or add single-phase datamanager integration to
         # the transaction module.
-        return None
+        return '' # None
 
 
+@implementer(gocept.collmex.interfaces.ICollmex)
 class Collmex(object):
-    zope.interface.implements(gocept.collmex.interfaces.ICollmex)
 
     # XXX should go on CollmexDialect but the csv module's magic prevents it
     NULL = gocept.collmex.interfaces.NULL
@@ -251,8 +258,9 @@ class Collmex(object):
             % self.customer_id, body)
         request.add_header('Content-type', content_type)
         response = urllib2.urlopen(request)
+        response_content = response.read().decode('Windows-1252')
 
-        lines = list(csv.reader(response, dialect=CollmexDialect))
+        lines = list(csv.reader(StringIO.StringIO(response_content), dialect=CollmexDialect))
         response.close()
         result = lines.pop()
         assert len(result) >= 4

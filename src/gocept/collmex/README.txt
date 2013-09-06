@@ -98,6 +98,7 @@ Invoices: ``create_invoice`` and ``get_invoices``
 
 Invoices are created using the ``create_invoice`` method:
 
+>>> from __future__ import unicode_literals
 >>> import datetime
 >>> start_date = datetime.datetime.now()
 >>> item = gocept.collmex.model.InvoiceItem()
@@ -105,7 +106,7 @@ Invoices are created using the ``create_invoice`` method:
 >>> item['Rechnungsnummer'] = 100000
 >>> item['Menge'] = 3
 >>> item['Produktnummer'] = 'TEST'
->>> item['Rechnungstext'] = u'item text \u2013 with non-ascii characters'
+>>> item['Rechnungstext'] = 'item text \u2013 with non-ascii characters'
 >>> item['Positionstyp'] = 0
 >>> collmex.create_invoice([item])
 
@@ -133,15 +134,16 @@ Create an activity
 
 A project with one set and an employee are required to submit activities:
 
+>>> from __future__ import unicode_literals
 >>> import datetime
 >>> import gocept.collmex.testing
->>> gocept.collmex.testing.create_project(u'Testprojekt')
+>>> gocept.collmex.testing.create_project('Testprojekt')
 >>> gocept.collmex.testing.create_employee()
 >>> act = gocept.collmex.model.Activity()
 >>> act['Projekt Nr'] = '1' # Testprojekt
 >>> act['Mitarbeiter Nr'] = '1' # Sebastian Wehrmann
 >>> act['Satz Nr'] = '1' # TEST
->>> act['Beschreibung'] = u'allgemeine T\xe4tigkeit'
+>>> act['Beschreibung'] = 'allgemeine T\xe4tigkeit'
 >>> act['Datum'] = datetime.date(2012, 1, 23)
 >>> act['Von'] = datetime.time(8, 7)
 >>> act['Bis'] = datetime.time(14, 28)
@@ -192,7 +194,7 @@ HTTP communication to show when it is called:
 
     >>> original_post = collmex._post
     >>> def tracing_post(self, *args, **kw):
-    ...     print 'cache miss'
+    ...     print('cache miss')
     ...     return original_post(*args, **kw)
     >>> collmex._post = tracing_post.__get__(collmex, type(collmex))
 

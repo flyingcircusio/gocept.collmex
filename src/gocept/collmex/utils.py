@@ -1,7 +1,11 @@
 # copied from http://code.activestate.com/recipes/146306/
 
-import httplib, mimetypes
-
+from __future__ import unicode_literals
+try:
+    import http.client as httplib
+except ImportError:
+    import httplib
+import mimetypes
 
 def encode_multipart_formdata(fields, files):
     """
@@ -27,7 +31,7 @@ def encode_multipart_formdata(fields, files):
     L.append('')
     body = CRLF.join(L)
     content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
-    return content_type, body
+    return content_type.encode('Windows-1252'), body.encode('Windows-1252')
 
 
 def get_content_type(filename):

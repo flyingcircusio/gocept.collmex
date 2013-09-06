@@ -1,9 +1,9 @@
 # Copyright (c) 2012 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+from __future__ import unicode_literals
 import mock
 import unittest
-
 
 class TestCollmex(unittest.TestCase):
 
@@ -37,14 +37,14 @@ class TestCollmex(unittest.TestCase):
         import gocept.collmex.testing
         import transaction
         gocept.collmex.testing.create_employee()
-        gocept.collmex.testing.create_project(title=u'Testprojekt')
-        gocept.collmex.testing.create_project(title=u'Projektil')
+        gocept.collmex.testing.create_project(title='Testprojekt')
+        gocept.collmex.testing.create_project(title='Projektil')
         gocept.collmex.testing.create_activity(
-            u'Activity in test project',
+            'Activity in test project',
             project_id='1', employee_id='1',
             date=datetime.date(2012, 1, 1))
         gocept.collmex.testing.create_activity(
-            u'Activity in projektil',
+            'Activity in projektil',
             project_id='2', employee_id='1',
             date=datetime.date(2012, 1, 2))
         transaction.commit()
