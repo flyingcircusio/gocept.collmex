@@ -20,20 +20,26 @@ def get_collmex(password=None):
 
 def cleanup_collmex():
     # Prepare a clean environment in our Collmex testing.
-    b = get_collmex().browser_login()
+    collmex = get_collmex()
+    b = collmex.browser_login()
+    result = b.post('https://www.collmex.de/cgi-bin/cgi.exe?%s,%s,del' % (collmex.customer_id, b.cookies['sid_%s' % collmex.customer_id]),
+                    {'group_loeschArt':'2',
+                     'group_bestaetigung':'1',
+                     'form_changed':'1',
+                     'localtime':'08:53:07 GMT+0200 (CEST)',
+                     'del_window_page_x_offset':'0',
+                     'del_window_page_y_offset':'0',
+                     'group_kennwort':collmex.password,
+                     'group_benutzerId':collmex.username}, allow_redirects=True,
+                     auth=(collmex.username, collmex.password))
+    r2 = b.get('https://www.collmex.de/cgi-bin/cgi.exe?%s,%s,del' % (collmex.customer_id, b.cookies['sid_%s' % collmex.customer_id]))
 
-    # Firma loeschen
-    b.getLink('Verwaltung').click()
-    b.getLink('Löschen').click()
-    b.getControl('Umfang der Löschung').displayValue = [
-        'Alle Belege und Stammdaten']
-    b.getControl('Ja, wirklich löschen').selected = True
-    b.getControl('Daten löschen').click()
-
-    assert 'Daten erfolgreich gel' in b.contents
+    # if not 'Daten erfolgreich gel' in result.content.decode('Windows-1252'):
+        # import pdb; pdb.set_trace()
+    assert 'Daten erfolgreich gel' in result.content.decode('Windows-1252')
 
     # Explicitly close response to not leave open http objects.
-    b.mech_browser._response.close()
+    b.close()
 
 def create_customer():
     collmex = get_collmex()
