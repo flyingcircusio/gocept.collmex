@@ -24,6 +24,8 @@ except ImportError:
 import zope.deprecation
 import zope.interface
 from zope.interface import implementer
+import zope.testbrowser.browser
+from wsgiproxy.proxies import HostProxy
 
 
 log = logging.getLogger(__name__)
@@ -203,9 +205,46 @@ class Collmex(object):
 
     def browser_login(self):
         """Log into Collmex using a browser."""
-        b = zope.testbrowser.browser.Browser()
-        b.mech_browser.set_handle_robots(False)
-        b.open('http://www.collmex.de')
+        b = zope.testbrowser.browser.Browser(wsgi_app=HostProxy('https://www.collmex.de', client='requests'))
+        # b = zope.testbrowser.browser.Browser(wsgi_app=HostProxy('http://www.collmex.de', client='requests'))
+        b.testapp.restricted = False
+        # b.handleErrors = False
+        # b.raiseHttpErrors = False
+        b._req_content_type = 'text/html'
+        b._req_headers = {
+            'Host': 'www.collmex.de',
+            'Connection': 'keep-alive',
+            'Cache-Control': 'max-age=0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36',
+            'Accept-Encoding': 'gzip,deflate,sdch',
+            'Accept-Language': 'en-US,en;q=0.8',
+            'Cookie': '__utma=230922765.2017575219.1378723311.1378723311.1378734339.2; __utmb=230922765.2.10.1378734339; __utmc=230922765; __utmz=230922765.1378723311.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)',
+            'If-None-Match': "04fef4ba366ce1:0",
+            'If-Modified-Since': 'Tue, 11 Jun 2013 12:57:58 GMT'
+        }
+        # b._req_headers = {
+        #     'User-Agent': 'Python'
+        # }
+        #     'Accept-Charset': 'ISO-8859-1,UTF-8;q=0.7,*;q=0.7',
+        #     'Accept-Encoding': 'gzip',
+        #     'Cache-Control': 'no-cache',
+        #     'Accept-Language': 'de,en;q=0.7,en-us;q=0.3'
+        # }
+        # GET / HTTP/1.1
+        # Host: www.collmex.de
+        # Connection: close[CRLF]
+        # User-Agent: Web-sniffer/1.0.46 (+http://web-sniffer.net/)
+        # Accept-Encoding: gzip
+        # Accept-Charset: ISO-8859-1,UTF-8;q=0.7,*;q=0.7
+        # Cache-Control: no-cache
+        # Accept-Language: de,en;q=0.7,en-us;q=0.3
+        # Referer: http://web-sniffer.net/
+        # try:
+        import pdb; pdb.set_trace()
+        b.open('https://www.collmex.de')
+        # except zope.testbrowser._compat.urllib_request.HTTPError as e:
+        #     import pdb; pdb.set_trace()
 
         b.getControl(name='Kunde').value = self.customer_id
         b.getControl('Anmelden').click()

@@ -9,6 +9,7 @@ import gocept.collmex.model
 import os
 import transaction
 import logging
+import zope.testbrowser.browser
 
 
 def get_collmex(password=None):
