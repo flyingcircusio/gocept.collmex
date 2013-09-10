@@ -3,10 +3,7 @@
 # See also LICENSE.txt
 
 from __future__ import unicode_literals
-try:
-    import io as StringIO
-except ImportError:
-    import StringIO
+import six
 import csv
 import gocept.cache.method
 import gocept.cache.property
@@ -24,6 +21,7 @@ except ImportError:
 import zope.deprecation
 import zope.interface
 from zope.interface import implementer
+import zope.testbrowser.browser
 
 
 log = logging.getLogger(__name__)
@@ -31,9 +29,9 @@ log = logging.getLogger(__name__)
 
 class CollmexDialect(csv.Dialect):
     quoting = csv.QUOTE_ALL
-    delimiter = ';'
-    quotechar = '"'
-    lineterminator = '\r\n'
+    delimiter = b';'
+    quotechar = b'"'
+    lineterminator = b'\r\n'
     doublequote = True
     skipinitialspace = True
 
@@ -50,7 +48,7 @@ class CollmexDataManager(object):
         self._reset()
 
     def _reset(self):
-        self.data = StringIO.StringIO()
+        self.data = six.StringIO()
         self._joined = False
         self._transaction = None
         self.voted = False
@@ -128,10 +126,10 @@ class Collmex(object):
         return self._local.connection
 
     def create(self, item):
-        data = StringIO.StringIO()
+        data = six.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
         item.company = self.company_id
-        writer.writerow(list(item))
+        writer.writerow([elem.encode('UTF-8') if isinstance(elem, six.text_type) else elem for elem in list(item)])
         self.connection.register_data(data.getvalue())
 
     def create_invoice(self, items):
@@ -235,9 +233,10 @@ class Collmex(object):
 
     @gocept.cache.method.memoize_on_attribute('_cache', timeout=5*60)
     def _query_objects(self, function, *args):
-        data = StringIO.StringIO()
+        data = six.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
-        writer.writerow((function,) + args)
+        writer.writerow((function.encode('UTF-8'),) + tuple([elem.encode('UTF-8') if isinstance(elem, six.text_type) else elem
+                                                                            for elem in args]))
         lines = self._post(data.getvalue())
         result = []
         for line in lines:
@@ -249,18 +248,20 @@ class Collmex(object):
         return result
 
     def _post(self, data):
+        data = data.decode('UTF-8') if isinstance(data, six.binary_type) else data
         data = 'LOGIN;%s;%s\n' % (self.username, self.password) + data
         log.debug(data)
         content_type, body = gocept.collmex.utils.encode_multipart_formdata(
             [], [('fileName', 'api.csv', data)])
-        request = urllib2.Request(
-            'https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange'
-            % self.customer_id, body)
-        request.add_header('Content-type', content_type)
-        response = urllib2.urlopen(request)
-        response_content = response.read().decode('Windows-1252')
 
-        lines = list(csv.reader(StringIO.StringIO(response_content), dialect=CollmexDialect))
+        request = urllib2.Request(
+            ('https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange'
+            % self.customer_id).encode('Windows-1252'), body.encode('Windows-1252'))
+        request.add_header('Content-type'.encode('Windows-1252'), content_type.encode('Windows-1252'))
+        response = urllib2.urlopen(request)
+
+        lines = list(csv.reader(response, dialect=CollmexDialect))
+        lines = [[line.decode('Windows-1252') for line in ls] for ls in lines]
         response.close()
         result = lines.pop()
         assert len(result) >= 4

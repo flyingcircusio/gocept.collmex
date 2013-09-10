@@ -16,8 +16,8 @@ it is a global utility:
 >>> import os
 >>> import gocept.collmex.collmex
 >>> collmex = gocept.collmex.collmex.Collmex(
-...     os.environ['collmex_customer'], os.environ['collmex_company'],
-...     os.environ['collmex_username'], os.environ['collmex_password'])
+...     unicode(os.environ[u'collmex_customer']), unicode(os.environ[u'collmex_company']),
+...     unicode(os.environ[u'collmex_username']), unicode(os.environ[u'collmex_password']))
 
 
 Pre flight cleanup
@@ -42,8 +42,8 @@ Customers: ``create_customer`` and ``get_customers``
 ----------------------------------------------------
 
 >>> customer = gocept.collmex.model.Customer()
->>> customer['Kundennummer'] = 10000
->>> customer['Firma'] = 'Testkunden'
+>>> customer[u'Kundennummer'] = 10000
+>>> customer[u'Firma'] = u'Testkunden'
 >>> collmex.create(customer)
 >>> transaction.commit()
 
@@ -59,22 +59,22 @@ Customers can be listed using the get_customers method:
 The first customer is the generic one:
 
 >>> customer = customers[0]
->>> customer['Satzart']
+>>> customer[u'Satzart']
 u'CMXKND'
->>> customer['Kundennummer']
+>>> customer[u'Kundennummer']
 u'9999'
->>> customer['Firma']
+>>> customer[u'Firma']
 u'Allgemeiner Gesch\xe4ftspartner'
 
 
 The second customer is one created during test setup:
 
 >>> customer = customers[1]
->>> customer['Satzart']
+>>> customer[u'Satzart']
 u'CMXKND'
->>> customer['Kundennummer']
+>>> customer[u'Kundennummer']
 u'10000'
->>> customer['Firma']
+>>> customer[u'Firma']
 u'Testkunden'
 
 Products: ``create_product`` and ``get_products``
@@ -83,14 +83,14 @@ Products: ``create_product`` and ``get_products``
 Products are created using the ``create_product`` method:
 
 >>> product = gocept.collmex.model.Product()
->>> product['Produktnummer'] = 'TEST'
->>> product['Bezeichnung'] = 'Testprodukt'
->>> product['Produktart'] = 1 # Dienstleistung
->>> product['Basismengeneinheit'] = 'HR'
->>> product['Verkaufs-Preis'] = 5
+>>> product[u'Produktnummer'] = u'TEST'
+>>> product[u'Bezeichnung'] = u'Testprodukt'
+>>> product[u'Produktart'] = 1 # Dienstleistung
+>>> product[u'Basismengeneinheit'] = u'HR'
+>>> product[u'Verkaufs-Preis'] = 5
 >>> collmex.create(product)
 >>> transaction.commit()
->>> collmex.get_products()[0]['Bezeichnung']
+>>> collmex.get_products()[0][u'Bezeichnung']
 u'Testprodukt'
 
 Invoices: ``create_invoice`` and ``get_invoices``
@@ -102,26 +102,26 @@ Invoices are created using the ``create_invoice`` method:
 >>> import datetime
 >>> start_date = datetime.datetime.now()
 >>> item = gocept.collmex.model.InvoiceItem()
->>> item['Kunden-Nr'] = '10000'
->>> item['Rechnungsnummer'] = 100000
->>> item['Menge'] = 3
->>> item['Produktnummer'] = 'TEST'
->>> item['Rechnungstext'] = 'item text \u2013 with non-ascii characters'
->>> item['Positionstyp'] = 0
+>>> item[u'Kunden-Nr'] = u'10000'
+>>> item[u'Rechnungsnummer'] = 100000
+>>> item[u'Menge'] = 3
+>>> item[u'Produktnummer'] = u'TEST'
+>>> item[u'Rechnungstext'] = u'item text \u2013 with non-ascii characters'
+>>> item[u'Positionstyp'] = 0
 >>> collmex.create_invoice([item])
 
 Invoices can be looked up again, using the ``get_invoices`` method. However, as
 discussed above the invoice was only registered for addition. Querying right
 now does *not* return the invoice:
 
->>> collmex.get_invoices(customer_id='10000', start_date=start_date)
+>>> collmex.get_invoices(customer_id=u'10000', start_date=start_date)
 []
 
 After committing, the invoice is found:
 
 >>> transaction.commit()
->>> collmex.get_invoices(customer_id='10000',
-...                      start_date=start_date)[0]['Rechnungstext']
+>>> collmex.get_invoices(customer_id=u'10000',
+...                      start_date=start_date)[0][u'Rechnungstext']
 u'item text \u2013 with non-ascii characters'
 
 Activities
@@ -137,17 +137,17 @@ A project with one set and an employee are required to submit activities:
 >>> from __future__ import unicode_literals
 >>> import datetime
 >>> import gocept.collmex.testing
->>> gocept.collmex.testing.create_project('Testprojekt')
+>>> gocept.collmex.testing.create_project(u'Testprojekt')
 >>> gocept.collmex.testing.create_employee()
 >>> act = gocept.collmex.model.Activity()
->>> act['Projekt Nr'] = '1' # Testprojekt
->>> act['Mitarbeiter Nr'] = '1' # Sebastian Wehrmann
->>> act['Satz Nr'] = '1' # TEST
->>> act['Beschreibung'] = 'allgemeine T\xe4tigkeit'
->>> act['Datum'] = datetime.date(2012, 1, 23)
->>> act['Von'] = datetime.time(8, 7)
->>> act['Bis'] = datetime.time(14, 28)
->>> act['Pausen'] = datetime.timedelta(hours=1, minutes=12)
+>>> act[u'Projekt Nr'] = u'1' # Testprojekt
+>>> act[u'Mitarbeiter Nr'] = u'1' # Sebastian Wehrmann
+>>> act[u'Satz Nr'] = u'1' # TEST
+>>> act[u'Beschreibung'] = u'allgemeine T\xe4tigkeit'
+>>> act[u'Datum'] = datetime.date(2012, 1, 23)
+>>> act[u'Von'] = datetime.time(8, 7)
+>>> act[u'Bis'] = datetime.time(14, 28)
+>>> act[u'Pausen'] = datetime.timedelta(hours=1, minutes=12)
 >>> collmex.create(act)
 >>> transaction.commit()
 
@@ -161,7 +161,7 @@ Export using ``get_activities``
 
 
 >>> activities = collmex.get_activities()
->>> activities[0]['Beschreibung']
+>>> activities[0][u'Beschreibung']
 u'allgemeine T\xe4tigkeit'
 
 
@@ -174,14 +174,14 @@ for every project set (Projektsatz) of each project (Projekt):
 >>> proj = collmex.get_projects()
 >>> len(proj)
 2
->>> proj[0]['Projektnummer'] == proj[1]['Projektnummer']
+>>> proj[0][u'Projektnummer'] == proj[1][u'Projektnummer']
 True
 
->>> proj[0]['Satz']
+>>> proj[0][u'Satz']
 u'5,00'
->>> proj[1]['Satz']
+>>> proj[1][u'Satz']
 u'9,65'
->>> proj[0]['Inaktiv']
+>>> proj[0][u'Inaktiv']
 u'0'
 
 Caching
@@ -194,29 +194,29 @@ HTTP communication to show when it is called:
 
     >>> original_post = collmex._post
     >>> def tracing_post(self, *args, **kw):
-    ...     print('cache miss')
+    ...     print(u'cache miss')
     ...     return original_post(*args, **kw)
     >>> collmex._post = tracing_post.__get__(collmex, type(collmex))
 
 The first time in an transaction is retrieved from Collmex, of course:
 
     >>> transaction.abort()
-    >>> collmex.get_products()[0]['Bezeichnung']
+    >>> collmex.get_products()[0][u'Bezeichnung']
     cache miss
     u'Testprodukt'
 
 But after that, values are cached:
 
-    >>> collmex.get_products()[0]['Bezeichnung']
+    >>> collmex.get_products()[0][u'Bezeichnung']
     u'Testprodukt'
 
 When the transaction ends, the cache is invalidated:
 
     >>> transaction.commit()
-    >>> collmex.get_products()[0]['Bezeichnung']
+    >>> collmex.get_products()[0][u'Bezeichnung']
     cache miss
     u'Testprodukt'
-    >>> collmex.get_products()[0]['Bezeichnung']
+    >>> collmex.get_products()[0][u'Bezeichnung']
     u'Testprodukt'
 
 Remove tracing instrumentation:
