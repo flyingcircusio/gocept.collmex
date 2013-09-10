@@ -3,16 +3,17 @@
 # See also LICENSE.txt
 
 from __future__ import unicode_literals
-try:
+import six
+if six.PY3:
     from collections import UserDict
-except ImportError:
+else:
     from UserDict import UserDict
 import datetime
 import gocept.collmex.interfaces
 import zope.interface
 from zope.interface import implementer
 
-class Model(UserDict):
+class Model(UserDict, object):
     """Base for collmex models."""
 
     satzart = None
@@ -24,7 +25,7 @@ class Model(UserDict):
         self._unmapped = []
 
         for i, value in enumerate(row):
-            if value == '' or value is None:
+            if value is None or isinstance(value, six.text_type) and value == '':
                 value = None
             try:
                 field_name = self.fields[i]
@@ -36,7 +37,7 @@ class Model(UserDict):
     def __iter__(self):
         for field in self.fields:
             if field in self:
-                yield self._convert(self[field])
+                yield self[field]
             else:
                 yield gocept.collmex.interfaces.NULL
 
@@ -47,13 +48,6 @@ class Model(UserDict):
     @company.setter
     def company(self, company_id):
         self['Firma Nr'] = company_id
-
-    def _convert(self, value):
-        if isinstance(value, datetime.date):
-            return value.strftime('%Y%m%d')
-        elif isinstance(value, datetime.time):
-            return value.strftime('%H:%M')
-        return value
 
     def __repr__(self):
         return '<%s.%s object at %s>' % (

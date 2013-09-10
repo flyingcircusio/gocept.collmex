@@ -24,8 +24,8 @@ class TestCollmex(unittest.TestCase):
             password='invalid')
         with self.assertRaises(gocept.collmex.collmex.APIError) as err:
             collmex_invalid.get_invoices(customer_id='10000')
-        self.assertEqual("('101004', 'Benutzer oder Kennwort nicht korrekt')",
-                         str(err.exception))
+        self.assertEqual(('101004', 'Benutzer oder Kennwort nicht korrekt'),
+                         err.exception.args)
 
     def test_browser_login_authenticates_user_using_browser(self):
         browser = self.collmex.browser_login()

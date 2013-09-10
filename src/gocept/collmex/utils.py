@@ -31,7 +31,7 @@ def encode_multipart_formdata(fields, files):
     L.append('')
     body = CRLF.join(L)
     content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
-    return content_type.encode('Windows-1252'), body.encode('Windows-1252')
+    return content_type, body
 
 
 def get_content_type(filename):
