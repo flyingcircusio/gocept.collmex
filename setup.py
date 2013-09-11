@@ -43,6 +43,7 @@ setup(
         'zope.interface',
         'zope.testbrowser',
         'requests',
+        'six'
         ],
     extras_require=dict(
         test=[
