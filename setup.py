@@ -36,7 +36,7 @@ setup(
     license='ZPL 2.1',
     namespace_packages=['gocept'],
     install_requires=[
-        'gocept.cache>=0.3',
+        'gocept.cache >= 0.5.2',
         'setuptools >= 1.0',
         'transaction >= 1.4',
         'zope.deprecation >= 4.0',
