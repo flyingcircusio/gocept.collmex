@@ -37,17 +37,17 @@ setup(
     namespace_packages=['gocept'],
     install_requires=[
         'gocept.cache>=0.3',
-        'setuptools',
-        'transaction',
-        'zope.deprecation',
-        'zope.interface',
-        'webtest',
+        'setuptools >= 1.0',
+        'transaction >= 1.4',
+        'zope.deprecation >= 4.0',
+        'zope.interface >= 4.0',
+        'webtest >= 2.0',
         'wsgiproxy2',
         'six'
         ],
     extras_require=dict(
         test=[
-            'zope.testing',
-            'mock',
+            'zope.testing >= 4.0',
+            'mock >= 1.0',
             ]),
 )
