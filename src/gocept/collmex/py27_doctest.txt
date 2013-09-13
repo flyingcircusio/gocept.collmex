@@ -51,8 +51,7 @@ Customers can be listed using the get_customers method:
 
 >>> customers = collmex.get_customers()
 >>> customers
-[<gocept.collmex.model.Customer object at 0x...>,
- <gocept.collmex.model.Customer object at 0x...>]
+[<gocept.collmex.model.Customer object at 0x...>, <gocept.collmex.model.Customer object at 0x...>]
 >>> len(customers)
 2
 
