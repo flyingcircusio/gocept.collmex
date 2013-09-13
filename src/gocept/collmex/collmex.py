@@ -2,7 +2,8 @@
 # Copyright (c) 2008 gocept gmbh & co. kg
 # See also LICENSE.txt
 
-import StringIO
+from __future__ import unicode_literals
+import six
 import csv
 import gocept.cache.method
 import gocept.cache.property
@@ -13,10 +14,14 @@ import logging
 import threading
 import transaction
 import transaction.interfaces
-import urllib2
+try:
+    import urllib.request as urllib2
+except ImportError:
+    import urllib2
 import zope.deprecation
 import zope.interface
-import zope.testbrowser.browser
+from zope.interface import implementer
+import webtest
 
 
 log = logging.getLogger(__name__)
@@ -24,9 +29,14 @@ log = logging.getLogger(__name__)
 
 class CollmexDialect(csv.Dialect):
     quoting = csv.QUOTE_ALL
-    delimiter = ';'
-    quotechar = '"'
-    lineterminator = '\r\n'
+    if six.PY3:
+        delimiter = ';'
+        quotechar = '"'
+        lineterminator = '\r\n'
+    else:
+        delimiter = b';'
+        quotechar = b'"'
+        lineterminator = b'\r\n'
     doublequote = True
     skipinitialspace = True
 
@@ -35,15 +45,15 @@ class APIError(Exception):
     pass
 
 
+@implementer(transaction.interfaces.IDataManager)
 class CollmexDataManager(object):
-    zope.interface.implements(transaction.interfaces.IDataManager)
 
     def __init__(self, utility):
         self.utility = utility
         self._reset()
 
     def _reset(self):
-        self.data = StringIO.StringIO()
+        self.data = six.StringIO()
         self._joined = False
         self._transaction = None
         self.voted = False
@@ -89,11 +99,11 @@ class CollmexDataManager(object):
     def sortKey(self):
         # XXX make very small or add single-phase datamanager integration to
         # the transaction module.
-        return None
+        return '' # None
 
 
+@implementer(gocept.collmex.interfaces.ICollmex)
 class Collmex(object):
-    zope.interface.implements(gocept.collmex.interfaces.ICollmex)
 
     # XXX should go on CollmexDialect but the csv module's magic prevents it
     NULL = gocept.collmex.interfaces.NULL
@@ -121,10 +131,10 @@ class Collmex(object):
         return self._local.connection
 
     def create(self, item):
-        data = StringIO.StringIO()
+        data = six.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
         item.company = self.company_id
-        writer.writerow(list(item))
+        writer.writerow([elem.encode('UTF-8') if isinstance(elem, six.text_type) and six.PY2 else elem for elem in list(item)])
         self.connection.register_data(data.getvalue())
 
     def create_invoice(self, items):
@@ -196,16 +206,19 @@ class Collmex(object):
 
     def browser_login(self):
         """Log into Collmex using a browser."""
-        b = zope.testbrowser.browser.Browser()
-        b.mech_browser.set_handle_robots(False)
-        b.open('http://www.collmex.de')
+        b = webtest.TestApp('https://www.collmex.de').get('/')
+        b.charset = 'Windows-1252'
 
-        b.getControl(name='Kunde').value = self.customer_id
-        b.getControl('Anmelden').click()
+        f = b.form
+        f['Kunde'] = self.customer_id
+        b = f.submit().maybe_follow()
+        b.charset = 'Windows-1252'
 
-        b.getControl('Benutzer').value = self.username
-        b.getControl('Kennwort').value = self.password
-        b.getControl('Anmelden').click()
+        f = b.form
+        f['group_benutzerId'] = self.username
+        f['group_kennwort'] = self.password
+        b = f.submit().maybe_follow()
+        b.charset = 'Windows-1252'
         return b
 
     def _get_cache(self):
@@ -228,9 +241,10 @@ class Collmex(object):
 
     @gocept.cache.method.memoize_on_attribute('_cache', timeout=5*60)
     def _query_objects(self, function, *args):
-        data = StringIO.StringIO()
+        data = six.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
-        writer.writerow((function,) + args)
+        writer.writerow([elem.encode('UTF-8') if isinstance(elem, six.text_type) and six.PY2 else elem
+                                              for elem in (function,) + args])
         lines = self._post(data.getvalue())
         result = []
         for line in lines:
@@ -242,17 +256,35 @@ class Collmex(object):
         return result
 
     def _post(self, data):
+        data = data.decode('UTF-8') if isinstance(data, six.binary_type) else data
         data = 'LOGIN;%s;%s\n' % (self.username, self.password) + data
         log.debug(data)
         content_type, body = gocept.collmex.utils.encode_multipart_formdata(
             [], [('fileName', 'api.csv', data)])
-        request = urllib2.Request(
-            'https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange'
-            % self.customer_id, body)
-        request.add_header('Content-type', content_type)
+
+        url = ('https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange'
+               % self.customer_id)
+        content_type_label = 'Content-type'
+
+        if six.PY2:
+            url, body, content_type_label, content_type = [
+                text.encode('Windows-1252') for text in
+                [url, body, content_type_label, content_type]
+            ]
+        else:
+            body = body.encode('Windows-1252')
+
+        request = urllib2.Request(url, body)
+        request.add_header(content_type_label, content_type)
         response = urllib2.urlopen(request)
 
+        if six.PY3:
+            response = six.StringIO(response.read().decode('Windows-1252'))
+
         lines = list(csv.reader(response, dialect=CollmexDialect))
+
+        if six.PY2:
+            lines = [[line.decode('Windows-1252') for line in ls] for ls in lines]
         response.close()
         result = lines.pop()
         assert len(result) >= 4

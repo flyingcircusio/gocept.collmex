@@ -1,7 +1,11 @@
 # copied from http://code.activestate.com/recipes/146306/
 
-import httplib, mimetypes
-
+from __future__ import unicode_literals
+try:
+    import http.client as httplib
+except ImportError:
+    import httplib
+import mimetypes
 
 def encode_multipart_formdata(fields, files):
     """

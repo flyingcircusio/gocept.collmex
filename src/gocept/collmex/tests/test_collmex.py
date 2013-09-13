@@ -1,9 +1,9 @@
 # Copyright (c) 2012 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+from __future__ import unicode_literals
 import mock
 import unittest
-
 
 class TestCollmex(unittest.TestCase):
 
@@ -24,27 +24,28 @@ class TestCollmex(unittest.TestCase):
             password='invalid')
         with self.assertRaises(gocept.collmex.collmex.APIError) as err:
             collmex_invalid.get_invoices(customer_id='10000')
-        self.assertEqual("('101004', 'Benutzer oder Kennwort nicht korrekt')",
-                         str(err.exception))
+        self.assertEqual(('101004', 'Benutzer oder Kennwort nicht korrekt'),
+                         err.exception.args)
 
     def test_browser_login_authenticates_user_using_browser(self):
         browser = self.collmex.browser_login()
-        self.assertTrue(
-            browser.getLink('Projekt-Verbrauch').url.endswith(',vbrp'))
+        links = browser.html.find_all('a')
+        [link] = [s for s in links if 'Projekt-Verbrauch' in s]
+        self.assertTrue(link.get('href').endswith(',vbrp'))
 
     def test_get_activities_should_support_passing_project_id(self):
         import datetime
         import gocept.collmex.testing
         import transaction
         gocept.collmex.testing.create_employee()
-        gocept.collmex.testing.create_project(title=u'Testprojekt')
-        gocept.collmex.testing.create_project(title=u'Projektil')
+        gocept.collmex.testing.create_project(title='Testprojekt')
+        gocept.collmex.testing.create_project(title='Projektil')
         gocept.collmex.testing.create_activity(
-            u'Activity in test project',
+            'Activity in test project',
             project_id='1', employee_id='1',
             date=datetime.date(2012, 1, 1))
         gocept.collmex.testing.create_activity(
-            u'Activity in projektil',
+            'Activity in projektil',
             project_id='2', employee_id='1',
             date=datetime.date(2012, 1, 2))
         transaction.commit()
