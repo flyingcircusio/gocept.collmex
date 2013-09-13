@@ -43,6 +43,8 @@ setup(
         'zope.interface',
         'zope.testbrowser',
         'requests',
+        'webtest',
+        'wsgiproxy2',
         'six'
         ],
     extras_require=dict(

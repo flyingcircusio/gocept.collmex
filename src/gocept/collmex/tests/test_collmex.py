@@ -29,8 +29,9 @@ class TestCollmex(unittest.TestCase):
 
     def test_browser_login_authenticates_user_using_browser(self):
         browser = self.collmex.browser_login()
-        self.assertTrue(
-            browser.getLink('Projekt-Verbrauch').url.endswith(',vbrp'))
+        links = browser.html.find_all('a')
+        [link] = [s for s in links if 'Projekt-Verbrauch' in s]
+        self.assertTrue(link.get('href').endswith(',vbrp'))
 
     def test_get_activities_should_support_passing_project_id(self):
         import datetime

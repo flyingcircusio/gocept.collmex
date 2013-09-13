@@ -21,7 +21,7 @@ except ImportError:
 import zope.deprecation
 import zope.interface
 from zope.interface import implementer
-import zope.testbrowser.browser
+import webtest
 
 
 log = logging.getLogger(__name__)
@@ -201,16 +201,19 @@ class Collmex(object):
 
     def browser_login(self):
         """Log into Collmex using a browser."""
-        b = zope.testbrowser.browser.Browser()
-        b.mech_browser.set_handle_robots(False)
-        b.open('http://www.collmex.de')
+        b = webtest.TestApp('https://www.collmex.de').get('/')
+        b.charset = 'Windows-1252'
 
-        b.getControl(name='Kunde').value = self.customer_id
-        b.getControl('Anmelden').click()
+        f = b.form
+        f['Kunde'] = self.customer_id
+        b = f.submit().maybe_follow()
+        b.charset = 'Windows-1252'
 
-        b.getControl('Benutzer').value = self.username
-        b.getControl('Kennwort').value = self.password
-        b.getControl('Anmelden').click()
+        f = b.form
+        f['group_benutzerId'] = self.username
+        f['group_kennwort'] = self.password
+        b = f.submit().maybe_follow()
+        b.charset = 'Windows-1252'
         return b
 
     def _get_cache(self):
