@@ -8,9 +8,7 @@ import gocept.collmex.collmex
 import gocept.collmex.model
 import os
 import transaction
-import logging
 import six
-import urllib
 
 
 def get_collmex(password=None):
@@ -21,14 +19,14 @@ def get_collmex(password=None):
 
     customer, company, username, password = [
         six.u(string) if isinstance(string, six.binary_type) else string
-        for string in [customer, company, username, password]
-    ]
+        for string in [customer, company, username, password]]
 
     return gocept.collmex.collmex.Collmex(
         customer,
         company,
         username,
         password)
+
 
 def cleanup_collmex():
     # Prepare a clean environment in our Collmex testing.
@@ -47,6 +45,7 @@ def cleanup_collmex():
     b.charset = 'Windows-1252'
 
     assert b'Daten erfolgreich gel' in b.body
+
 
 def create_customer():
     collmex = get_collmex()
@@ -68,7 +67,7 @@ def create_product():
         product = gocept.collmex.model.Product()
         product['Produktnummer'] = 'TEST'
         product['Bezeichnung'] = 'Testprodukt'
-        product['Produktart'] = 1 # Dienstleistung
+        product['Produktart'] = 1  # Dienstleistung
         product['Basismengeneinheit'] = 'HR'
         product['Verkaufs-Preis'] = 5
         collmex.create(product)
@@ -144,7 +143,7 @@ def create_activity(title,
     act = gocept.collmex.model.Activity()
     act['Projekt Nr'] = project_id
     act['Mitarbeiter Nr'] = employee_id
-    act['Satz Nr'] = '1' # TEST
+    act['Satz Nr'] = '1'  # TEST
     act['Beschreibung'] = title
     act['Datum'] = date
     act['Von'] = datetime.time(8, 7)

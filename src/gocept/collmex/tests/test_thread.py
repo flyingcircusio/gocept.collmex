@@ -2,7 +2,6 @@
 # See also LICENSE.txt
 
 import gocept.collmex.testing
-import os
 try:
     import queue as Queue
 except ImportError:
@@ -30,5 +29,6 @@ class ThreadTest(unittest.TestCase):
             w = Worker(collmex, queue)
             workers.append(w)
             w.start()
-        for w in workers: w.join()
+        for w in workers:
+            w.join()
         self.assertEqual(2, queue.qsize())

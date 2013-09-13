@@ -99,7 +99,7 @@ class CollmexDataManager(object):
     def sortKey(self):
         # XXX make very small or add single-phase datamanager integration to
         # the transaction module.
-        return '' # None
+        return ''  # None
 
 
 @implementer(gocept.collmex.interfaces.ICollmex)
@@ -134,7 +134,9 @@ class Collmex(object):
         data = six.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
         item.company = self.company_id
-        writer.writerow([elem.encode('UTF-8') if isinstance(elem, six.text_type) and six.PY2 else elem for elem in list(item)])
+        writer.writerow([elem.encode('UTF-8')
+                        if isinstance(elem, six.text_type) and six.PY2
+                        else elem for elem in list(item)])
         self.connection.register_data(data.getvalue())
 
     def create_invoice(self, items):
@@ -239,12 +241,14 @@ class Collmex(object):
     def invalidate(self, dummy):
         self._cache = None
 
-    @gocept.cache.method.memoize_on_attribute('_cache', timeout=5*60)
+    @gocept.cache.method.memoize_on_attribute('_cache', timeout=5 * 60)
     def _query_objects(self, function, *args):
         data = six.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
-        writer.writerow([elem.encode('UTF-8') if isinstance(elem, six.text_type) and six.PY2 else elem
-                                              for elem in (function,) + args])
+        writer.writerow([elem.encode('UTF-8')
+                        if isinstance(elem, six.text_type) and six.PY2
+                        else elem
+                        for elem in (function,) + args])
         lines = self._post(data.getvalue())
         result = []
         for line in lines:
@@ -256,7 +260,9 @@ class Collmex(object):
         return result
 
     def _post(self, data):
-        data = data.decode('UTF-8') if isinstance(data, six.binary_type) else data
+        data = (data.decode('UTF-8')
+                if isinstance(data, six.binary_type)
+                else data)
         data = 'LOGIN;%s;%s\n' % (self.username, self.password) + data
         log.debug(data)
         content_type, body = gocept.collmex.utils.encode_multipart_formdata(
@@ -269,8 +275,7 @@ class Collmex(object):
         if six.PY2:
             url, body, content_type_label, content_type = [
                 text.encode('Windows-1252') for text in
-                [url, body, content_type_label, content_type]
-            ]
+                [url, body, content_type_label, content_type]]
         else:
             body = body.encode('Windows-1252')
 
