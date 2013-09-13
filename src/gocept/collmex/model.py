@@ -8,10 +8,9 @@ if six.PY3:
     from collections import UserDict
 else:
     from UserDict import UserDict
-import datetime
 import gocept.collmex.interfaces
-import zope.interface
 from zope.interface import implementer
+
 
 class Model(UserDict, object):
     """Base for collmex models."""
@@ -25,7 +24,8 @@ class Model(UserDict, object):
         self._unmapped = []
 
         for i, value in enumerate(row):
-            if value is None or isinstance(value, six.text_type) and value == '':
+            if (value is None or isinstance(value, six.text_type)
+                                 and value == ''):
                 value = None
             try:
                 field_name = self.fields[i]

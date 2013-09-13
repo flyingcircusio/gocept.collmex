@@ -6,11 +6,11 @@ import six
 
 
 def test_suite():
-    file = 'py27_doctest.txt'
+    filename = 'py27_doctest.txt'
     if six.PY3:
-        file = 'py32_doctest.txt'
+        filename = 'py32_doctest.txt'
     return doctest.DocFileSuite(
-        file,
+        filename,
         package='gocept.collmex',
         optionflags=(doctest.NORMALIZE_WHITESPACE |
                      doctest.ELLIPSIS))

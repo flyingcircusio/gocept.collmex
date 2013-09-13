@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import mock
 import unittest
 
+
 class TestCollmex(unittest.TestCase):
 
     def setUp(self):
