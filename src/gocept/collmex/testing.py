@@ -44,7 +44,7 @@ def cleanup_collmex():
     b = f.submit(name='loeschen').maybe_follow()
     b.charset = 'Windows-1252'
 
-    assert b'Daten erfolgreich gel' in b.body
+    assert 'Daten erfolgreich gel' in b.unicode_body
 
 
 def create_customer():
@@ -94,22 +94,22 @@ def create_project(title):
 
     f = b.form
     f['group_bezeichnung'] = title
-    f['group_kundeNr'] = b'10000'
-    f['table_1_produktNr'] = b'TEST'
+    f['group_kundeNr'] = '10000'
+    f['table_1_produktNr'] = 'TEST'
     b = f.submit(name='speichern')
     b.charset = 'Windows-1252'
 
     assert 'Produkt TEST existiert nicht' not in b.unicode_body
 
     f = b.form
-    f['table_2_produktNr'] = b'TEST'
+    f['table_2_produktNr'] = 'TEST'
     b = f.submit(name='speichern')
     b.charset = 'Windows-1252'
 
     assert 'Produkt TEST existiert nicht' not in b.unicode_body
 
     f = b.form
-    f['table_2_satz'] = b'9,65'
+    f['table_2_satz'] = '9,65'
     b = f.submit(name='speichern')
     b.charset = 'Windows-1252'
 
@@ -129,8 +129,8 @@ def create_employee():
         b.charset = 'Windows-1252'
 
     f = b.form
-    f['group_adrVorname'] = b'Sebastian'
-    f['group_adrName'] = b'Wehrmann'
+    f['group_adrVorname'] = 'Sebastian'
+    f['group_adrName'] = 'Wehrmann'
     b = f.submit(name='speichern').maybe_follow()
     b.charset = 'Windows-1252'
 
