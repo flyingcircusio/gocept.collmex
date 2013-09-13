@@ -41,7 +41,6 @@ setup(
         'transaction',
         'zope.deprecation',
         'zope.interface',
-        'requests',
         'webtest',
         'wsgiproxy2',
         'six'
