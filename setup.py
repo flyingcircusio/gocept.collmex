@@ -26,7 +26,7 @@ setup(
     long_description = (
         open('README.txt').read() +
         '\n\n' +
-        open(os.path.join('src', 'gocept', 'collmex', 'README.txt')).read() +
+        open(os.path.join('src', 'gocept', 'collmex', 'py27_doctest.txt')).read() +
         '\n\n' +
         open('CHANGES.txt').read()),
     packages=find_packages('src'),
@@ -41,7 +41,10 @@ setup(
         'transaction',
         'zope.deprecation',
         'zope.interface',
-        'zope.testbrowser>=3.4.3',
+        'requests',
+        'webtest',
+        'wsgiproxy2',
+        'six'
         ],
     extras_require=dict(
         test=[

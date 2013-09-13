@@ -6,3 +6,7 @@ develop-eggs
 *.egg-info
 *.pyc
 local.cfg
+lib
+eggs
+.Python
+include/

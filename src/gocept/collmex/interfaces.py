@@ -1,6 +1,7 @@
 # Copyright (c) 2008 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+from __future__ import unicode_literals
 import zope.interface
 import zope.interface.common.mapping
 

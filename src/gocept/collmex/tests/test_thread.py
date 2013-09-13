@@ -3,7 +3,10 @@
 
 import gocept.collmex.testing
 import os
-import Queue
+try:
+    import queue as Queue
+except ImportError:
+    import Queue
 import unittest
 import threading
 
