@@ -9,7 +9,6 @@ import gocept.collmex.model
 import os
 import transaction
 import logging
-import zope.testbrowser.browser
 import six
 import urllib
 
@@ -51,19 +50,20 @@ def cleanup_collmex():
 
 def create_customer():
     collmex = get_collmex()
-    if b'Testkunden' not in [cust['Firma'] for cust in collmex.get_customers()]:
+    if 'Testkunden' not in [cust['Firma'] for cust in collmex.get_customers()]:
         customer = gocept.collmex.model.Customer()
         customer['Kundennummer'] = 10000
         customer['Firma'] = 'Testkunden'
         collmex.create(customer)
         transaction.commit()
-    assert b'Testkunden' in [cust['Firma'] for cust in collmex.get_customers()]
+
+    assert 'Testkunden' in [cust['Firma'] for cust in collmex.get_customers()]
 
 
 def create_product():
     create_customer()
     collmex = get_collmex()
-    if b'TEST' not in [prod['Produktnummer']
+    if 'TEST' not in [prod['Produktnummer']
                       for prod in collmex.get_products()]:
         product = gocept.collmex.model.Product()
         product['Produktnummer'] = 'TEST'
@@ -74,7 +74,7 @@ def create_product():
         collmex.create(product)
         transaction.commit()
 
-    assert b'TEST' in [prod['Produktnummer'] for prod in collmex.get_products()]
+    assert 'TEST' in [prod['Produktnummer'] for prod in collmex.get_products()]
 
 
 def create_project(title):
