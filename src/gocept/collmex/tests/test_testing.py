@@ -6,17 +6,15 @@ import mock
 import unittest
 
 
-def get_env_value(key):
-    mock_data = dict(collmex_customer='123',
-                     collmex_company='456',
-                     collmex_username='ben.utzer',
-                     collmex_password='asdf')
-    return mock_data[key]
+mock_data = dict(collmex_customer='123',
+                 collmex_company='456',
+                 collmex_username='ben.utzer',
+                 collmex_password='asdf')
 
 
 class TestGetCollmex(unittest.TestCase):
 
-    @mock.patch('os.environ.__getitem__', get_env_value)
+    @mock.patch.dict('os.environ', mock_data)
     def test_reads_data_from_environment(self):
         import gocept.collmex.testing
         collmex = gocept.collmex.testing.get_collmex()
@@ -25,7 +23,7 @@ class TestGetCollmex(unittest.TestCase):
         self.assertEqual('ben.utzer', collmex.username)
         self.assertEqual('asdf', collmex.password)
 
-    @mock.patch('os.environ.__getitem__', get_env_value)
+    @mock.patch.dict('os.environ', mock_data)
     def test_keyword_args_override_data_from_environment(self):
         import gocept.collmex.testing
         collmex = gocept.collmex.testing.get_collmex(password='qwertz')

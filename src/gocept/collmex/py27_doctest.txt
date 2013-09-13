@@ -97,7 +97,6 @@ Invoices: ``create_invoice`` and ``get_invoices``
 
 Invoices are created using the ``create_invoice`` method:
 
->>> from __future__ import unicode_literals
 >>> import datetime
 >>> start_date = datetime.datetime.now()
 >>> item = gocept.collmex.model.InvoiceItem()
@@ -133,7 +132,6 @@ Create an activity
 
 A project with one set and an employee are required to submit activities:
 
->>> from __future__ import unicode_literals
 >>> import datetime
 >>> import gocept.collmex.testing
 >>> gocept.collmex.testing.create_project(u'Testprojekt')

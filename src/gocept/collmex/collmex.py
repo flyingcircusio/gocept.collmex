@@ -29,9 +29,14 @@ log = logging.getLogger(__name__)
 
 class CollmexDialect(csv.Dialect):
     quoting = csv.QUOTE_ALL
-    delimiter = b';'
-    quotechar = b'"'
-    lineterminator = b'\r\n'
+    if six.PY3:
+        delimiter = ';'
+        quotechar = '"'
+        lineterminator = '\r\n'
+    else:
+        delimiter = b';'
+        quotechar = b'"'
+        lineterminator = b'\r\n'
     doublequote = True
     skipinitialspace = True
 
@@ -129,7 +134,7 @@ class Collmex(object):
         data = six.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
         item.company = self.company_id
-        writer.writerow([elem.encode('UTF-8') if isinstance(elem, six.text_type) else elem for elem in list(item)])
+        writer.writerow([elem.encode('UTF-8') if isinstance(elem, six.text_type) and six.PY2 else elem for elem in list(item)])
         self.connection.register_data(data.getvalue())
 
     def create_invoice(self, items):
@@ -238,8 +243,8 @@ class Collmex(object):
     def _query_objects(self, function, *args):
         data = six.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
-        writer.writerow((function.encode('UTF-8'),) + tuple([elem.encode('UTF-8') if isinstance(elem, six.text_type) else elem
-                                                                            for elem in args]))
+        writer.writerow([elem.encode('UTF-8') if isinstance(elem, six.text_type) and six.PY2 else elem
+                                              for elem in (function,) + args])
         lines = self._post(data.getvalue())
         result = []
         for line in lines:
@@ -257,14 +262,29 @@ class Collmex(object):
         content_type, body = gocept.collmex.utils.encode_multipart_formdata(
             [], [('fileName', 'api.csv', data)])
 
-        request = urllib2.Request(
-            ('https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange'
-            % self.customer_id).encode('Windows-1252'), body.encode('Windows-1252'))
-        request.add_header('Content-type'.encode('Windows-1252'), content_type.encode('Windows-1252'))
+        url = ('https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange'
+               % self.customer_id)
+        content_type_label = 'Content-type'
+
+        if six.PY2:
+            url, body, content_type_label, content_type = [
+                text.encode('Windows-1252') for text in
+                [url, body, content_type_label, content_type]
+            ]
+        else:
+            body = body.encode('Windows-1252')
+
+        request = urllib2.Request(url, body)
+        request.add_header(content_type_label, content_type)
         response = urllib2.urlopen(request)
 
+        if six.PY3:
+            response = six.StringIO(response.read().decode('Windows-1252'))
+
         lines = list(csv.reader(response, dialect=CollmexDialect))
-        lines = [[line.decode('Windows-1252') for line in ls] for ls in lines]
+
+        if six.PY2:
+            lines = [[line.decode('Windows-1252') for line in ls] for ls in lines]
         response.close()
         result = lines.pop()
         assert len(result) >= 4
