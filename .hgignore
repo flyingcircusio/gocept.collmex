@@ -11,3 +11,6 @@ lib
 eggs
 .Python
 include/
+.coverage
+coverage-report/
+report.xml
