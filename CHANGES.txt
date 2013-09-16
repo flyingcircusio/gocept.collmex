@@ -4,7 +4,7 @@ Changes
 1.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- creation of test activities is now fully customizable
 
 
 1.4 (2013-09-13)
