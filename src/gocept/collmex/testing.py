@@ -138,7 +138,10 @@ def create_employee():
 def create_activity(title,
                     date=datetime.date(2012, 1, 23),
                     project_id='1',
-                    employee_id='1'):
+                    employee_id='1',
+                    start_time=datetime.time(8, 7),
+                    end_time=datetime.time(14, 28),
+                    break_time=datetime.timedelta(hours=1, minutes=12)):
     collmex = get_collmex()
     act = gocept.collmex.model.Activity()
     act['Projekt Nr'] = project_id
@@ -146,8 +149,8 @@ def create_activity(title,
     act['Satz Nr'] = '1'  # TEST
     act['Beschreibung'] = title
     act['Datum'] = date
-    act['Von'] = datetime.time(8, 7)
-    act['Bis'] = datetime.time(14, 28)
-    act['Pausen'] = datetime.timedelta(hours=1, minutes=12)
+    act['Von'] = start_time
+    act['Bis'] = end_time
+    act['Pausen'] = break_time
     collmex.create(act)
     transaction.commit()
