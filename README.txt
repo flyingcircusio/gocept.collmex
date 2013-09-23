@@ -15,13 +15,13 @@ databases that can integrate with the `transaction` package.
 Credentials
 ===========
 
-To initialize a connection to the collmex server, login-credentials are required. These can be given explicitely when the `gocept.collmex.collmex.Collmex` object is created or via an ini file named `collmex.ini`.
-The ini file must live in the project directory or any of it's parent directories, e.g. it is possible to place `collmex.ini` in your home directory to use those credentials for all of your projects.
-The ini file must contain the section `[credentials]` for production and `[test-credentials]` for testing purposes.
-Each section must have the following options: `customer_id`, `company_id`, `username` and `password`.
-The file `collmex.ini-example` can be used as a template.
+To initialize a connection to the collmex server, login-credentials are required. These can be given explicitely when the ``gocept.collmex.collmex.Collmex`` object is created or via an ini file named ``collmex.ini``.
+The ini file must live in the project directory or any of it's parent directories, e.g. it is possible to place ``collmex.ini`` in your home directory to use those credentials for all of your projects.
+The ini file must contain the section ``[credentials]`` for production and ``[test-credentials]`` for testing purposes.
+Each section must have the following options: ``customer_id``, ``company_id``, ``username`` and ``password``.
+The file ``collmex.ini-example`` can be used as a template.
 
-Example:
+Example::
 
     [credentials]
     customer_id = 42555
