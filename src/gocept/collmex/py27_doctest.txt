@@ -15,9 +15,8 @@ it is a global utility:
 
 >>> import os
 >>> import gocept.collmex.collmex
->>> collmex = gocept.collmex.collmex.Collmex(
-...     unicode(os.environ[u'collmex_customer']), unicode(os.environ[u'collmex_company']),
-...     unicode(os.environ[u'collmex_username']), unicode(os.environ[u'collmex_password']))
+>>> os.environ['collmex_credential_section'] = 'test-credentials'
+>>> collmex = gocept.collmex.collmex.Collmex()
 
 
 Pre flight cleanup
