@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.4.2 (unreleased)
+1.4.2 (2013-09-23)
 ------------------
 
 - Credentials to log into Collmex can be given via an `collmex.ini` file.
