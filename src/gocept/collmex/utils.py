@@ -6,10 +6,8 @@ import os
 import six
 if six.PY3:
     import configparser
-    import http.client as httplib
 else:
     import ConfigParser as configparser
-    import httplib
 
 
 def encode_multipart_formdata(fields, files):
