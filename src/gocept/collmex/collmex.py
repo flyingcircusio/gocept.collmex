@@ -110,11 +110,26 @@ class Collmex(object):
 
     system_identifier = 'gocept.collmex'
 
-    def __init__(self, customer_id, company_id, username, password):
-        self.customer_id = customer_id
-        self.company_id = company_id
-        self.username = username
-        self.password = password
+    def __init__(self, customer_id=None, company_id=None,
+                 username=None, password=None):
+        invalid_credentials = [c is None for c in [customer_id, company_id,
+                                                   username, password]]
+
+        try:
+            # try to use credentials from ini file 'collmex.ini'
+            cred = gocept.collmex.utils.get_collmex_credentials()
+        except (IOError, KeyError):
+            cred = {}
+
+        if not cred and invalid_credentials:
+            raise ValueError('No ini file found and not enough '
+                             'credentials given to create Collmex object.')
+
+        # any given argument will overwrite credentials from ini file
+        self.customer_id = customer_id or cred.get('customer_id', None)
+        self.company_id = company_id or cred.get('company_id', None)
+        self.username = username or cred.get('username', None)
+        self.password = password or cred.get('password', None)
 
         # Store thread-local (actually: transaction-local) information
         self._local = threading.local()
@@ -289,7 +304,8 @@ class Collmex(object):
         lines = list(csv.reader(response, dialect=CollmexDialect))
 
         if six.PY2:
-            lines = [[line.decode('Windows-1252') for line in ls] for ls in lines]
+            lines = [[line.decode('Windows-1252') for line in ls]
+                     for ls in lines]
         response.close()
         result = lines.pop()
         assert len(result) >= 4

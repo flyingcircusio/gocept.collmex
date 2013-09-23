@@ -8,27 +8,17 @@ import gocept.collmex.collmex
 import gocept.collmex.model
 import os
 import transaction
-import six
 
 
 def get_collmex(password=None):
-    customer = os.environ['collmex_customer']
-    company = os.environ['collmex_company']
-    username = os.environ['collmex_username']
-    password = os.environ['collmex_password'] if password is None else password
-
-    customer, company, username, password = [
-        six.u(string) if isinstance(string, six.binary_type) else string
-        for string in [customer, company, username, password]]
-
-    return gocept.collmex.collmex.Collmex(
-        customer,
-        company,
-        username,
-        password)
+    os.environ['collmex_credential_section'] = 'test-credentials'
+    return gocept.collmex.collmex.Collmex(password=password)
 
 
 def cleanup_collmex():
+    # make sure that deletion only occurs iff test user is logged in
+    assert os.environ['collmex_credential_section'] == 'test-credentials'
+
     # Prepare a clean environment in our Collmex testing.
     b = get_collmex().browser_login()
 

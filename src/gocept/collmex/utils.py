@@ -1,11 +1,15 @@
 # copied from http://code.activestate.com/recipes/146306/
 
 from __future__ import unicode_literals
-try:
-    import http.client as httplib
-except ImportError:
-    import httplib
 import mimetypes
+import os
+import six
+if six.PY3:
+    import configparser
+    import http.client as httplib
+else:
+    import ConfigParser as configparser
+    import httplib
 
 
 def encode_multipart_formdata(fields, files):
@@ -41,3 +45,54 @@ def encode_multipart_formdata(fields, files):
 
 def get_content_type(filename):
         return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+
+def get_collmex_credentials():
+    current_path = os.getcwd()
+    config_parser = configparser.ConfigParser()
+    ini_file_name = 'collmex.ini'
+
+    # for testing purposes set 'collmex_credential_section' to
+    # 'test-credentials' before initialization of the Collmex object
+    section_name = os.environ.get('collmex_credential_section',
+                                  'credentials')
+
+    while True:
+        try:  # test if ini file exists and parse it
+            with open(os.path.join(current_path, ini_file_name)) as f:
+                if six.PY3:
+                    config_parser.read_file(f)
+                else:
+                    config_parser.readfp(f)
+            break
+        except IOError:  # ini file does not exist
+            pass
+
+        # if path remains the same we reached the root directory
+        if current_path == os.path.dirname(current_path):
+            raise IOError('No ini file with the name \'{file_name}\' '
+                          'found in the current or any parent directory.'
+                          .format(file_name=ini_file_name))
+        # continue while-loop with parent directory
+        current_path = os.path.dirname(current_path)
+
+    if config_parser.has_section(section_name):
+        credentials = dict(config_parser.items(section_name))
+        return convert_dict_content_to_unicode(credentials)
+    else:  # ini file found, but has no credential section
+        raise KeyError('The section \'[{section_name}]\' was not found '
+                       'in the ini file \'{file_name}\'.'
+                       .format(section_name=section_name,
+                               file_name=os.path.join(current_path,
+                                                      ini_file_name)))
+
+
+def convert_dict_content_to_unicode(dictionary):
+    new_dictionary = {}
+    for key, value in dictionary.items():
+        if isinstance(key, six.binary_type):
+            key = six.u(key)
+        if isinstance(value, six.binary_type):
+            value = six.u(value)
+        new_dictionary[key] = value
+    return new_dictionary
