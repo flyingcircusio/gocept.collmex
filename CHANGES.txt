@@ -4,13 +4,13 @@ Changes
 1.4.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Credentials to log into Collmex can be given via an `collmex.ini` file.
 
 
 1.4.1 (2013-09-16)
 ------------------
 
-- creation of test activities is now fully customizable
+- Creation of test activities is now fully customizable
 
 
 1.4 (2013-09-13)

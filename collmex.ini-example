@@ -1,0 +1,11 @@
+[credentials]
+customer_id = 42555
+company_id = 1
+username = realuser
+password = realpassword
+
+[test-credentials]
+customer_id = 41222
+company_id = 1
+username = testuser
+password = testpassword
