@@ -112,8 +112,9 @@ class Collmex(object):
 
     def __init__(self, customer_id=None, company_id=None,
                  username=None, password=None):
-        invalid_credentials = [c is None for c in [customer_id, company_id,
-                                                   username, password]]
+        # credentials are invalid if any argument is None or empty
+        invalid_credentials = not all(
+            [customer_id, company_id, username, password])
 
         try:
             # try to use credentials from ini file 'collmex.ini'
