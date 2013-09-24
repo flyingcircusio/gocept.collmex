@@ -4,7 +4,8 @@ Changes
 1.4.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix the check for invalid credentials when ``gocept.collmex.collmex.Collmex``
+  is created.
 
 
 1.4.2 (2013-09-23)
