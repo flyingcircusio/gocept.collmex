@@ -119,12 +119,13 @@ class Collmex(object):
         try:
             # try to use credentials from ini file 'collmex.ini'
             cred = gocept.collmex.utils.get_collmex_credentials()
-        except (IOError, KeyError):
-            cred = {}
-
-        if not cred and invalid_credentials:
-            raise ValueError('No ini file found and not enough '
-                             'credentials given to create Collmex object.')
+        except (IOError, KeyError) as error:
+            if invalid_credentials:
+                raise ValueError(
+                    'Not enough credentials given for initialization and no '
+                    'valid ini file found. Searching and parsing the ini file '
+                    'gave the following error message: {error_message}'
+                    .format(error_message=error.message))
 
         # any given argument will overwrite credentials from ini file
         self.customer_id = customer_id or cred.get('customer_id', None)
