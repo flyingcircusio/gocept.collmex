@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.4.4 (unreleased)
+1.4.4 (2013-09-25)
 ------------------
 
 - Improve check for invalid credentials when ``gocept.collmex.collmex.Collmex``
