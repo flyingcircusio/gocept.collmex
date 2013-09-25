@@ -55,6 +55,13 @@ def get_collmex_credentials():
     section_name = os.environ.get('collmex_credential_section',
                                   'credentials')
 
+    options = ['customer_id', 'company_id', 'username', 'password']
+    error_message = ('Could not find an ini file with the name \'{file_name}\''
+                     ' in the current or any parent directory, which contained'
+                     ' the section \'[{section_name}]\' with the following '
+                     'options: {options}.'.format(file_name=ini_file_name,
+                                                 section_name=section_name,
+                                                 options=', '.join(options)))
     while True:
         try:  # test if ini file exists and parse it
             with open(os.path.join(current_path, ini_file_name)) as f:
@@ -69,30 +76,19 @@ def get_collmex_credentials():
         # if path remains the same we reached the root directory
         if current_path == os.path.dirname(current_path):
             # reached root and did not find an ini file
-            raise IOError('No ini file with the name \'{file_name}\' '
-                          'found in the current or any parent directory.'
-                          .format(file_name=ini_file_name))
+            raise IOError(error_message)
         # continue while-loop with parent directory
         current_path = os.path.dirname(current_path)
 
     if not config_parser.has_section(section_name):
         # ini file found, but has no credential section
-        raise KeyError('The section \'[{section_name}]\' was not found '
-                       'in the ini file \'{file_name}\'.'
-                       .format(section_name=section_name,
-                               file_name=os.path.join(current_path,
-                                                      ini_file_name)))
+        raise IOError(error_message)
 
     credentials = dict(config_parser.items(section_name))
-    options = ['customer_id', 'company_id', 'username', 'password']
     if not all([option in credentials for option in options]):
         # ini file with section found, but not all options were set
-        raise KeyError('One of the following options was not found '
-                       'in the ini file \'{file_name}\' below '
-                       'the section \'{section_name}\': {options}.'
-                       .format(file_name=ini_file_name,
-                               section_name=section_name,
-                               options=', '.join(options)))
+        raise IOError(error_message)
+
     return convert_dict_content_to_unicode(credentials)
 
 
