@@ -4,8 +4,10 @@ Changes
 1.4.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Improve check for invalid credentials when ``gocept.collmex.collmex.Collmex``
+  is created.
 
+- Yield more detailed information when parsing of the ini file failed.
 
 1.4.3 (2013-09-24)
 ------------------
