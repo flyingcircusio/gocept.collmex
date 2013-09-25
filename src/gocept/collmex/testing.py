@@ -16,11 +16,11 @@ def get_collmex(password=None):
 
 
 def cleanup_collmex():
-    # make sure that deletion only occurs iff test user is logged in
-    assert os.environ['collmex_credential_section'] == 'test-credentials'
-
     # Prepare a clean environment in our Collmex testing.
     b = get_collmex().browser_login()
+
+    # make sure that deletion only occurs iff test user is logged in
+    assert os.environ['collmex_credential_section'] == 'test-credentials'
 
     # Firma loeschen
     b = b.click(description='Verwaltung')
