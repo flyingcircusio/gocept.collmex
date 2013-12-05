@@ -8,8 +8,9 @@ if six.PY3:
     from collections import UserDict
 else:
     from UserDict import UserDict
-import gocept.collmex.interfaces
 from zope.interface import implementer
+import gocept.collmex.interfaces
+import datetime
 
 
 class Model(UserDict, object):
@@ -270,6 +271,47 @@ class Activity(Model):
         'Bis',
         'Pausen',
     )
+
+
+    @property
+    def day(self):
+        return datetime.datetime.strptime(self['Datum'], '%Y%m%d').date()
+
+    @property
+    def start_time(self):
+        return self._start_datetime.time()
+
+    @property
+    def end_time(self):
+        return self._end_datetime.time()
+
+    @property
+    def breaks(self):
+        time = datetime.datetime.strptime(self['Pausen'], '%H:%M').time()
+        return datetime.timedelta(hours=time.hour, minutes=time.minute)
+
+    @property
+    def duration(self):
+        return self._end_datetime - self._start_datetime - self.breaks
+
+    @property
+    def project_name(self):
+       # skip id in front of name
+        _, name = self['Projekt Nr'].split(' ', 1)
+        return name
+
+    @property
+    def employee_name(self):
+        _, name = self['Mitarbeiter Nr'].split(' ', 1)
+        return name
+
+    @property
+    def _start_datetime(self):
+        return datetime.datetime.strptime(self['Von'], '%H:%M')
+
+    @property
+    def _end_datetime(self):
+        return datetime.datetime.strptime(self['Bis'], '%H:%M')
 
 
 @implementer(gocept.collmex.interfaces.IProject)
