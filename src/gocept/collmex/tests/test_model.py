@@ -5,10 +5,9 @@ from __future__ import unicode_literals
 import gocept.collmex.interfaces
 import gocept.collmex.model
 import unittest
-from zope.interface import implementer
+import zope.interface
 
-
-@implementer(gocept.collmex.interfaces.IInvoiceItem)
+@zope.interface.implementer(gocept.collmex.interfaces.IInvoiceItem)
 class TestModel(gocept.collmex.model.Model):
 
     satzart = 'CMXINV'
