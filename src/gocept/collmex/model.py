@@ -8,9 +8,10 @@ if six.PY3:
     from collections import UserDict
 else:
     from UserDict import UserDict
-from zope.interface import implementer
-import gocept.collmex.interfaces
+
 import datetime
+import gocept.collmex.interfaces
+import zope.interface
 
 
 class Model(UserDict, object):
@@ -67,7 +68,7 @@ def factory(record_type):
     return None
 
 
-@implementer(gocept.collmex.interfaces.IInvoiceItem)
+@zope.interface.implementer(gocept.collmex.interfaces.IInvoiceItem)
 class InvoiceItem(Model):
 
     satzart = 'CMXINV'
@@ -162,7 +163,7 @@ class InvoiceItem(Model):
             self['Rechnungsart'] = 0  # type invoice
 
 
-@implementer(gocept.collmex.interfaces.ICustomer)
+@zope.interface.implementer(gocept.collmex.interfaces.ICustomer)
 class Customer(Model):
 
     satzart = 'CMXKND'
@@ -213,7 +214,7 @@ class Customer(Model):
     )
 
 
-@implementer(gocept.collmex.interfaces.IProduct)
+@zope.interface.implementer(gocept.collmex.interfaces.IProduct)
 class Product(Model):
 
     satzart = 'CMXPRD'
@@ -255,7 +256,7 @@ class Product(Model):
         self['Firma'] = company_id
 
 
-@implementer(gocept.collmex.interfaces.IActivity)
+@zope.interface.implementer(gocept.collmex.interfaces.IActivity)
 class Activity(Model):
 
     satzart = 'CMXACT'
@@ -314,7 +315,7 @@ class Activity(Model):
         return datetime.datetime.strptime(self['Bis'], '%H:%M')
 
 
-@implementer(gocept.collmex.interfaces.IProject)
+@zope.interface.implementer(gocept.collmex.interfaces.IProject)
 class Project(Model):
 
     satzart = 'CMXPRJ'
