@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.4.5 (unreleased)
+1.5.0 (2013-12-09)
 ------------------
 
 - Added methods to Activity to parse/calculate the dates, times, breaks,
