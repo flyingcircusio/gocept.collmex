@@ -7,6 +7,9 @@ Changes
 - Un-deprecate method ``Collmex.create_invoice``, it now takes care of
   automatically allocating invoice ids.
 
+- Add ``gocept.collmex.testing.ConsoleDump`` utility that fakes a collmex
+  connection, but only logs method calls.
+
 
 1.5.1 (2013-12-09)
 ------------------

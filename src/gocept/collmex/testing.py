@@ -3,11 +3,19 @@
 # See also LICENSE.txt
 
 from __future__ import unicode_literals
+from zope.interface import implementer
+import csv
 import datetime
 import gocept.collmex.collmex
+import gocept.collmex.interfaces
 import gocept.collmex.model
+import logging
 import os
+import six
 import transaction
+
+
+log = logging.getLogger(__name__)
 
 
 def get_collmex(password=None):
@@ -144,3 +152,63 @@ def create_activity(title,
     act['Pausen'] = break_time
     collmex.create(act)
     transaction.commit()
+
+
+NULL = gocept.collmex.interfaces.NULL
+
+
+@implementer(gocept.collmex.interfaces.ICollmex)
+class ConsoleDump(object):
+
+    def __init__(self):
+        log.info('Initialized console collmex connection.')
+
+    def create(self, item):
+        log.info('Would create item %r' % self._serialize(item))
+
+    def _serialize(self, item):
+        data = six.StringIO()
+        writer = csv.writer(
+            data, dialect=gocept.collmex.collmex.CollmexDialect)
+        item.company = 'NONE'
+        writer.writerow([elem.encode('UTF-8')
+                         if isinstance(elem, six.text_type) and six.PY2
+                         else elem for elem in list(item)])
+        return data.getvalue()
+
+    def create_invoice(self, items):
+        for item in items:
+            self.create(item)
+
+    def create_product(self, product):
+        self.create(product)
+
+    def create_customer(self, customer):
+        self.create(customer)
+
+    def get_invoices(self, invoice_id=NULL, customer_id=NULL,
+                     start_date=NULL, end_date=NULL):
+        log.info('get_invoices()')
+        return []
+
+    def get_customers(self, customer_id=NULL, text=NULL):
+        log.info('get_customers()')
+        return []
+
+    def get_products(self, product_id=NULL,
+                     product_group=NULL, price_group=NULL):
+        log.info('get_products()')
+        return []
+
+    def get_projects(self, project_id=NULL, customer_id=NULL):
+        log.info('get_projects()')
+        return []
+
+    def get_activities(self, project_id=NULL,
+                       employee_id=NULL,
+                       start_date=NULL, end_date=NULL,
+                       only_non_billed=NULL, billable=NULL,
+                       only_non_internal=NULL,
+                       only_changed=NULL):
+        log.info('get_activities()')
+        return []

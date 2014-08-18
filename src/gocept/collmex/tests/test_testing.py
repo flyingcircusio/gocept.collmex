@@ -2,7 +2,10 @@
 # See also LICENSE.txt
 
 from __future__ import unicode_literals
+import gocept.collmex.interfaces
+import gocept.collmex.testing
 import unittest
+import zope.interface.verify
 
 
 class TestCreateProjects(unittest.TestCase):
@@ -18,3 +21,11 @@ class TestCreateProjects(unittest.TestCase):
         self.assertEqual(
             ['TEST'],
             [prod['Produktnummer'] for prod in collmex.get_products()])
+
+
+class ConsoleDumpTest(unittest.TestCase):
+
+    def test_implements_interface(self):
+        zope.interface.verify.verifyObject(
+            gocept.collmex.interfaces.ICollmex,
+            gocept.collmex.testing.ConsoleDump())
