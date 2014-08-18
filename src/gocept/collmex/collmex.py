@@ -57,6 +57,7 @@ class CollmexDataManager(object):
         self._joined = False
         self._transaction = None
         self.voted = False
+        self.utility.reset_invoice_id()
 
     def register_data(self, data):
         """Registers one or more CSV lines for writing."""
@@ -140,6 +141,17 @@ class Collmex(object):
         if not getattr(self._local, name, None):
             setattr(self._local, name, None)
 
+    def reset_invoice_id(self):
+        # Collmex generates an invoice number if the one passed in is missing
+        # or negative; the same negative number in one import call will assign
+        # the same generated number.
+        # NOTE: we need to start with -10000. -1 does not work.
+        self._local.invoice_id = -10000
+
+    def generate_invoice_id(self):
+        self._local.invoice_id -= 1
+        return self._local.invoice_id
+
     @property
     def connection(self):
         self._ensure_local_attribute('connection')
@@ -157,8 +169,12 @@ class Collmex(object):
         self.connection.register_data(data.getvalue())
 
     def create_invoice(self, items):
-        # This is an deprecated API. Use ``create`` instead.
+        # Trigger reset of invoice ids if this is a new transaction
+        self.connection
+
+        id = self.generate_invoice_id()
         for item in items:
+            item['Rechnungsnummer'] = id
             self.create(item)
 
     def create_product(self, product):

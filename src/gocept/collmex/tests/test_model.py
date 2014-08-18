@@ -3,10 +3,13 @@
 
 from __future__ import unicode_literals
 import datetime
+import gocept.collmex.collmex
 import gocept.collmex.interfaces
 import gocept.collmex.model
+import transaction
 import unittest
 import zope.interface
+
 
 @zope.interface.implementer(gocept.collmex.interfaces.IInvoiceItem)
 class TestModel(gocept.collmex.model.Model):
@@ -68,3 +71,34 @@ class TestActivity(unittest.TestCase):
         self.assertEqual(
             'Foo bar employee',
             self.act(**{'Mitarbeiter Nr': '43 Foo bar employee'}).employee_name)
+
+
+class TestInvoice(unittest.TestCase):
+
+    def tearDown(self):
+        transaction.abort()
+
+    def test_should_assign_number_on_create(self):
+        collmex = gocept.collmex.collmex.Collmex('any', 'any', 'any', 'any')
+        inv = gocept.collmex.model.InvoiceItem()
+        collmex.create_invoice([inv])
+        self.assertEqual(-10001, inv['Rechnungsnummer'])
+
+    def test_calls_in_same_transaction_get_different_number(self):
+        collmex = gocept.collmex.collmex.Collmex('any', 'any', 'any', 'any')
+        inv1 = gocept.collmex.model.InvoiceItem()
+        collmex.create_invoice([inv1])
+        self.assertEqual(-10001, inv1['Rechnungsnummer'])
+        inv2 = gocept.collmex.model.InvoiceItem()
+        collmex.create_invoice([inv2])
+        self.assertEqual(-10002, inv2['Rechnungsnummer'])
+
+    def test_each_transaction_resets_number_range(self):
+        collmex = gocept.collmex.collmex.Collmex('any', 'any', 'any', 'any')
+        inv1 = gocept.collmex.model.InvoiceItem()
+        collmex.create_invoice([inv1])
+        self.assertEqual(-10001, inv1['Rechnungsnummer'])
+        transaction.abort()
+        inv2 = gocept.collmex.model.InvoiceItem()
+        collmex.create_invoice([inv2])
+        self.assertEqual(-10001, inv2['Rechnungsnummer'])
