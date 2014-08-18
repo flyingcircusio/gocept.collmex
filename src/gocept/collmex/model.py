@@ -155,7 +155,13 @@ class InvoiceItem(Model):
         'Steuer auch im Ausland',
         'Kundenauftragsposition',
         'Erlösart',
-        )
+    )
+
+    # Possible values for 'Positionstyp'
+    TYPE_DEFAULT = 0
+    TYPE_SUM = 1
+    TYPE_TEXT = 2
+    TYPE_FREE = 3
 
     def __init__(self, row=()):
         super(InvoiceItem, self).__init__(row)
