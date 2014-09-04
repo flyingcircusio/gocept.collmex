@@ -21,18 +21,8 @@ class TestCollmex(unittest.TestCase):
         {'collmex_credential_section': 'non-existing-credentials'})
     def test_missing_login_information_raises_an_exception(self):
         import gocept.collmex.collmex
-        with self.assertRaises(ValueError) as err:
+        with self.assertRaises(ValueError):
             gocept.collmex.collmex.Collmex()
-        self.assertEqual('Not enough credentials given for '
-                         'initialization and no valid ini file found. '
-                         'Searching and parsing the ini file gave the '
-                         'following error message: Could not find an '
-                         'ini file with the name \'collmex.ini\' in the '
-                         'current or any parent directory, which '
-                         'contained the section \'[non-existing-credentials]\''
-                         ' with the following options: customer_id, '
-                         'company_id, username, password.',
-                         str(err.exception))
 
     def test_invalid_login_information_raises_an_exception(self):
         import gocept.collmex.collmex
