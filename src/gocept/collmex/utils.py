@@ -46,39 +46,31 @@ def get_content_type(filename):
 
 
 def get_collmex_credentials():
-    current_path = os.getcwd()
-    config_parser = configparser.ConfigParser()
-    ini_file_name = 'collmex.ini'
-
     # for testing purposes set 'collmex_credential_section' to
     # 'test-credentials' before initialization of the Collmex object
     section_name = os.environ.get('collmex_credential_section',
                                   'credentials')
-
     options = ['customer_id', 'company_id', 'username', 'password']
-    error_message = ('Could not find an ini file with the name \'{file_name}\''
-                     ' in the current or any parent directory, which contained'
-                     ' the section \'[{section_name}]\' with the following '
-                     'options: {options}.'.format(file_name=ini_file_name,
-                                                 section_name=section_name,
-                                                 options=', '.join(options)))
-    while True:
-        try:  # test if ini file exists and parse it
-            with open(os.path.join(current_path, ini_file_name)) as f:
-                if six.PY3:
-                    config_parser.read_file(f)
-                else:
-                    config_parser.readfp(f)
-            break
-        except IOError:  # ini file does not exist
-            pass
 
-        # if path remains the same we reached the root directory
-        if current_path == os.path.dirname(current_path):
-            # reached root and did not find an ini file
-            raise IOError(error_message)
-        # continue while-loop with parent directory
-        current_path = os.path.dirname(current_path)
+    ini_file = os.environ.get(
+        'COLLMEX_INI', _find_ini_file_from_current_directory())
+    if not ini_file:
+        raise IOError(
+            'Could not find a \'collmex.ini\' file in %s'
+            ' or any parent directory' % os.getcwd())
+
+    error_message = ('Config file {filename} did not contain a section'
+                     ' \'[{section_name}]\' with the following '
+                     'options: {options}.'.format(filename=ini_file,
+                                                  section_name=section_name,
+                                                  options=', '.join(options)))
+
+    config_parser = configparser.ConfigParser()
+    with open(ini_file) as f:
+        if six.PY3:
+            config_parser.read_file(f)
+        else:
+            config_parser.readfp(f)
 
     if not config_parser.has_section(section_name):
         # ini file found, but has no credential section
@@ -90,6 +82,22 @@ def get_collmex_credentials():
         raise IOError(error_message)
 
     return convert_dict_content_to_unicode(credentials)
+
+
+def _find_ini_file_from_current_directory():
+    ini_file_name = 'collmex.ini'
+    current_path = os.getcwd()
+    while True:
+        ini_file = os.path.join(current_path, ini_file_name)
+        if os.path.isfile(ini_file):
+            return ini_file
+
+        # if path remains the same we reached the root directory
+        if current_path == os.path.dirname(current_path):
+            # reached root and did not find an ini file
+            return None
+        # continue while-loop with parent directory
+        current_path = os.path.dirname(current_path)
 
 
 def convert_dict_content_to_unicode(dictionary):

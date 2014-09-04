@@ -4,7 +4,9 @@ Changes
 1.6.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Use collmex.ini file given by the path in environment variable
+  ``COLLMEX_INI`` if present, only otherwise look upward from the current
+  directory.
 
 
 1.6.0 (2014-08-18)
