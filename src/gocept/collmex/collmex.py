@@ -297,7 +297,7 @@ class Collmex(object):
                 if isinstance(data, six.binary_type)
                 else data)
         data = 'LOGIN;%s;%s\n' % (self.username, self.password) + data
-        log.debug(data)
+        log.debug(data.replace(self.password, '<PASSWORD>'))
         content_type, body = gocept.collmex.utils.encode_multipart_formdata(
             [], [('fileName', 'api.csv', data)])
 

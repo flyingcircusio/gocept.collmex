@@ -8,6 +8,8 @@ Changes
   ``COLLMEX_INI`` if present, only otherwise look upward from the current
   directory.
 
+- Don't log the password in our debug output.
+
 
 1.6.0 (2014-08-18)
 ------------------
