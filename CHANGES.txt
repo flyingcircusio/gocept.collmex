@@ -1,10 +1,16 @@
 Changes
 =======
 
-1.7.1 (unreleased)
+1.8.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Declared compatibility with Python 3.4.
+
+- Stopped promising compatibility with Python 3.2 since a) tests don't succeed
+  with Python 3.2 and current test software b) nobody uses it anymore anyway.
+
+- Made sure tests don't use invalid credentials on test account too many times
+  in a row.
 
 
 1.7.0 (2014-09-04)
