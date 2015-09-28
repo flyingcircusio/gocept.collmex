@@ -1,6 +1,3 @@
-# Copyright (c) 2008 gocept gmbh & co. kg
-# See also LICENSE.txt
-
 import os.path
 from setuptools import setup, find_packages
 
@@ -22,8 +19,8 @@ setup(
       'Programming Language :: Python :: 2',
       'Programming Language :: Python :: 2.7',
       'Programming Language :: Python :: 3',
-      'Programming Language :: Python :: 3.2',
       'Programming Language :: Python :: 3.3',
+      'Programming Language :: Python :: 3.4',
     ],
     long_description = (
         open('README.txt').read() +
