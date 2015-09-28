@@ -18,9 +18,9 @@ import transaction
 log = logging.getLogger(__name__)
 
 
-def get_collmex():
+def get_collmex(password=None):
     os.environ['collmex_credential_section'] = 'test-credentials'
-    return gocept.collmex.collmex.Collmex()
+    return gocept.collmex.collmex.Collmex(password=password)
 
 
 def cleanup_collmex():

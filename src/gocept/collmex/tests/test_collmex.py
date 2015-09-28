@@ -1,6 +1,3 @@
-# Copyright (c) 2012 gocept gmbh & co. kg
-# See also LICENSE.txt
-
 from __future__ import unicode_literals
 import mock
 import unittest
@@ -11,6 +8,9 @@ class TestCollmex(unittest.TestCase):
     def setUp(self):
         import gocept.collmex.testing
         gocept.collmex.testing.cleanup_collmex()
+
+    def tearDown(self):
+        self.collmex.browser_login()  # reset invalid login counter
 
     @property
     def collmex(self):
@@ -23,6 +23,17 @@ class TestCollmex(unittest.TestCase):
         import gocept.collmex.collmex
         with self.assertRaises(ValueError):
             gocept.collmex.collmex.Collmex()
+
+    def test_invalid_login_information_raises_an_exception(self):
+        import gocept.collmex.collmex
+        import gocept.collmex.testing
+
+        collmex_invalid = gocept.collmex.testing.get_collmex(
+            password='invalid')
+        with self.assertRaises(gocept.collmex.collmex.APIError) as err:
+            collmex_invalid.get_invoices(customer_id='10000')
+        self.assertEqual(('101004', 'Benutzer oder Kennwort nicht korrekt'),
+                         err.exception.args)
 
     def test_browser_login_authenticates_user_using_browser(self):
         browser = self.collmex.browser_login()
