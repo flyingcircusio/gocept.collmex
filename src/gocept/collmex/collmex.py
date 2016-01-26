@@ -109,6 +109,7 @@ class Collmex(object):
     # XXX should go on CollmexDialect but the csv module's magic prevents it
     NULL = gocept.collmex.interfaces.NULL
 
+    encoding = 'Windows-1252'  # Encoding used by Collmex
     system_identifier = 'gocept.collmex'
 
     def __init__(self, customer_id=None, company_id=None,
@@ -242,18 +243,18 @@ class Collmex(object):
     def browser_login(self):
         """Log into Collmex using a browser."""
         b = webtest.TestApp('https://www.collmex.de').get('/')
-        b.charset = 'Windows-1252'
+        b.charset = self.encoding
 
         f = b.form
         f['Kunde'] = self.customer_id
         b = f.submit().maybe_follow()
-        b.charset = 'Windows-1252'
+        b.charset = self.encoding
 
         f = b.form
         f['group_benutzerId'] = self.username
         f['group_kennwort'] = self.password
         b = f.submit().maybe_follow()
-        b.charset = 'Windows-1252'
+        b.charset = self.encoding
         return b
 
     def _get_cache(self):
@@ -307,22 +308,22 @@ class Collmex(object):
 
         if six.PY2:
             url, body, content_type_label, content_type = [
-                text.encode('Windows-1252') for text in
+                text.encode(self.encoding) for text in
                 [url, body, content_type_label, content_type]]
         else:
-            body = body.encode('Windows-1252')
+            body = body.encode(self.encoding)
 
         request = urllib2.Request(url, body)
         request.add_header(content_type_label, content_type)
         response = urllib2.urlopen(request)
 
         if six.PY3:
-            response = six.StringIO(response.read().decode('Windows-1252'))
+            response = six.StringIO(response.read().decode(self.encoding))
 
         lines = list(csv.reader(response, dialect=CollmexDialect))
 
         if six.PY2:
-            lines = [[line.decode('Windows-1252') for line in ls]
+            lines = [[line.decode(self.encoding) for line in ls]
                      for ls in lines]
         response.close()
         result = lines.pop()
