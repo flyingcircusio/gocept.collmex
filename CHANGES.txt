@@ -12,6 +12,11 @@ Changes
 - Made sure tests don't use invalid credentials on test account too many times
   in a row.
 
+- Raise ``ValueError`` if the Collmex website returned an error during
+  ``Collmex.browser_login``. Until now the error was hidden, but the following
+  action failed. In particular this should help to spot invalid credentials.
+
+
 
 1.7.0 (2014-09-04)
 ------------------
