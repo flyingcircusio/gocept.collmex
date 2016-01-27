@@ -11,6 +11,7 @@ import gocept.collmex.interfaces
 import gocept.collmex.model
 import gocept.collmex.utils
 import logging
+import re
 import threading
 import transaction
 import transaction.interfaces
@@ -241,7 +242,15 @@ class Collmex(object):
             only_changed, self.system_identifier)
 
     def browser_login(self):
-        """Log into Collmex using a browser."""
+        """Log into Collmex using a browser.
+
+        Raises a ValueError when Collmex responds with an error, containing the
+        error message from Collmex. Common errors are:
+
+        * invalid credentials
+        * disabled login, due to too many failed logins
+
+        """
         b = webtest.TestApp('https://www.collmex.de').get('/')
         b.charset = self.encoding
 
@@ -255,6 +264,12 @@ class Collmex(object):
         f['group_kennwort'] = self.password
         b = f.submit().maybe_follow()
         b.charset = self.encoding
+
+        body = b.body.decode(self.encoding)
+        error = re.search('<p class="error">(.*?)</p>', body)
+        if error is not None:
+            raise ValueError(error.group(1))
+
         return b
 
     def _get_cache(self):
