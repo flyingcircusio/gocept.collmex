@@ -4,10 +4,10 @@
 
 from __future__ import unicode_literals
 import six
-if six.PY3:
-    from collections import UserDict
-else:
-    from UserDict import UserDict
+if six.PY3:  # NOQA
+    from collections import UserDict  # NOQA
+else:  # NOQA
+    from UserDict import UserDict  # NOQA
 
 import datetime
 import gocept.collmex.interfaces
@@ -26,8 +26,8 @@ class Model(UserDict, object):
         self._unmapped = []
 
         for i, value in enumerate(row):
-            if (value is None or isinstance(value, six.text_type)
-                                 and value == ''):
+            if (value is None or isinstance(value, six.text_type) and
+                    value == ''):
                 value = None
             try:
                 field_name = self.fields[i]
@@ -279,7 +279,6 @@ class Activity(Model):
         'Pausen',
     )
 
-
     @property
     def day(self):
         return datetime.datetime.strptime(self['Datum'], '%Y%m%d').date()
@@ -303,7 +302,7 @@ class Activity(Model):
 
     @property
     def project_name(self):
-       # skip id in front of name
+        # skip id in front of name
         _, name = self['Projekt Nr'].split(' ', 1)
         return name
 

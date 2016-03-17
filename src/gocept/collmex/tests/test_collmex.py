@@ -18,7 +18,8 @@ class TestCollmex(unittest.TestCase):
         return gocept.collmex.testing.get_collmex()
 
     @mock.patch.dict('os.environ',
-        {'collmex_credential_section': 'non-existing-credentials'})
+                     {'collmex_credential_section': 'non-existing-credentials'}
+                     )
     def test_missing_login_information_raises_an_exception(self):
         import gocept.collmex.collmex
         with self.assertRaises(ValueError):

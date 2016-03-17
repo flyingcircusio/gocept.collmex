@@ -70,7 +70,8 @@ class TestActivity(unittest.TestCase):
     def test_employee_name_should_skip_employee_id(self):
         self.assertEqual(
             'Foo bar employee',
-            self.act(**{'Mitarbeiter Nr': '43 Foo bar employee'}).employee_name)
+            self.act(**{'Mitarbeiter Nr': '43 Foo bar employee'}
+                     ).employee_name)
 
 
 class TestInvoice(unittest.TestCase):
