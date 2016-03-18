@@ -1,13 +1,10 @@
 # copied from http://code.activestate.com/recipes/146306/
 
 from __future__ import unicode_literals
+from six.moves import configparser
 import mimetypes
 import os
 import six
-if six.PY3:
-    import configparser
-else:
-    import ConfigParser as configparser
 
 
 def encode_multipart_formdata(fields, files):
