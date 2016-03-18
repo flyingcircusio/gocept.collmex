@@ -1,16 +1,10 @@
 # coding: utf8
-# Copyright (c) 2008 gocept gmbh & co. kg
-# See also LICENSE.txt
 
 from __future__ import unicode_literals
-import six
-if six.PY3:  # NOQA
-    from collections import UserDict  # NOQA
-else:  # NOQA
-    from UserDict import UserDict  # NOQA
-
+from six.moves import UserDict
 import datetime
 import gocept.collmex.interfaces
+import six
 import zope.interface
 
 
