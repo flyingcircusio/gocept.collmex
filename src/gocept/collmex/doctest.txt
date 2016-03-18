@@ -7,6 +7,15 @@ documentation is available at
 http://www.collmex.de/cgi-bin/cgi.exe?1005,1,help,api.
 
 
+Compatibility for Python 2 and 3
+--------------------------------
+
+We need to define this function to make the doctests compatible.
+
+>>> def assert_equal(expected, returned):
+...     if expected != returned:
+...         raise AssertionError("{!r} != {!r}".format(expected, returned))
+
 The collmex object
 ------------------
 
@@ -57,23 +66,16 @@ Customers can be listed using the get_customers method:
 The first customer is the generic one:
 
 >>> customer = customers[0]
->>> customer[u'Satzart']
-u'CMXKND'
->>> customer[u'Kundennummer']
-u'9999'
->>> customer[u'Firma']
-u'Allgemeiner Gesch\xe4ftspartner'
-
+>>> assert_equal(u'CMXKND', customer[u'Satzart'])
+>>> assert_equal(u'9999', customer[u'Kundennummer'])
+>>> assert_equal(u'Allgemeiner Gesch\xe4ftspartner', customer[u'Firma'])
 
 The second customer is one created during test setup:
 
 >>> customer = customers[1]
->>> customer[u'Satzart']
-u'CMXKND'
->>> customer[u'Kundennummer']
-u'10000'
->>> customer[u'Firma']
-u'Testkunden'
+>>> assert_equal(u'CMXKND', customer[u'Satzart'])
+>>> assert_equal(u'10000', customer[u'Kundennummer'])
+>>> assert_equal(u'Testkunden', customer[u'Firma'])
 
 Products: ``create_product`` and ``get_products``
 -------------------------------------------------
@@ -88,8 +90,7 @@ Products are created using the ``create_product`` method:
 >>> product[u'Verkaufs-Preis'] = 5
 >>> collmex.create(product)
 >>> transaction.commit()
->>> collmex.get_products()[0][u'Bezeichnung']
-u'Testprodukt'
+>>> assert_equal(u'Testprodukt', collmex.get_products()[0][u'Bezeichnung'])
 
 Invoices: ``create_invoice`` and ``get_invoices``
 -------------------------------------------------
@@ -117,9 +118,9 @@ now does *not* return the invoice:
 After committing, the invoice is found:
 
 >>> transaction.commit()
->>> collmex.get_invoices(customer_id=u'10000',
-...                      start_date=start_date)[0][u'Rechnungstext']
-u'item text \u2013 with non-ascii characters'
+>>> assert_equal(u'item text \u2013 with non-ascii characters',
+...       collmex.get_invoices(customer_id=u'10000',
+...                            start_date=start_date)[0][u'Rechnungstext'])
 
 Activities
 ----------
@@ -153,12 +154,11 @@ Export using ``get_activities``
 ``get_activities`` returns Activity objects.
 
 .. ATTENTION:: In previous versions this method returnd a raw CSV string. This
-      was due to Collmex not having an actual API. 
+      was due to Collmex not having an actual API.
 
 
 >>> activities = collmex.get_activities()
->>> activities[0][u'Beschreibung']
-u'allgemeine T\xe4tigkeit'
+>>> assert_equal(u'allgemeine T\xe4tigkeit', activities[0][u'Beschreibung'])
 
 
 Projects: ``get_projects``
@@ -173,12 +173,9 @@ for every project set (Projektsatz) of each project (Projekt):
 >>> proj[0][u'Projektnummer'] == proj[1][u'Projektnummer']
 True
 
->>> proj[0][u'Satz']
-u'5,00'
->>> proj[1][u'Satz']
-u'9,65'
->>> proj[0][u'Inaktiv']
-u'0'
+>>> assert_equal(u'5,00', proj[0][u'Satz'])
+>>> assert_equal(u'9,65', proj[1][u'Satz'])
+>>> assert_equal(u'0', proj[0][u'Inaktiv'])
 
 Caching
 -------
@@ -197,23 +194,20 @@ HTTP communication to show when it is called:
 The first time in an transaction is retrieved from Collmex, of course:
 
     >>> transaction.abort()
-    >>> collmex.get_products()[0][u'Bezeichnung']
+    >>> assert_equal(u'Testprodukt', collmex.get_products()[0][u'Bezeichnung'])
     cache miss
-    u'Testprodukt'
 
 But after that, values are cached:
 
-    >>> collmex.get_products()[0][u'Bezeichnung']
-    u'Testprodukt'
+    >>> assert_equal(u'Testprodukt', collmex.get_products()[0][u'Bezeichnung'])
 
 When the transaction ends, the cache is invalidated:
 
     >>> transaction.commit()
-    >>> collmex.get_products()[0][u'Bezeichnung']
+    >>> assert_equal(u'Testprodukt', collmex.get_products()[0][u'Bezeichnung'])
     cache miss
-    u'Testprodukt'
-    >>> collmex.get_products()[0][u'Bezeichnung']
-    u'Testprodukt'
+
+    >>> assert_equal(u'Testprodukt', collmex.get_products()[0][u'Bezeichnung'])
 
 Remove tracing instrumentation:
 
