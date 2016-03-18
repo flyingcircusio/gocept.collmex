@@ -2,6 +2,6 @@ include *.py
 include *.txt
 include .coveragerc
 include buildout.cfg
-include tox.ini
+include *.ini
 include collmex.ini-example
 recursive-include src *.txt
