@@ -74,7 +74,7 @@ def create_product():
     assert 'TEST' in [prod['Produktnummer'] for prod in collmex.get_products()]
 
 
-def create_project(title):
+def create_project(title, budget=0):
     # There is no API to create projects, so use the browser
     create_product()
     b = get_collmex().browser_login()
@@ -94,6 +94,7 @@ def create_project(title):
     f['group_bezeichnung'] = title
     f['group_kundeNr'] = '10000'
     f['table_1_produktNr'] = 'TEST'
+    f['group_budget'] = budget
     b = f.submit(name='speichern')
     b.charset = 'Windows-1252'
 
