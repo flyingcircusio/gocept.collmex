@@ -1,3 +1,5 @@
+# coding: utf8
+
 from __future__ import unicode_literals
 import mock
 import unittest
@@ -95,3 +97,43 @@ class TestCollmex(unittest.TestCase):
             mock.sentinel.only_non_internal,
             mock.sentinel.only_changed,
             'gocept.collmex')  # system identifier
+
+    def test_collmex__Collmex__get_projects__1(self):
+        """It returns same project twice for both configured rates."""
+        import gocept.collmex.testing
+        import transaction
+        gocept.collmex.testing.create_project(title='Testprojekt')
+        transaction.commit()
+        projects = self.collmex.get_projects()
+        self.assertEqual(2, len(projects))
+        self.assertEqual('1', projects[0]['Satz Nr'])
+        self.assertEqual('5,00', projects[0]['Satz'])
+        self.assertEqual('2', projects[1]['Satz Nr'])
+        self.assertEqual('9,65', projects[1]['Satz'])
+
+    def test_collmex__Collmex__get_projects__2(self):
+        """It returns project with budget set on creation."""
+        import gocept.collmex.testing
+        import transaction
+        gocept.collmex.testing.create_project(title='Testprojekt', budget=50)
+        transaction.commit()
+        projects = self.collmex.get_projects()
+        self.assertEqual('50,00', projects[0]['Budget'])
+
+    def test_collmex__Collmex__get_projects__3(self):
+        """It returns project with summed up cost for all activities."""
+        import datetime
+        import gocept.collmex.testing
+        import transaction
+        gocept.collmex.testing.create_project(title='Testprojekt', budget=50)
+        gocept.collmex.testing.create_employee()
+        # Default activity has a duration of 5.15h for 5€/h, i.e. costs 25.75€
+        gocept.collmex.testing.create_activity(
+            'Activity in test project',
+            project_id='1', employee_id='1',
+            date=datetime.date(2012, 1, 1))
+        transaction.commit()
+
+        projects = self.collmex.get_projects()
+        self.assertEqual('50,00', projects[0]['Budget'])
+        self.assertEqual('25,75', projects[0]['Wert'])

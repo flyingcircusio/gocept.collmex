@@ -4,7 +4,7 @@ Changes
 1.8.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Extend `Project` to retrieve budget and summed up work via API.
 
 
 1.8.0 (2016-01-27)
