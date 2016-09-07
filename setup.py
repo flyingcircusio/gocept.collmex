@@ -22,14 +22,14 @@ setup(
       'Programming Language :: Python :: 3.3',
       'Programming Language :: Python :: 3.4',
     ],
-    long_description = (
+    long_description=(
         open('README.txt').read() +
         '\n\n' +
         open(os.path.join('src', 'gocept', 'collmex', 'doctest.txt')).read() +
         '\n\n' +
         open('CHANGES.txt').read()),
     packages=find_packages('src'),
-    package_dir = {'': 'src'},
+    package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=False,
     license='ZPL 2.1',
