@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2008 gocept gmbh & co. kg
-# See also LICENSE.txt
-
 from __future__ import unicode_literals
 import six
 import csv
