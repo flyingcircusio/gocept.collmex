@@ -1,10 +1,11 @@
 Changes
 =======
 
-1.8.2 (unreleased)
+1.8.2 (2017-01-23)
 ------------------
 
-- Nothing changed yet.
+- Implemented `MITGLIED_GET` as `get_members()` and `CMXMGD`
+  as `models.Member`, both only applicable for "collmex Verein".
 
 
 1.8.1 (2016-06-09)
