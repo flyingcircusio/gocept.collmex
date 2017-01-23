@@ -163,6 +163,50 @@ class InvoiceItem(Model):
             self['Rechnungsart'] = 0  # type invoice
 
 
+@zope.interface.implementer(gocept.collmex.interfaces.IMember)
+class Member(Model):
+    satzart = 'CMXMGD'
+    fields = (
+        'Satzart',
+        'Mitgliedsnummer',
+        'Anrede',
+        'Titel',
+        'Vorname',
+        'Name',
+        'Firma',
+        'Abteilung',
+        'Straße',
+        'PLZ',
+        'Ort',
+        'Löschen',
+        'URL',
+        'Land',
+        'Telefon',
+        'Telefax',
+        'E-Mail',
+        'Kontonummer',
+        'Blz',
+        'Iban',
+        'Bic',
+        'Bankname',
+        'Lastschrift-Mandatsreferenz',
+        'Datum Unterschrift',
+        'Geburtsdatum',
+        'Eintrittsdatum',
+        'Austrittsdatum',
+        'Bemerkung',
+        'Telefon2',
+        'Skype/VoIP',
+        'Kontoinhaber',
+        'Ausgabemedium',
+        'Adressgruppe',
+        'Zahlungsbedingung',
+        'Abrechnung über',
+        'Ausgabesprache',
+        'Kostenstelle',
+    )
+
+
 @zope.interface.implementer(gocept.collmex.interfaces.ICustomer)
 class Customer(Model):
 

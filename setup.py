@@ -42,7 +42,7 @@ setup(
         'zope.interface >= 4.0',
         'webtest >= 2.0',
         'wsgiproxy2',
-        'six'
+        'six >= 1.7.0'
         ],
     extras_require=dict(
         test=[

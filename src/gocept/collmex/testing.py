@@ -57,6 +57,18 @@ def create_customer():
     assert 'Testkunden' in [cust['Firma'] for cust in collmex.get_customers()]
 
 
+def create_member():
+    collmex = get_collmex()
+    if 'Testmitglied' not in [mem['Name'] for mem in collmex.get_members()]:
+         member = gocept.collmex.model.Member()
+         member['Mitgliedsnummer'] = 10001
+         member['Name'] = 'Testmitglied'
+         collmex.create(member)
+         transaction.commit()
+
+    assert 'Testmitglied' in [mem['Name'] for mem in collmex.get_members()]
+
+
 def create_product():
     create_customer()
     collmex = get_collmex()
@@ -194,6 +206,10 @@ class ConsoleDump(object):
 
     def get_customers(self, customer_id=NULL, text=NULL):
         log.info('get_customers()')
+        return []
+
+    def get_members(self, member_id=NULL, text=NULL):
+        log.info('get_members()')
         return []
 
     def get_products(self, product_id=NULL,

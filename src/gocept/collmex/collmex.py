@@ -205,6 +205,18 @@ class Collmex(object):
             0, self.NULL, self.NULL, self.NULL, self.NULL, self.NULL,
             0, self.system_identifier)
 
+    def get_members(self, member_id=NULL, text=NULL, include_inactive=True):
+        return self._query_objects(
+            'MEMBER_GET',
+            member_id,
+            self.company_id,
+            text,
+            self.NULL, # # -- plz/country
+            0, # # --  address group
+            int(include_inactive), # 1 -- auch ausgetretene
+            0, # 1 -- only changed since last call
+            self.system_identifier)
+
     def get_products(self, product_id=NULL,
                      product_group=NULL, price_group=NULL):
         return self._query_objects(

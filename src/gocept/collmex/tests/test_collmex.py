@@ -137,3 +137,19 @@ class TestCollmex(unittest.TestCase):
         projects = self.collmex.get_projects()
         self.assertEqual('50,00', projects[0]['Budget'])
         self.assertEqual('25,75', projects[0]['Wert'])
+
+    def test_collmex__Collmex__get_members__1(self):
+        """It returns all members."""
+
+        # Unfortunately we cannot yet create members with the same
+        # test credentials, as this is a special "collmex verein"
+        # feature.
+
+        #import gocept.collmex.testing
+        #gocept.collmex.testing.create_member()
+        members = self.collmex.get_members()
+        #self.assertEqual('Testmitglied', members[0]['Name'])
+
+        # At least, listing the members works.
+
+        self.assertEqual([], members)
