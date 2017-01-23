@@ -25,6 +25,9 @@ class ICollmex(zope.interface.Interface):
     def get_customers(customer_id=NULL, text=NULL):
         """Returns a list of ICustomers matching given criteria."""
 
+    def get_members(member_id=NULL, text=NULL):
+        """Returns a list of ICustomers matching given criteria."""
+
     def get_products(product_id=NULL, product_group=NULL, price_group=NULL):
         """Returns a list of IProducts matching given criteria."""
 
@@ -49,6 +52,10 @@ class IInvoiceItem(IModel):
 
 class ICustomer(IModel):
     """A customer (CMXKND)."""
+
+
+class IMember(IModel):
+    """A customer (CMXMGD)."""
 
 
 class IProduct(IModel):
