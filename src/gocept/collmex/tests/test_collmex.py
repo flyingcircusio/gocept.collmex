@@ -139,17 +139,51 @@ class TestCollmex(unittest.TestCase):
         self.assertEqual('25,75', projects[0]['Wert'])
 
     def test_collmex__Collmex__get_members__1(self):
+        #unfortunately this can only be tested
+        #with a "collmex verein" testaccount
+        return
         """It returns all members."""
 
         # Unfortunately we cannot yet create members with the same
         # test credentials, as this is a special "collmex verein"
         # feature.
 
-        #import gocept.collmex.testing
-        #gocept.collmex.testing.create_member()
+        import gocept.collmex.testing
+        gocept.collmex.testing.create_member()
         members = self.collmex.get_members()
-        #self.assertEqual('Testmitglied', members[0]['Name'])
+        self.assertEqual('Testmitglied', members[0]['Name'])
+        self.assertEqual(1, len(members))
 
-        # At least, listing the members works.
+    def test_collmex__Collmex__create_member__1(self):
+        #unfortunately this can only be tested
+        #with a "collmex verein" testaccount
+        return
+        import gocept.collmex.testing
+        import gocept.collmex.model
+        import transaction
+        collmex = gocept.collmex.testing.get_collmex()
+        member = gocept.collmex.model.Member()
+        member['Mitgliedsnummer'] = 10001
+        member['Name'] = 'Testmitglied'
+        member['Firma'] = 1
+        collmex.create(member)
+        transaction.commit()
+        assert 'Testmitglied' in [mem['Name'] for mem in collmex.get_members()]
 
-        self.assertEqual([], members)
+    def test_collmex__Collmex__create_abo__1(self):
+        #unfortunately this can only be tested
+        #with a "collmex verein" testaccount
+        return
+        import gocept.collmex.testing
+        import gocept.collmex.model
+        import transaction
+        gocept.collmex.testing.create_member_product()
+        transaction.commit()
+        collmex = gocept.collmex.testing.get_collmex()
+        prod = gocept.collmex.model.MemberProduct()
+        prod['Mitglieds-Nr'] = 10001
+        prod['Produkt Nr'] = 'TEST2'
+        prod['Firma'] = 1
+        collmex.create(prod)
+        transaction.commit()
+        assert 'Testmitglied' in [mem['Name'] for mem in collmex.get_members()]

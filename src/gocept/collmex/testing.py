@@ -86,6 +86,22 @@ def create_product():
     assert 'TEST' in [prod['Produktnummer'] for prod in collmex.get_products()]
 
 
+def create_member_product():
+    create_member()
+    collmex = get_collmex()
+    if 'TEST2' not in [prod['Produktnummer']
+                      for prod in collmex.get_products()]:
+        product = gocept.collmex.model.Product()
+        product['Produktnummer'] = 'TEST2'
+        product['Bezeichnung'] = 'Testbeitrag'
+        product['Produktart'] = 2  # Mitgliedsbeitrag
+        product['Verkaufs-Preis'] = 5
+        collmex.create(product)
+        transaction.commit()
+
+    assert 'TEST2' in [prod['Produktnummer'] for prod in collmex.get_products()]
+
+
 def create_project(title, budget=0):
     # There is no API to create projects, so use the browser
     create_product()

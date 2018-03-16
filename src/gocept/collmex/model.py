@@ -207,6 +207,25 @@ class Member(Model):
     )
 
 
+@zope.interface.implementer(gocept.collmex.interfaces.IMemberProduct)
+class MemberProduct(Model):
+    satzart = 'CMXABO'
+    fields = (
+        'Satzart',
+        'Mitglieds-Nr',
+        'Firma',
+        'Gültig von',
+        'Gültig bis',
+        'Produkt Nr',
+        'Produktbeschreibung',
+        'Individueller Preis',
+        'Intervall',
+        'Nächste Rechnung',
+        'Reserviert',
+        'Pos',
+    )
+
+
 @zope.interface.implementer(gocept.collmex.interfaces.ICustomer)
 class Customer(Model):
 

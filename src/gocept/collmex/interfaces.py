@@ -54,6 +54,10 @@ class ICustomer(IModel):
     """A customer (CMXKND)."""
 
 
+class IMemberProduct(IModel):
+    """Product for Members (CMXABO)"""
+
+
 class IMember(IModel):
     """A customer (CMXMGD)."""
 
