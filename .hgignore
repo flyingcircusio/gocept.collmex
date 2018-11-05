@@ -1,10 +1,12 @@
 syntax:glob
+
 *.egg-info
 *.pyc
 .Python
-.coverage
 .cache
+.coverage
 .installed.cfg
+.pytest_cache/
 .python-version
 .tox
 bin
