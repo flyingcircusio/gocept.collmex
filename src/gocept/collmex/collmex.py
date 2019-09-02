@@ -211,10 +211,10 @@ class Collmex(object):
             member_id,
             self.company_id,
             text,
-            self.NULL, # # -- plz/country
-            0, # # --  address group
-            int(include_inactive), # 1 -- auch ausgetretene
-            0, # 1 -- only changed since last call
+            self.NULL,  # plz/country
+            0,  # address group
+            int(include_inactive),  # 1 -- auch ausgetretene
+            0,  # 1 -- only changed since last call
             self.system_identifier)
 
     def get_products(self, product_id=NULL,
