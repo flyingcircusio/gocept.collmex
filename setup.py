@@ -23,11 +23,11 @@ setup(
       'Programming Language :: Python :: 3.4',
     ],
     long_description=(
-        open('README.txt').read() +
+        open('README.rst').read() +
         '\n\n' +
-        open(os.path.join('src', 'gocept', 'collmex', 'doctest.txt')).read() +
+        open(os.path.join('src', 'gocept', 'collmex', 'doctest.rst')).read() +
         '\n\n' +
-        open('CHANGES.txt').read()),
+        open('CHANGES.rst').read()),
     packages=find_packages('src'),
     package_dir={'': 'src'},
     include_package_data=True,
