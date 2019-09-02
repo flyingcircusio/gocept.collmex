@@ -1,7 +1,7 @@
 # coding: utf8
-
 from __future__ import unicode_literals
 import mock
+import pytest
 import unittest
 
 
@@ -138,10 +138,8 @@ class TestCollmex(unittest.TestCase):
         self.assertEqual('50,00', projects[0]['Budget'])
         self.assertEqual('25,75', projects[0]['Wert'])
 
+    @pytest.mark.skip('Can only be tested with "collmex verein" testaccount.')
     def test_collmex__Collmex__get_members__1(self):
-        #unfortunately this can only be tested
-        #with a "collmex verein" testaccount
-        return
         """It returns all members."""
 
         # Unfortunately we cannot yet create members with the same
@@ -154,10 +152,8 @@ class TestCollmex(unittest.TestCase):
         self.assertEqual('Testmitglied', members[0]['Name'])
         self.assertEqual(1, len(members))
 
+    @pytest.mark.skip('Can only be tested with "collmex verein" testaccount.')
     def test_collmex__Collmex__create_member__1(self):
-        #unfortunately this can only be tested
-        #with a "collmex verein" testaccount
-        return
         import gocept.collmex.testing
         import gocept.collmex.model
         import transaction
@@ -170,10 +166,8 @@ class TestCollmex(unittest.TestCase):
         transaction.commit()
         assert 'Testmitglied' in [mem['Name'] for mem in collmex.get_members()]
 
+    @pytest.mark.skip('Can only be tested with "collmex verein" testaccount.')
     def test_collmex__Collmex__create_abo__1(self):
-        #unfortunately this can only be tested
-        #with a "collmex verein" testaccount
-        return
         import gocept.collmex.testing
         import gocept.collmex.model
         import transaction
