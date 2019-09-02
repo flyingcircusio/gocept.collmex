@@ -12,7 +12,7 @@ import zope.interface
 
 
 @zope.interface.implementer(gocept.collmex.interfaces.IInvoiceItem)
-class TestModel(gocept.collmex.model.Model):
+class ExampleModel(gocept.collmex.model.Model):
 
     satzart = 'CMXINV'
     fields = (
@@ -24,7 +24,7 @@ class TestModel(gocept.collmex.model.Model):
 class ModelTest(unittest.TestCase):
 
     def test_model_robust_against_extension(self):
-        tm = TestModel(['CMXINV', 'foo', 'bar', ''])
+        tm = ExampleModel(['CMXINV', 'foo', 'bar', ''])
         self.assertEqual('foo', tm['Rechnungsnummer'])
         self.assertEqual(['bar', None], tm._unmapped)
 
