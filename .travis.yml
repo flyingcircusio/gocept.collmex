@@ -1,12 +1,11 @@
 language: python
 python:
   - 2.7
-  - flake8
   - pypy
   - pypy3
 install: pip install tox-travis
 script: tox
-after_success: 
+after_success:
 cache:
   pip: true
 notifications:
