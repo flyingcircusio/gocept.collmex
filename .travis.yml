@@ -3,6 +3,11 @@ python:
   - 2.7
   - pypy
   - pypy3
+matrix:
+  include:
+    - name: "flake8"
+    - python: "3.5"
+    - env: TOXENV=flake8
 before_install:
   - openssl aes-256-cbc -K $encrypted_abd41b033da3_key -iv $encrypted_abd41b033da3_iv
     -in collmex.ini.enc -out collmex.ini -d
