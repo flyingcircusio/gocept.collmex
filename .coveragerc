@@ -4,10 +4,8 @@ source = gocept.collmex
 
 [report]
 precision = 2
-omit = */interfaces.py
-       */interfaces
-       */tests/*
-       */tests.py
+exclude_lines =
+    pragma: no cover
 
 [html]
 directory = coverage-report
