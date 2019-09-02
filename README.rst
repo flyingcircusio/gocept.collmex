@@ -1,5 +1,17 @@
 .. contents::
 
+.. image:: https://travis-ci.com/gocept/gocept.collmex.svg?branch=master
+           :target: https://travis-ci.com/gocept/gocept.collmex
+.. image:: https://coveralls.io/repos/github/gocept/gocept.collmex/badge.svg?branch=master
+           :target: https://coveralls.io/github/gocept/gocept.collmex?branch=master
+.. image:: https://img.shields.io/pypi/v/gocept.collmex.svg
+           :target: https://pypi.org/project/gocept.collmex/
+           :alt: Current version on PyPI
+.. image:: https://img.shields.io/pypi/pyversions/gocept.collmex.svg
+           :target: https://pypi.org/project/gocept.collmex/
+           :alt: Supported Python versions
+
+
 Introduction
 ============
 
@@ -28,7 +40,7 @@ Example::
     company_id = 1
     username = realuser
     password = realpassword
-    
+
     [test-credentials]
     customer_id = 41222
     company_id = 1
