@@ -8,7 +8,7 @@ setup(
     author='gocept',
     author_email='mail@gocept.com',
     description='Python-bindings for the Collmex import/export API',
-    url='http://pypi.python.org/pypi/gocept.collmex',
+    url='https://github.com/gocept/gocept.collmex',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Plugins',
@@ -47,10 +47,10 @@ setup(
         'webtest >= 2.0',
         'wsgiproxy2',
         'six >= 1.7.0'
-        ],
+    ],
     extras_require=dict(
         test=[
             'zope.testing >= 4.0',
             'mock >= 1.0',
-            ]),
+        ]),
 )
