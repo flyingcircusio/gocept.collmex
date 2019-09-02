@@ -60,11 +60,11 @@ def create_customer():
 def create_member():
     collmex = get_collmex()
     if 'Testmitglied' not in [mem['Name'] for mem in collmex.get_members()]:
-         member = gocept.collmex.model.Member()
-         member['Mitgliedsnummer'] = 10001
-         member['Name'] = 'Testmitglied'
-         collmex.create(member)
-         transaction.commit()
+        member = gocept.collmex.model.Member()
+        member['Mitgliedsnummer'] = 10001
+        member['Name'] = 'Testmitglied'
+        collmex.create(member)
+        transaction.commit()
 
     assert 'Testmitglied' in [mem['Name'] for mem in collmex.get_members()]
 
@@ -90,7 +90,7 @@ def create_member_product():
     create_member()
     collmex = get_collmex()
     if 'TEST2' not in [prod['Produktnummer']
-                      for prod in collmex.get_products()]:
+                       for prod in collmex.get_products()]:
         product = gocept.collmex.model.Product()
         product['Produktnummer'] = 'TEST2'
         product['Bezeichnung'] = 'Testbeitrag'
@@ -99,7 +99,8 @@ def create_member_product():
         collmex.create(product)
         transaction.commit()
 
-    assert 'TEST2' in [prod['Produktnummer'] for prod in collmex.get_products()]
+    assert 'TEST2' in [prod['Produktnummer']
+                       for prod in collmex.get_products()]
 
 
 def create_project(title, budget=0):
