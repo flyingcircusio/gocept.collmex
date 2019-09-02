@@ -6,6 +6,7 @@ Changes
 
 - Migrate code to Github.
 
+- Update tests to new Collmex URLs.
 
 
 1.8.3 (2018-03-16)

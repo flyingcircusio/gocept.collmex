@@ -146,7 +146,7 @@ def create_employee():
     b = get_collmex().browser_login()
 
     for _ in range(2):
-        b = b.click(description='Buchhaltung', href='cgi')
+        b = b.click(description='Buchhaltung', href='c.cmx')
         b.charset = 'Windows-1252'
 
         b = b.click(description='Mitarbeiter anlegen')
