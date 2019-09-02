@@ -1,8 +1,12 @@
 Changes
 =======
 
-1.8.4 (unreleased)
-------------------
+1.9 (unreleased)
+----------------
+
+- Drop support for Python 3.3 and 3.4.
+
+- Add support for Python 3.6, 3.7 and 3.8b4.
 
 - Migrate code to Github.
 
