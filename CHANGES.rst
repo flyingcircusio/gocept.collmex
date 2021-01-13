@@ -4,7 +4,7 @@ Changes
 1.10 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Switch to GHA as CI system.
 
 
 1.9 (2019-09-02)
@@ -14,7 +14,7 @@ Changes
 
 - Add support for Python 3.6, 3.7 and 3.8b4.
 
-- Migrate code to Github.
+- Migrate code to GitHub.
 
 - Update tests to new Collmex URLs.
 
@@ -43,8 +43,7 @@ Changes
 
 - Declared compatibility with Python 3.4.
 
-- Stopped promising compatibility with Python 3.2 since a) tests don't succeed
-  with Python 3.2 and current test software b) nobody uses it anymore anyway.
+- Drop support for Python 3.2.
 
 - Made sure tests don't use invalid credentials on test account too many times
   in a row.
