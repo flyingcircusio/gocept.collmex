@@ -1,13 +1,11 @@
-include *.py
 include *.rst
 include .coveragerc
-include buildout.cfg
 include collmex.ini-example
 
 include *.ini
 exclude collmex.ini
 
-include *.enc
-exclude *.enc
+include *.gpg
+exclude *.gpg
 
 recursive-include src *.rst
