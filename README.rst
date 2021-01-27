@@ -46,4 +46,3 @@ Example::
     company_id = 1
     username = testuser
     password = testpassword
-

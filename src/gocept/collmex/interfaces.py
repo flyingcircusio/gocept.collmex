@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import zope.interface
 import zope.interface.common.mapping
 
+
 # NULL aka None for Collmex
 NULL = "(NULL)"
 

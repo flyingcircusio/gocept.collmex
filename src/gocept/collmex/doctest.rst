@@ -212,4 +212,3 @@ When the transaction ends, the cache is invalidated:
 Remove tracing instrumentation:
 
     >>> collmex._post = original_post
-

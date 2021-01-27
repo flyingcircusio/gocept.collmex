@@ -2,12 +2,15 @@
 # See also LICENSE.txt
 
 import gocept.collmex.testing
+
+
 try:
     import queue as Queue
 except ImportError:
     import Queue
-import unittest
+
 import threading
+import unittest
 
 
 class Worker(threading.Thread):
