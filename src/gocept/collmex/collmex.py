@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import six
 import csv
 import gocept.cache.method
 import gocept.cache.property
@@ -9,17 +7,21 @@ import gocept.collmex.model
 import gocept.collmex.utils
 import logging
 import re
+import six
 import threading
 import transaction
 import transaction.interfaces
+
+
 try:
     import urllib.request as urllib2
 except ImportError:
     import urllib2
-import zope.deprecation
-import zope.interface
+
 from zope.interface import implementer
 import webtest
+import zope.deprecation
+import zope.interface
 
 
 log = logging.getLogger(__name__)
@@ -163,8 +165,8 @@ class Collmex(object):
         writer = csv.writer(data, dialect=CollmexDialect)
         item.company = self.company_id
         writer.writerow([elem.encode('UTF-8')
-                        if isinstance(elem, six.text_type) and six.PY2
-                        else elem for elem in list(item)])
+                         if isinstance(elem, six.text_type) and six.PY2
+                         else elem for elem in list(item)])
         self.connection.register_data(data.getvalue())
 
     def create_invoice(self, items):
@@ -304,9 +306,9 @@ class Collmex(object):
         data = six.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
         writer.writerow([elem.encode('UTF-8')
-                        if isinstance(elem, six.text_type) and six.PY2
-                        else elem
-                        for elem in (function,) + args])
+                         if isinstance(elem, six.text_type) and six.PY2
+                         else elem
+                         for elem in (function,) + args])
         lines = self._post(data.getvalue())
         result = []
         for line in lines:

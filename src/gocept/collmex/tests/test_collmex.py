@@ -154,8 +154,8 @@ class TestCollmex(unittest.TestCase):
 
     @pytest.mark.skip('Can only be tested with "collmex verein" testaccount.')
     def test_collmex__Collmex__create_member__1(self):
-        import gocept.collmex.testing
         import gocept.collmex.model
+        import gocept.collmex.testing
         import transaction
         collmex = gocept.collmex.testing.get_collmex()
         member = gocept.collmex.model.Member()
@@ -168,8 +168,8 @@ class TestCollmex(unittest.TestCase):
 
     @pytest.mark.skip('Can only be tested with "collmex verein" testaccount.')
     def test_collmex__Collmex__create_abo__1(self):
-        import gocept.collmex.testing
         import gocept.collmex.model
+        import gocept.collmex.testing
         import transaction
         gocept.collmex.testing.create_member_product()
         transaction.commit()
