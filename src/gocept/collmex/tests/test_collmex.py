@@ -31,8 +31,10 @@ class TestCollmex(unittest.TestCase):
         import gocept.collmex.collmex
         import gocept.collmex.testing
 
+        # We need an invalid username too, as we get a different error on too
+        # many wrong password attempts.
         collmex_invalid = gocept.collmex.testing.get_collmex(
-            password='invalid')
+            username='invalid', password='invalid')
         with self.assertRaises(gocept.collmex.collmex.APIError) as err:
             collmex_invalid.get_invoices(customer_id='10000')
         self.assertEqual(('101004', 'Benutzer oder Kennwort nicht korrekt'),
@@ -41,8 +43,10 @@ class TestCollmex(unittest.TestCase):
     def test_invalid_login_information_raises_an_exception_via_browser(self):
         import gocept.collmex.testing
 
+        # We need an invalid username too, as we get a different error on too
+        # many wrong password attempts.
         collmex_invalid = gocept.collmex.testing.get_collmex(
-            password='invalid')
+            username='invalid', password='invalid')
         with self.assertRaises(ValueError) as err:
             collmex_invalid.browser_login()
         self.assertIn(
