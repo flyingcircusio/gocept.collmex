@@ -6,6 +6,8 @@ Changes
 
 - Switch to GHA as CI system.
 
+- Avoid password exhaustion by using invalid username for tests.
+
 
 1.9 (2019-09-02)
 ----------------
