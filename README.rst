@@ -1,7 +1,7 @@
 .. contents::
 
-.. image:: https://travis-ci.com/gocept/gocept.collmex.svg?branch=master
-           :target: https://travis-ci.com/gocept/gocept.collmex
+.. image:: https://github.com/gocept/gocept.collmex/workflows/tests/badge.svg
+           :target: https://github.com/gocept/gocept.collmex/actions?query=workflow%3Atests
 .. image:: https://coveralls.io/repos/github/gocept/gocept.collmex/badge.svg?branch=master
            :target: https://coveralls.io/github/gocept/gocept.collmex?branch=master
 .. image:: https://img.shields.io/pypi/v/gocept.collmex.svg
