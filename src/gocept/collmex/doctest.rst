@@ -134,8 +134,8 @@ A project with one set and an employee are required to submit activities:
 
 >>> import datetime
 >>> import gocept.collmex.testing
->>> gocept.collmex.testing.create_project(u'Testprojekt')
->>> gocept.collmex.testing.create_employee()
+>>> gocept.collmex.testing.create_project(u'Testprojekt', collmex=collmex)
+>>> gocept.collmex.testing.create_employee(collmex)
 >>> act = gocept.collmex.model.Activity()
 >>> act[u'Projekt Nr'] = u'1' # Testprojekt
 >>> act[u'Mitarbeiter Nr'] = u'1' # Sebastian Wehrmann

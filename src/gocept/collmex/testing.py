@@ -42,8 +42,8 @@ def cleanup_collmex():
     assert 'Daten erfolgreich gel' in b.unicode_body
 
 
-def create_customer():
-    collmex = get_collmex()
+def create_customer(collmex=None):
+    collmex = collmex or get_collmex()
     if 'Testkunden' not in [cust['Firma'] for cust in collmex.get_customers()]:
         customer = gocept.collmex.model.Customer()
         customer['Kundennummer'] = 10000
@@ -66,9 +66,9 @@ def create_member():
     assert 'Testmitglied' in [mem['Name'] for mem in collmex.get_members()]
 
 
-def create_product():
-    create_customer()
-    collmex = get_collmex()
+def create_product(collmex=None):
+    collmex = collmex or get_collmex()
+    create_customer(collmex)
     if 'TEST' not in [prod['Produktnummer']
                       for prod in collmex.get_products()]:
         product = gocept.collmex.model.Product()
@@ -100,10 +100,11 @@ def create_member_product():
                        for prod in collmex.get_products()]
 
 
-def create_project(title, budget=0):
+def create_project(title, budget=0, collmex=None):
     # There is no API to create projects, so use the browser
-    create_product()
-    b = get_collmex().browser_login()
+    collmex = collmex or get_collmex()
+    create_product(collmex)
+    b = collmex.browser_login()
 
     # Projekt anlegen
     b = b.click(description='Verkauf', href='crm')
@@ -139,9 +140,10 @@ def create_project(title, budget=0):
     b.charset = 'Windows-1252'
 
 
-def create_employee():
+def create_employee(collmex=None):
+    collmex = collmex or get_collmex()
     # There is no API to create employees, so use the browser
-    b = get_collmex().browser_login()
+    b = collmex.browser_login()
 
     for _ in range(2):
         b = b.click(description='Buchhaltung', href='c.cmx')

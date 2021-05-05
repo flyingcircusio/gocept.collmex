@@ -8,6 +8,8 @@ Changes
 
 - Avoid password exhaustion by using invalid username for tests.
 
+- Enable the tests to use fewer connections.
+
 
 1.9 (2019-09-02)
 ----------------
