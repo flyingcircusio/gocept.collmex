@@ -4,11 +4,15 @@ Changes
 1.10 (unreleased)
 -----------------
 
-- Switch to GHA as CI system.
+- Drop support for Python 3.5 and 3.6.
+
+- Add support for Python 3.9.
 
 - Avoid password exhaustion by using invalid username for tests.
 
 - Enable the tests to use fewer connections.
+
+- Switch to GHA as CI system.
 
 
 1.9 (2019-09-02)
