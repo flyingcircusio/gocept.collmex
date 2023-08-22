@@ -1,8 +1,8 @@
 Changes
 =======
 
-1.10 (unreleased)
------------------
+2.0 (unreleased)
+----------------
 
 - Drop support for Python 3.5 and 3.6.
 
