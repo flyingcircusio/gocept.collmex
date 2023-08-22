@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import csv
 import gocept.cache.method
 import gocept.cache.property
@@ -7,16 +6,13 @@ import gocept.collmex.model
 import gocept.collmex.utils
 import logging
 import re
-import six
+import io
 import threading
 import transaction
 import transaction.interfaces
 
 
-try:
-    import urllib.request as urllib2
-except ImportError:
-    import urllib2
+import urllib.request
 
 from zope.interface import implementer
 import webtest
@@ -29,14 +25,9 @@ log = logging.getLogger(__name__)
 
 class CollmexDialect(csv.Dialect):
     quoting = csv.QUOTE_ALL
-    if six.PY3:
-        delimiter = ';'
-        quotechar = '"'
-        lineterminator = '\r\n'
-    else:
-        delimiter = b';'
-        quotechar = b'"'
-        lineterminator = b'\r\n'
+    delimiter = ';'
+    quotechar = '"'
+    lineterminator = '\r\n'
     doublequote = True
     skipinitialspace = True
 
@@ -46,14 +37,14 @@ class APIError(Exception):
 
 
 @implementer(transaction.interfaces.IDataManager)
-class CollmexDataManager(object):
+class CollmexDataManager:
 
     def __init__(self, utility):
         self.utility = utility
         self._reset()
 
     def _reset(self):
-        self.data = six.StringIO()
+        self.data = io.StringIO()
         self._joined = False
         self._transaction = None
         self.voted = False
@@ -104,7 +95,7 @@ class CollmexDataManager(object):
 
 
 @implementer(gocept.collmex.interfaces.ICollmex)
-class Collmex(object):
+class Collmex:
 
     # XXX should go on CollmexDialect but the csv module's magic prevents it
     NULL = gocept.collmex.interfaces.NULL
@@ -121,7 +112,7 @@ class Collmex(object):
         try:
             # try to use credentials from ini file 'collmex.ini'
             cred = gocept.collmex.utils.get_collmex_credentials()
-        except IOError as error:
+        except OSError as error:
             if invalid_credentials:
                 raise ValueError(
                     'Not enough credentials given for initialization and no '
@@ -161,12 +152,10 @@ class Collmex(object):
         return self._local.connection
 
     def create(self, item):
-        data = six.StringIO()
+        data = io.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
         item.company = self.company_id
-        writer.writerow([elem.encode('UTF-8')
-                         if isinstance(elem, six.text_type) and six.PY2
-                         else elem for elem in list(item)])
+        writer.writerow([elem for elem in list(item)])
         self.connection.register_data(data.getvalue())
 
     def create_invoice(self, items):
@@ -303,12 +292,9 @@ class Collmex(object):
 
     @gocept.cache.method.memoize_on_attribute('_cache', timeout=5 * 60)
     def _query_objects(self, function, *args):
-        data = six.StringIO()
+        data = io.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
-        writer.writerow([elem.encode('UTF-8')
-                         if isinstance(elem, six.text_type) and six.PY2
-                         else elem
-                         for elem in (function,) + args])
+        writer.writerow([elem for elem in (function,) + args])
         lines = self._post(data.getvalue())
         result = []
         for line in lines:
@@ -321,9 +307,9 @@ class Collmex(object):
 
     def _post(self, data):
         data = (data.decode('UTF-8')
-                if isinstance(data, six.binary_type)
+                if isinstance(data, bytes)
                 else data)
-        data = 'LOGIN;%s;%s\n' % (self.username, self.password) + data
+        data = 'LOGIN;{};{}\n'.format(self.username, self.password) + data
         log.debug(data.replace(self.password, '<PASSWORD>'))
         content_type, body = gocept.collmex.utils.encode_multipart_formdata(
             [], [('fileName', 'api.csv', data)])
@@ -332,25 +318,16 @@ class Collmex(object):
                % self.customer_id)
         content_type_label = 'Content-type'
 
-        if six.PY2:
-            url, body, content_type_label, content_type = [
-                text.encode(self.encoding) for text in
-                [url, body, content_type_label, content_type]]
-        else:
-            body = body.encode(self.encoding)
+        body = body.encode(self.encoding)
 
-        request = urllib2.Request(url, body)
+        request = urllib.request.Request(url, body)
         request.add_header(content_type_label, content_type)
-        response = urllib2.urlopen(request)
+        response = urllib.request.urlopen(request)
 
-        if six.PY3:
-            response = six.StringIO(response.read().decode(self.encoding))
+        response = io.StringIO(response.read().decode(self.encoding))
 
         lines = list(csv.reader(response, dialect=CollmexDialect))
 
-        if six.PY2:
-            lines = [[line.decode(self.encoding) for line in ls]
-                     for ls in lines]
         response.close()
         result = lines.pop()
         assert len(result) >= 4
