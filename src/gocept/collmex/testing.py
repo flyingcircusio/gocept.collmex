@@ -4,9 +4,9 @@ import datetime
 import gocept.collmex.collmex
 import gocept.collmex.interfaces
 import gocept.collmex.model
+import io
 import logging
 import os
-import io
 import transaction
 
 

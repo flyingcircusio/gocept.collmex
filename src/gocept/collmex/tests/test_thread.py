@@ -2,8 +2,6 @@
 # See also LICENSE.txt
 
 import gocept.collmex.testing
-
-
 import queue
 import threading
 import unittest

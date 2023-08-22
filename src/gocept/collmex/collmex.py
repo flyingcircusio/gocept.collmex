@@ -1,20 +1,17 @@
+from zope.interface import implementer
 import csv
 import gocept.cache.method
 import gocept.cache.property
 import gocept.collmex.interfaces
 import gocept.collmex.model
 import gocept.collmex.utils
+import io
 import logging
 import re
-import io
 import threading
 import transaction
 import transaction.interfaces
-
-
 import urllib.request
-
-from zope.interface import implementer
 import webtest
 import zope.deprecation
 import zope.interface
