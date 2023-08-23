@@ -93,11 +93,12 @@ def _find_ini_file_from_current_directory():
 
 
 def convert_dict_content_to_unicode(dictionary):
+    """Expecting binary keys or values are UTF-8 encoded."""
     new_dictionary = {}
     for key, value in dictionary.items():
         if isinstance(key, bytes):
-            key = key
+            key = key.decode('utf-8')
         if isinstance(value, bytes):
-            value = value
+            value = value.decode('utf-8')
         new_dictionary[key] = value
     return new_dictionary
