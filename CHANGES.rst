@@ -1,8 +1,8 @@
 Changes
 =======
 
-2.1 (unreleased)
-----------------
+2.0.1 (2023-08-23)
+------------------
 
 - Mark wheel as not universal.
 
