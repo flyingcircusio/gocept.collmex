@@ -1,14 +1,12 @@
-# coding: utf-8
-from __future__ import unicode_literals
 from zope.interface import implementer
 import csv
 import datetime
 import gocept.collmex.collmex
 import gocept.collmex.interfaces
 import gocept.collmex.model
+import io
 import logging
 import os
-import six
 import transaction
 
 
@@ -187,7 +185,7 @@ NULL = gocept.collmex.interfaces.NULL
 
 
 @implementer(gocept.collmex.interfaces.ICollmex)
-class ConsoleDump(object):
+class ConsoleDump:
 
     def __init__(self):
         log.info('Initialized console collmex connection.')
@@ -196,13 +194,11 @@ class ConsoleDump(object):
         log.info('Would create item %r' % self._serialize(item))
 
     def _serialize(self, item):
-        data = six.StringIO()
+        data = io.StringIO()
         writer = csv.writer(
             data, dialect=gocept.collmex.collmex.CollmexDialect)
         item.company = 'NONE'
-        writer.writerow([elem.encode('UTF-8')
-                         if isinstance(elem, six.text_type) and six.PY2
-                         else elem for elem in list(item)])
+        writer.writerow([elem for elem in list(item)])
         return data.getvalue()
 
     def create_invoice(self, items):

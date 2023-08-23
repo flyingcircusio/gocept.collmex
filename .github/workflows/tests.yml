@@ -19,29 +19,27 @@ jobs:
       matrix:
         config:
         # [Python version, tox env]
-        - ["2.7",   "py27"]
         - ["3.7",   "py37"]
         - ["3.8",   "py38"]
         - ["3.9",   "py39"]
         - ["3.10",  "py310"]
         - ["3.11",  "py311"]
-        - ["pypy2",  "pypy"]
-        - ["pypy3", "pypy3"]
-        - ["3.8",   "coverage"]
-    runs-on: ubuntu-20.04
+        - ["pypy-3.9", "pypy3"]
+        - ["3.11",   "coverage"]
+    runs-on: ubuntu-latest
     name: ${{ matrix.config[1] }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Decrypt config
       run: ./.github/scripts/decrypt_collmex_ini.sh
       env:
           GPG_PASSWORD_COLLMEX_INI: ${{ secrets.GPG_PASSWORD_COLLMEX_INI }}
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.config[0] }}
     - name: Pip cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('setup.*', 'tox.ini') }}
@@ -56,7 +54,7 @@ jobs:
     - name: Coverage
       if: matrix.config[1] == 'coverage'
       run: |
-        pip install coveralls coverage-python-version
+        pip install coveralls
         coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

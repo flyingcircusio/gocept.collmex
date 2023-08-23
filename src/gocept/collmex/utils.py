@@ -1,10 +1,8 @@
 # copied from http://code.activestate.com/recipes/146306/
 
-from __future__ import unicode_literals
-from six.moves import configparser
+import configparser
 import mimetypes
 import os
-import six
 
 
 def encode_multipart_formdata(fields, files):
@@ -52,7 +50,7 @@ def get_collmex_credentials():
     ini_file = os.environ.get(
         'COLLMEX_INI', _find_ini_file_from_current_directory())
     if not ini_file:
-        raise IOError(
+        raise OSError(
             'Could not find a \'collmex.ini\' file in %s'
             ' or any parent directory' % os.getcwd())
 
@@ -64,19 +62,16 @@ def get_collmex_credentials():
 
     config_parser = configparser.ConfigParser()
     with open(ini_file) as f:
-        if six.PY3:
-            config_parser.read_file(f)
-        else:
-            config_parser.readfp(f)
+        config_parser.read_file(f)
 
     if not config_parser.has_section(section_name):
         # ini file found, but has no credential section
-        raise IOError(error_message)
+        raise OSError(error_message)
 
     credentials = dict(config_parser.items(section_name))
     if not all([option in credentials for option in options]):
         # ini file with section found, but not all options were set
-        raise IOError(error_message)
+        raise OSError(error_message)
 
     return convert_dict_content_to_unicode(credentials)
 
@@ -98,11 +93,12 @@ def _find_ini_file_from_current_directory():
 
 
 def convert_dict_content_to_unicode(dictionary):
+    """Expecting binary keys or values are UTF-8 encoded."""
     new_dictionary = {}
     for key, value in dictionary.items():
-        if isinstance(key, six.binary_type):
-            key = six.u(key)
-        if isinstance(value, six.binary_type):
-            value = six.u(value)
+        if isinstance(key, bytes):
+            key = key.decode('utf-8')
+        if isinstance(value, bytes):
+            value = value.decode('utf-8')
         new_dictionary[key] = value
     return new_dictionary

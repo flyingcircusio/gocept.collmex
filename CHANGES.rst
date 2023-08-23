@@ -1,18 +1,16 @@
 Changes
 =======
 
-1.10 (unreleased)
------------------
+2.0 (unreleased)
+----------------
 
-- Drop support for Python 3.5 and 3.6.
+- Drop support for Python 2.7, 3.5, 3.6.
 
 - Add support for Python 3.9, 3.10, 3.11.
 
 - Avoid password exhaustion by using invalid username for tests.
 
-- Enable the tests to use fewer connections.
-
-- Switch to GHA as CI system.
+- Fix the tests to use fewer connections.
 
 
 1.9 (2019-09-02)

@@ -5,7 +5,7 @@ import os.path
 
 setup(
     name='gocept.collmex',
-    version='1.10.dev0',
+    version='2.0.dev0',
     author='gocept',
     author_email='mail@gocept.com',
     description='Python-bindings for the Collmex import/export API',
@@ -17,8 +17,6 @@ setup(
         'License :: OSI Approved',
         'License :: OSI Approved :: Zope Public License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
@@ -40,6 +38,7 @@ setup(
     zip_safe=False,
     license='ZPL 2.1',
     namespace_packages=['gocept'],
+    python_requires='>=3.7',
     install_requires=[
         'gocept.cache >= 0.6.1',
         'setuptools >= 1.0',
@@ -48,7 +47,6 @@ setup(
         'zope.interface >= 4.0',
         'webtest >= 2.0',
         'wsgiproxy2',
-        'six >= 1.7.0'
     ],
     extras_require=dict(
         test=[

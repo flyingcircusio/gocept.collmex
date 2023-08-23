@@ -1,14 +1,10 @@
-# coding: utf8
-
-from __future__ import unicode_literals
-from six.moves import UserDict
+from collections import UserDict
 import datetime
 import gocept.collmex.interfaces
-import six
 import zope.interface
 
 
-class Model(UserDict, object):
+class Model(UserDict):
     """Base for collmex models."""
 
     satzart = None
@@ -20,7 +16,7 @@ class Model(UserDict, object):
         self._unmapped = []
 
         for i, value in enumerate(row):
-            if (value is None or isinstance(value, six.text_type) and
+            if (value is None or isinstance(value, str) and
                     value == ''):
                 value = None
             try:
@@ -46,7 +42,7 @@ class Model(UserDict, object):
         self['Firma Nr'] = company_id
 
     def __repr__(self):
-        return '<%s.%s object at %s>' % (
+        return '<{}.{} object at {}>'.format(
             self.__class__.__module__,
             self.__class__.__name__,
             hex(id(self)))
@@ -158,7 +154,7 @@ class InvoiceItem(Model):
     TYPE_FREE = 3
 
     def __init__(self, row=()):
-        super(InvoiceItem, self).__init__(row)
+        super().__init__(row)
         if not self.get('Rechnungsart'):
             self['Rechnungsart'] = 0  # type invoice
 

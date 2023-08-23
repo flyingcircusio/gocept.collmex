@@ -2,20 +2,14 @@
 # See also LICENSE.txt
 
 import gocept.collmex.testing
-
-
-try:
-    import queue as Queue
-except ImportError:
-    import Queue
-
+import queue
 import threading
 import unittest
 
 
 class Worker(threading.Thread):
     def __init__(self, collmex, queue):
-        super(Worker, self).__init__()
+        super().__init__()
         self.collmex = collmex
         self.queue = queue
 
@@ -26,12 +20,12 @@ class Worker(threading.Thread):
 class ThreadTest(unittest.TestCase):
     def test_two_threads_can_access_their_caches(self):
         collmex = gocept.collmex.testing.get_collmex()
-        queue = Queue.Queue(-1)
+        my_queue = queue.Queue(-1)
         workers = []
         for i in range(2):
-            w = Worker(collmex, queue)
+            w = Worker(collmex, my_queue)
             workers.append(w)
             w.start()
         for w in workers:
             w.join()
-        self.assertEqual(2, queue.qsize())
+        self.assertEqual(2, my_queue.qsize())

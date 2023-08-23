@@ -1,7 +1,6 @@
 # Copyright (c) 2012 gocept gmbh & co. kg
 # See also LICENSE.txt
 
-from __future__ import unicode_literals
 import gocept.collmex.interfaces
 import gocept.collmex.testing
 import unittest
