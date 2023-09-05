@@ -4,7 +4,8 @@ Changes
 2.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Update invoice items to current collmex field names.
+  (`#27 https://github.com/gocept/gocept.collmex/pull/27`_)
 
 
 2.0.1 (2023-08-23)
