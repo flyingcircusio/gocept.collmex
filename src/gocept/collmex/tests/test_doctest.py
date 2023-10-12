@@ -1,6 +1,7 @@
-import doctest
 from zope.testing import renormalizing
+import doctest
 import re
+
 
 checker = renormalizing.RENormalizing([
     # Ignore output returned by GHA for PyPy3
