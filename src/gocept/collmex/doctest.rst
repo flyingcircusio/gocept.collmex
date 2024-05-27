@@ -90,6 +90,24 @@ Products are created using the ``create_product`` method:
 >>> collmex.get_products()[0]['Bezeichnung']
 'Testprodukt'
 
+Customer Agreements
+-------------------
+
+>>> cag = gocept.collmex.model.CustomerAgreement()
+>>> cag['Kunde Nr'] = '10000'
+>>> cag['Firma Nr'] = 1
+>>> cag['Produktnummer'] = 'TEST'
+>>> cag['Gültig ab'] = '01.01.2000'
+>>> cag['Gültig bis'] = '31.12.9999'
+>>> cag['Preis'] = 7
+>>> cag['Währung'] = "EUR"
+>>> collmex.create(cag)
+>>> transaction.commit()
+>>> cag_from_collmex = collmex.get_customer_agreements()
+>>> list(cag)
+['CMXCAG', '1', '10000', 'TEST', '(NULL)', '01.01.2000', '31.12.9999', 7, 'EUR', '(NULL)']
+
+
 Invoices: ``create_invoice`` and ``get_invoices``
 -------------------------------------------------
 
@@ -173,7 +191,7 @@ for every project set (Projektsatz) of each project (Projekt):
 True
 
 >>> proj[0]['Satz']
-'5,00'
+'7,00'
 >>> proj[1]['Satz']
 '9,65'
 >>> proj[0]['Inaktiv']

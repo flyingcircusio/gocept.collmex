@@ -325,6 +325,24 @@ class Product(Model):
         self['Firma'] = company_id
 
 
+@zope.interface.implementer(gocept.collmex.interfaces.ICustomerAgreement)
+class CustomerAgreement(Model):
+
+    satzart = 'CMXCAG'
+    fields = (
+        'Satzart',
+        'Firma Nr',
+        'Kunde Nr',
+        'Produktnummer',
+        'Position',
+        'Gültig ab',
+        'Gültig bis',
+        'Preis',
+        'Währung',
+        'Gelöscht',
+    )
+
+
 @zope.interface.implementer(gocept.collmex.interfaces.IActivity)
 class Activity(Model):
 

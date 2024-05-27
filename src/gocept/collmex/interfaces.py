@@ -66,6 +66,10 @@ class IProduct(IModel):
     """A product (CMXPRD)."""
 
 
+class ICustomerAgreement(IModel):
+    """A customer agreement (CMXCAG)."""
+
+
 class IActivity(IModel):
     """A product (CMXACT)."""
 
