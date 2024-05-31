@@ -5,7 +5,7 @@ import os.path
 
 setup(
     name='gocept.collmex',
-    version='2.1.0',
+    version='2.1.1.dev0',
     author='gocept',
     author_email='mail@gocept.com',
     description='Python-bindings for the Collmex import/export API',
