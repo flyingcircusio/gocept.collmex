@@ -1,7 +1,7 @@
 Changes
 =======
 
-2.0.2 (unreleased)
+2.1.0 (2024-05-31)
 ------------------
 
 - Update invoice items to current collmex field names.
