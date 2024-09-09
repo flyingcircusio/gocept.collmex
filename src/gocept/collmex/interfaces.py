@@ -70,6 +70,10 @@ class IProduct(IModel):
     """A product (CMXPRD)."""
 
 
+class IProductGroup(IModel):
+    """A product group (PRDGRP)."""
+
+
 class ICustomerAgreement(IModel):
     """A customer agreement (CMXCAG)."""
 

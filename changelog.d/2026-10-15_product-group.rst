@@ -1,0 +1,1 @@
+- Add ``ProductGroup`` (PRDGRP) and ``get_product_groups()``.
