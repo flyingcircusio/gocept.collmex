@@ -90,6 +90,17 @@ Products are created using the ``create_product`` method:
 >>> collmex.get_products()[0]['Bezeichnung']
 'Testprodukt'
 
+Product Groups
+--------------
+>>> group = gocept.collmex.model.ProductGroup()
+>>> group['Produktgruppe Nr'] = '2'
+>>> group['Bezeichnung'] = 'Testproduktgruppe'
+>>> group['Untergruppe von'] = 'Hauptproduktgruppe'
+>>> collmex.create(group)
+>>> transaction.commit()
+>>> collmex.get_product_groups()[-1]['Bezeichnung']
+'Testproduktgruppe'
+
 Customer Agreements
 -------------------
 
