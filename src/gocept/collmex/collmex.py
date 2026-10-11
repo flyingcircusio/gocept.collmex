@@ -1,30 +1,31 @@
-from zope.interface import implementer
 import csv
-import gocept.cache.method
-import gocept.cache.property
-import gocept.collmex.interfaces
-import gocept.collmex.model
-import gocept.collmex.utils
 import io
 import logging
 import re
 import threading
+import urllib.request
+
+import gocept.cache.method
+import gocept.cache.property
 import transaction
 import transaction.interfaces
-import urllib.request
 import webtest
 import zope.deprecation
 import zope.interface
+from zope.interface import implementer
 
+import gocept.collmex.interfaces
+import gocept.collmex.model
+import gocept.collmex.utils
 
 log = logging.getLogger(__name__)
 
 
 class CollmexDialect(csv.Dialect):
     quoting = csv.QUOTE_ALL
-    delimiter = ';'
+    delimiter = ";"
     quotechar = '"'
-    lineterminator = '\r\n'
+    lineterminator = "\r\n"
     doublequote = True
     skipinitialspace = True
 
@@ -35,7 +36,6 @@ class APIError(Exception):
 
 @implementer(transaction.interfaces.IDataManager)
 class CollmexDataManager:
-
     def __init__(self, utility):
         self.utility = utility
         self._reset()
@@ -78,7 +78,8 @@ class CollmexDataManager:
         assert transaction is self._transaction
         if self.voted:
             raise Exception(
-                'Single phase data manager: cannot abort after vote')
+                "Single phase data manager: cannot abort after vote"
+            )
         self._reset()
 
     def tpc_finish(self, transaction):
@@ -88,23 +89,24 @@ class CollmexDataManager:
     def sortKey(self):
         # XXX make very small or add single-phase datamanager integration to
         # the transaction module.
-        return ''  # None
+        return ""  # None
 
 
 @implementer(gocept.collmex.interfaces.ICollmex)
 class Collmex:
-
     # XXX should go on CollmexDialect but the csv module's magic prevents it
     NULL = gocept.collmex.interfaces.NULL
 
-    encoding = 'Windows-1252'  # Encoding used by Collmex
-    system_identifier = 'gocept.collmex'
+    encoding = "Windows-1252"  # Encoding used by Collmex
+    system_identifier = "gocept.collmex"
 
-    def __init__(self, customer_id=None, company_id=None,
-                 username=None, password=None):
+    def __init__(
+        self, customer_id=None, company_id=None, username=None, password=None
+    ):
         # credentials are invalid if any argument is None or empty
         invalid_credentials = not all(
-            [customer_id, company_id, username, password])
+            [customer_id, company_id, username, password]
+        )
 
         try:
             # try to use credentials from ini file 'collmex.ini'
@@ -112,16 +114,18 @@ class Collmex:
         except OSError as error:
             if invalid_credentials:
                 raise ValueError(
-                    'Not enough credentials given for initialization and no '
-                    'valid ini file found. Searching and parsing the ini file '
-                    'gave the following error message: {error_message}'
-                    .format(error_message=str(error)))
+                    "Not enough credentials given for initialization and no "
+                    "valid ini file found. Searching and parsing the ini file "
+                    "gave the following error message: {error_message}".format(
+                        error_message=str(error)
+                    )
+                )
 
         # any given argument will overwrite credentials from ini file
-        self.customer_id = customer_id or cred.get('customer_id', None)
-        self.company_id = company_id or cred.get('company_id', None)
-        self.username = username or cred.get('username', None)
-        self.password = password or cred.get('password', None)
+        self.customer_id = customer_id or cred.get("customer_id", None)
+        self.company_id = company_id or cred.get("company_id", None)
+        self.username = username or cred.get("username", None)
+        self.password = password or cred.get("password", None)
 
         # Store thread-local (actually: transaction-local) information
         self._local = threading.local()
@@ -143,7 +147,7 @@ class Collmex:
 
     @property
     def connection(self):
-        self._ensure_local_attribute('connection')
+        self._ensure_local_attribute("connection")
         if self._local.connection is None:
             self._local.connection = CollmexDataManager(self)
         return self._local.connection
@@ -161,7 +165,7 @@ class Collmex:
 
         id = self.generate_invoice_id()
         for item in items:
-            item['Rechnungsnummer'] = id
+            item["Rechnungsnummer"] = id
             self.create(item)
 
     def create_product(self, product):
@@ -172,30 +176,41 @@ class Collmex:
         # This is an deprecated API. Use ``create`` instead.
         self.create(customer)
 
-    def get_invoices(self, invoice_id=NULL, customer_id=NULL,
-                     start_date=NULL, end_date=NULL):
+    def get_invoices(
+        self, invoice_id=NULL, customer_id=NULL, start_date=NULL, end_date=NULL
+    ):
         return self._query_objects(
-            'INVOICE_GET',
+            "INVOICE_GET",
             invoice_id,
             self.company_id,
             customer_id,
             date_to_collmex(start_date),
             date_to_collmex(end_date),
-            0, 0,
-            0, self.system_identifier)
+            0,
+            0,
+            0,
+            self.system_identifier,
+        )
 
     def get_customers(self, customer_id=NULL, text=NULL):
         return self._query_objects(
-            'CUSTOMER_GET',
+            "CUSTOMER_GET",
             customer_id,
             self.company_id,
             text,
-            0, self.NULL, self.NULL, self.NULL, self.NULL, self.NULL,
-            0, self.system_identifier)
+            0,
+            self.NULL,
+            self.NULL,
+            self.NULL,
+            self.NULL,
+            self.NULL,
+            0,
+            self.system_identifier,
+        )
 
     def get_members(self, member_id=NULL, text=NULL, include_inactive=True):
         return self._query_objects(
-            'MEMBER_GET',
+            "MEMBER_GET",
             member_id,
             self.company_id,
             text,
@@ -203,53 +218,70 @@ class Collmex:
             0,  # address group
             int(include_inactive),  # 1 -- auch ausgetretene
             0,  # 1 -- only changed since last call
-            self.system_identifier)
+            self.system_identifier,
+        )
 
-    def get_products(self, product_id=NULL,
-                     product_group=NULL, price_group=NULL):
+    def get_products(
+        self, product_id=NULL, product_group=NULL, price_group=NULL
+    ):
         return self._query_objects(
-            'PRODUCT_GET',
+            "PRODUCT_GET",
             self.company_id,
             product_id,
             product_group,
             price_group,
-            0, self.system_identifier)
+            0,
+            self.system_identifier,
+        )
 
-    def get_customer_agreements(self, customer_id=NULL, product_id=NULL,
-                                valid_on_date=NULL, inactive=NULL,
-                                only_changed=NULL):
+    def get_customer_agreements(
+        self,
+        customer_id=NULL,
+        product_id=NULL,
+        valid_on_date=NULL,
+        inactive=NULL,
+        only_changed=NULL,
+    ):
         return self._query_objects(
-            'CUSTOMER_AGREEMENT_GET',
+            "CUSTOMER_AGREEMENT_GET",
             self.company_id,
             customer_id,
             product_id,
             date_to_collmex(valid_on_date),
             inactive,
             only_changed,
-            self.system_identifier)
+            self.system_identifier,
+        )
 
     def get_projects(self, project_id=NULL, customer_id=NULL):
         return self._query_objects(
-            'PROJECT_GET',
-            project_id,
-            self.company_id,
-            customer_id)
+            "PROJECT_GET", project_id, self.company_id, customer_id
+        )
 
-    def get_activities(self, project_id=NULL,
-                       employee_id=NULL,
-                       start_date=NULL, end_date=NULL,
-                       only_non_billed=NULL, billable=NULL,
-                       only_non_internal=NULL,
-                       only_changed=NULL):
+    def get_activities(
+        self,
+        project_id=NULL,
+        employee_id=NULL,
+        start_date=NULL,
+        end_date=NULL,
+        only_non_billed=NULL,
+        billable=NULL,
+        only_non_internal=NULL,
+        only_changed=NULL,
+    ):
         return self._query_objects(
-            'ACTIVITIES_GET',
+            "ACTIVITIES_GET",
             project_id,
             self.company_id,
             employee_id,
-            start_date, end_date,
-            only_non_billed, billable,
+            start_date,
+            end_date,
+            only_non_billed,
+            billable,
             only_non_internal,
-            only_changed, self.system_identifier)
+            only_changed,
+            self.system_identifier,
+        )
 
     def browser_login(self):
         """Log into Collmex using a browser.
@@ -261,17 +293,17 @@ class Collmex:
         * disabled login, due to too many failed logins
 
         """
-        b = webtest.TestApp('https://www.collmex.de').get('/')
+        b = webtest.TestApp("https://www.collmex.de").get("/")
         b.charset = self.encoding
 
         f = b.form
-        f['Kunde'] = self.customer_id
+        f["Kunde"] = self.customer_id
         b = f.submit().maybe_follow()
         b.charset = self.encoding
 
         f = b.form
-        f['group_benutzerId'] = self.username
-        f['group_kennwort'] = self.password
+        f["group_benutzerId"] = self.username
+        f["group_kennwort"] = self.password
         b = f.submit().maybe_follow()
         b.charset = self.encoding
 
@@ -283,11 +315,12 @@ class Collmex:
         return b
 
     def _get_cache(self):
-        self._ensure_local_attribute('cache')
+        self._ensure_local_attribute("cache")
         if self._local.cache is None:
             self._local.cache = {}
             dm = gocept.cache.property.CacheDataManager(
-                self, None, transaction.get())
+                self, None, transaction.get()
+            )
             transaction.get().join(dm)
         return self._local.cache
 
@@ -300,7 +333,7 @@ class Collmex:
     def invalidate(self, dummy):
         self._cache = None
 
-    @gocept.cache.method.memoize_on_attribute('_cache', timeout=5 * 60)
+    @gocept.cache.method.memoize_on_attribute("_cache", timeout=5 * 60)
     def _query_objects(self, function, *args):
         data = io.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
@@ -316,17 +349,18 @@ class Collmex:
         return result
 
     def _post(self, data):
-        data = (data.decode('UTF-8')
-                if isinstance(data, bytes)
-                else data)
-        data = 'LOGIN;{};{}\n'.format(self.username, self.password) + data
-        log.debug(data.replace(self.password, '<PASSWORD>'))
+        data = data.decode("UTF-8") if isinstance(data, bytes) else data
+        data = "LOGIN;{};{}\n".format(self.username, self.password) + data
+        log.debug(data.replace(self.password, "<PASSWORD>"))
         content_type, body = gocept.collmex.utils.encode_multipart_formdata(
-            [], [('fileName', 'api.csv', data)])
+            [], [("fileName", "api.csv", data)]
+        )
 
-        url = ('https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange'
-               % self.customer_id)
-        content_type_label = 'Content-type'
+        url = (
+            "https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange"
+            % self.customer_id
+        )
+        content_type_label = "Content-type"
 
         body = body.encode(self.encoding)
 
@@ -342,12 +376,10 @@ class Collmex:
         result = lines.pop()
         assert len(result) >= 4
 
-        record_type, message_type, message_id, message_text = (
-            result[:4])
-        if record_type != 'MESSAGE':
-            raise TypeError('API returned invalid response record: %r' %
-                            result)
-        if message_type != 'S':
+        record_type, message_type, message_id, message_text = result[:4]
+        if record_type != "MESSAGE":
+            raise TypeError("API returned invalid response record: %r" % result)
+        if message_type != "S":
             raise APIError(message_id, message_text)
         return lines
 
@@ -356,11 +388,12 @@ def date_to_collmex(date):
     if date == Collmex.NULL:
         return date
     else:
-        return date.strftime('%Y%m%d')
+        return date.strftime("%Y%m%d")
 
 
 # Backward compatibility
 InvoiceItem = gocept.collmex.model.InvoiceItem
 zope.deprecation.deprecated(
-    'InvoiceItem',
-    'InvoiceItem has been moved to gocept.collmex.model.InvoiceItem')
+    "InvoiceItem",
+    "InvoiceItem has been moved to gocept.collmex.model.InvoiceItem",
+)

@@ -1,10 +1,11 @@
 # Copyright (c) 2008-2012 gocept gmbh & co. kg
 # See also LICENSE.txt
 
-import gocept.collmex.testing
 import queue
 import threading
 import unittest
+
+import gocept.collmex.testing
 
 
 class Worker(threading.Thread):

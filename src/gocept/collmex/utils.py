@@ -14,51 +14,58 @@ def encode_multipart_formdata(fields, files):
 
     Return (content_type, body) ready for httplib.HTTP instance
     """
-    BOUNDARY = '----------ThIs_Is_tHe_bouNdaRY_$'
-    CRLF = '\r\n'
+    BOUNDARY = "----------ThIs_Is_tHe_bouNdaRY_$"
+    CRLF = "\r\n"
     L = []
-    for (key, value) in fields:
-        L.append('--' + BOUNDARY)
+    for key, value in fields:
+        L.append("--" + BOUNDARY)
         L.append('Content-Disposition: form-data; name="%s"' % key)
-        L.append('')
+        L.append("")
         L.append(value)
-    for (key, filename, value) in files:
-        L.append('--' + BOUNDARY)
-        L.append('Content-Disposition: form-data; name="%s"; filename="%s"'
-                 % (key, filename))
-        L.append('Content-Type: %s' % get_content_type(filename))
-        L.append('')
+    for key, filename, value in files:
+        L.append("--" + BOUNDARY)
+        L.append(
+            'Content-Disposition: form-data; name="%s"; filename="%s"'
+            % (key, filename)
+        )
+        L.append("Content-Type: %s" % get_content_type(filename))
+        L.append("")
         L.append(value)
-    L.append('--' + BOUNDARY + '--')
-    L.append('')
+    L.append("--" + BOUNDARY + "--")
+    L.append("")
     body = CRLF.join(L)
-    content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
+    content_type = "multipart/form-data; boundary=%s" % BOUNDARY
     return content_type, body
 
 
 def get_content_type(filename):
-    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+    return mimetypes.guess_type(filename)[0] or "application/octet-stream"
 
 
 def get_collmex_credentials():
     # for testing purposes set 'collmex_credential_section' to
     # 'test-credentials' before initialization of the Collmex object
-    section_name = os.environ.get('collmex_credential_section',
-                                  'credentials')
-    options = ['customer_id', 'company_id', 'username', 'password']
+    section_name = os.environ.get("collmex_credential_section", "credentials")
+    options = ["customer_id", "company_id", "username", "password"]
 
     ini_file = os.environ.get(
-        'COLLMEX_INI', _find_ini_file_from_current_directory())
+        "COLLMEX_INI", _find_ini_file_from_current_directory()
+    )
     if not ini_file:
         raise OSError(
-            'Could not find a \'collmex.ini\' file in %s'
-            ' or any parent directory' % os.getcwd())
+            "Could not find a 'collmex.ini' file in %s"
+            " or any parent directory" % os.getcwd()
+        )
 
-    error_message = ('Config file {filename} did not contain a section'
-                     ' \'[{section_name}]\' with the following '
-                     'options: {options}.'.format(filename=ini_file,
-                                                  section_name=section_name,
-                                                  options=', '.join(options)))
+    error_message = (
+        "Config file {filename} did not contain a section"
+        " '[{section_name}]' with the following "
+        "options: {options}.".format(
+            filename=ini_file,
+            section_name=section_name,
+            options=", ".join(options),
+        )
+    )
 
     config_parser = configparser.ConfigParser()
     with open(ini_file) as f:
@@ -77,7 +84,7 @@ def get_collmex_credentials():
 
 
 def _find_ini_file_from_current_directory():
-    ini_file_name = 'collmex.ini'
+    ini_file_name = "collmex.ini"
     current_path = os.getcwd()
     while True:
         ini_file = os.path.join(current_path, ini_file_name)
@@ -97,8 +104,8 @@ def convert_dict_content_to_unicode(dictionary):
     new_dictionary = {}
     for key, value in dictionary.items():
         if isinstance(key, bytes):
-            key = key.decode('utf-8')
+            key = key.decode("utf-8")
         if isinstance(value, bytes):
-            value = value.decode('utf-8')
+            value = value.decode("utf-8")
         new_dictionary[key] = value
     return new_dictionary
