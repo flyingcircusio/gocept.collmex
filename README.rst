@@ -46,3 +46,18 @@ Example::
     company_id = 1
     username = testuser
     password = testpassword
+
+
+Development
+===========
+
+We use `uv <https://docs.astral.sh/uv/>`_ and tox for development. To run the
+tests (against the live Collmex test system, see ``collmex.ini-example``)::
+
+    uvx --from tox --with tox-uv tox
+
+or, to run a specific environment::
+
+    uvx --from tox --with tox-uv tox -e py313
+
+To build the distribution, use ``uv build``.
