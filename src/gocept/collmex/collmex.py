@@ -98,10 +98,18 @@ class Collmex:
     NULL = gocept.collmex.interfaces.NULL
 
     encoding = "Windows-1252"  # Encoding used by Collmex
+    # System name (C20) sent with queries. Collmex stores the date and
+    # time of the last query of a record type server-side under this
+    # name -- the basis of the "Nur geänderte" (only changed) mechanism.
     system_identifier = "gocept.collmex"
 
     def __init__(
-        self, customer_id=None, company_id=None, username=None, password=None
+        self,
+        customer_id=None,
+        company_id=None,
+        username=None,
+        password=None,
+        system_identifier=None,
     ):
         # credentials are invalid if any argument is None or empty
         invalid_credentials = not all(
@@ -126,6 +134,23 @@ class Collmex:
         self.company_id = company_id or cred.get("company_id", None)
         self.username = username or cred.get("username", None)
         self.password = password or cred.get("password", None)
+
+        # A dedicated system name matters for tools relying on the
+        # "Nur geänderte" (only changed) mechanism: Collmex stores the
+        # date and time of the last query server-side per system name
+        # and record type. All queries sending the same name advance
+        # each other's watermark -- the class default is therefore
+        # shared by all gocept.collmex users of an account.
+        self.system_identifier = (
+            system_identifier or type(self).system_identifier
+        )
+        if len(self.system_identifier) > 20:
+            # Collmex restricts the system name to 20 characters (C20).
+            raise ValueError(
+                f"system_identifier is restricted to 20 characters by"
+                f" Collmex (C20), got {self.system_identifier!r}"
+                f" ({len(self.system_identifier)} characters)."
+            )
 
         # Store thread-local (actually: transaction-local) information
         self._local = threading.local()
@@ -177,8 +202,22 @@ class Collmex:
         self.create(customer)
 
     def get_invoices(
-        self, invoice_id=NULL, customer_id=NULL, start_date=NULL, end_date=NULL
+        self,
+        invoice_id=NULL,
+        customer_id=NULL,
+        start_date=NULL,
+        end_date=NULL,
+        only_changed=NULL,
     ):
+        """Returns a list of IInvoiceItems matching given criteria.
+
+        With ``only_changed=1`` only invoices changed or newly created
+        since the last INVOICE_GET of this ``system_identifier`` are
+        returned. Collmex advances this watermark when the query
+        executes -- regardless of whether the caller manages to
+        process the result -- so callers should be able to fall back
+        to a full query. Deletions are never reported.
+        """
         return self._query_objects(
             "INVOICE_GET",
             invoice_id,
@@ -188,7 +227,7 @@ class Collmex:
             date_to_collmex(end_date),
             0,
             0,
-            0,
+            only_changed,
             self.system_identifier,
         )
 
@@ -269,13 +308,23 @@ class Collmex:
         only_non_internal=NULL,
         only_changed=NULL,
     ):
+        """Returns a list of IActivities matching given criteria.
+
+        With ``only_changed=1`` only activities changed or newly
+        created since the last ACTIVITIES_GET of this
+        ``system_identifier`` are returned. Collmex advances this
+        watermark when the query executes -- regardless of whether the
+        caller manages to process the result -- so callers should be
+        able to fall back to a full query. Deletions are never
+        reported.
+        """
         return self._query_objects(
             "ACTIVITIES_GET",
             project_id,
             self.company_id,
             employee_id,
-            start_date,
-            end_date,
+            date_to_collmex(start_date),
+            date_to_collmex(end_date),
             only_non_billed,
             billable,
             only_non_internal,
@@ -385,10 +434,15 @@ class Collmex:
 
 
 def date_to_collmex(date):
-    if date == Collmex.NULL:
+    """Converts a date into Collmex' D8 format (YYYYMMDD).
+
+    ``datetime.date`` and ``datetime.datetime`` objects are formatted
+    accordingly; strings pass through unchanged so pre-formatted dates
+    keep working.
+    """
+    if date == Collmex.NULL or isinstance(date, str):
         return date
-    else:
-        return date.strftime("%Y%m%d")
+    return date.strftime("%Y%m%d")
 
 
 # Backward compatibility

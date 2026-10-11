@@ -154,6 +154,12 @@ class InvoiceItem(Model):
         "Lieferungen",
         "Auftragsnummer bei Kunde",
         "Abw. Empfänger",
+        # Trailing fields of the current API (96 columns in total), only
+        # filled on export:
+        "Kunden-Referenz",
+        "Schreibgeschützt",
+        "Anzahlung",
+        "Anzahlungsbetrag",
     )
 
     # Possible values for 'Positionstyp'
@@ -353,6 +359,9 @@ class Activity(Model):
         "Von",
         "Bis",
         "Pausen",
+        # Export-only fields, only filled by ACTIVITIES_GET:
+        "Produkt Nr",
+        "In Rechnung Nr",
     )
 
     @property

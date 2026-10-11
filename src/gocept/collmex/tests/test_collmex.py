@@ -90,14 +90,145 @@ class TestCollmex(unittest.TestCase):
         activities = self.collmex.get_activities(project_id="2")
         self.assertEqual(1, len(activities))
 
+    def test_get_activities_should_convert_dates(self):
+        import datetime
+
+        import transaction
+
+        import gocept.collmex.testing
+
+        gocept.collmex.testing.create_employee()
+        gocept.collmex.testing.create_project(title="Testprojekt")
+        gocept.collmex.testing.create_activity(
+            "Activity in test project",
+            project_id="1",
+            employee_id="1",
+            date=datetime.date(2012, 1, 1),
+        )
+        transaction.commit()
+        activities = self.collmex.get_activities(
+            start_date=datetime.date(2012, 1, 1),
+            end_date=datetime.date(2012, 1, 31),
+        )
+        self.assertEqual(1, len(activities))
+        self.assertEqual(
+            "Activity in test project", activities[0]["Beschreibung"]
+        )
+
+    def test_get_activities_should_support_only_changed(self):
+        import datetime
+
+        import transaction
+
+        import gocept.collmex.testing
+
+        gocept.collmex.testing.create_employee()
+        gocept.collmex.testing.create_project(title="Testprojekt")
+        gocept.collmex.testing.create_activity(
+            "Activity in test project",
+            project_id="1",
+            employee_id="1",
+            date=datetime.date(2012, 1, 1),
+        )
+        transaction.commit()
+        # Use a dedicated system identifier so only this test advances
+        # the corresponding watermark:
+        collmex = gocept.collmex.testing.get_collmex(
+            system_identifier="test-only-changed"
+        )
+        changed = collmex.get_activities(only_changed=1)
+        self.assertIn(
+            "Activity in test project",
+            [activity["Beschreibung"] for activity in changed],
+        )
+
+    def test_get_activities_maps_all_columns_of_live_response(self):
+        import datetime
+
+        import transaction
+
+        import gocept.collmex.testing
+
+        gocept.collmex.testing.create_employee()
+        gocept.collmex.testing.create_project(title="Testprojekt")
+        gocept.collmex.testing.create_activity(
+            "Activity in test project",
+            project_id="1",
+            employee_id="1",
+            date=datetime.date(2012, 1, 1),
+        )
+        transaction.commit()
+        activities = self.collmex.get_activities(project_id="1")
+        self.assertEqual(1, len(activities))
+        # The export-only fields are mapped instead of landing in
+        # _unmapped:
+        self.assertEqual([], activities[0]._unmapped)
+        self.assertEqual("TEST", activities[0]["Produkt Nr"])
+        self.assertIsNone(activities[0]["In Rechnung Nr"])
+
+    def _create_invoice(self, collmex, text):
+        import gocept.collmex.model
+        import gocept.collmex.testing
+
+        gocept.collmex.testing.create_customer()
+        gocept.collmex.testing.create_product()
+        item = gocept.collmex.model.InvoiceItem()
+        item["Kunden-Nr"] = "10000"
+        item["Menge"] = 3
+        item["Produktnummer"] = "TEST"
+        item["Rechnungstext"] = text
+        item["Positionstyp"] = 0
+        collmex.create_invoice([item])
+        import transaction
+
+        transaction.commit()
+
+    def test_get_invoices_should_support_only_changed(self):
+        import transaction
+
+        import gocept.collmex.testing
+
+        self._create_invoice(self.collmex, "only changed 1")
+
+        collmex = gocept.collmex.testing.get_collmex(
+            system_identifier="test-only-changed"
+        )
+        # The system identifier was not used for a while (or never),
+        # so the new invoice counts as changed:
+        changed = collmex.get_invoices(only_changed=1)
+        self.assertEqual(
+            ["only changed 1"], [item["Rechnungstext"] for item in changed]
+        )
+        transaction.abort()  # discard query cache
+
+        # An invoice created after the last query is reported as
+        # changed. (Collmex stores the watermark with minute
+        # granularity and asynchronously, so records changed in the
+        # same minute as the query may be reported again -- we only
+        # assert the reliable part.)
+        self._create_invoice(collmex, "only changed 2")
+        changed = collmex.get_invoices(only_changed=1)
+        self.assertIn(
+            "only changed 2", [item["Rechnungstext"] for item in changed]
+        )
+
+    def test_get_invoices_maps_all_columns_of_live_response(self):
+        self._create_invoice(self.collmex, "invoice mapping")
+        invoices = self.collmex.get_invoices()
+        self.assertEqual(1, len(invoices))
+        self.assertEqual([], invoices[0]._unmapped)
+        self.assertEqual("invoice mapping", invoices[0]["Rechnungstext"])
+
     def test_get_activities_should_pass_all_parameters(self):
+        import datetime
+
         collmex = self.collmex
         query = collmex._query_objects = mock.Mock()
         collmex.get_activities(
             project_id=mock.sentinel.project_id,
             employee_id=mock.sentinel.employee_id,
-            start_date=mock.sentinel.start_date,
-            end_date=mock.sentinel.end_date,
+            start_date=datetime.date(2026, 1, 23),
+            end_date=datetime.date(2026, 2, 28),
             only_non_billed=mock.sentinel.only_non_billed,
             billable=mock.sentinel.billable,
             only_non_internal=mock.sentinel.only_non_internal,
@@ -108,11 +239,36 @@ class TestCollmex(unittest.TestCase):
             mock.sentinel.project_id,
             "1",  # Company id
             mock.sentinel.employee_id,
-            mock.sentinel.start_date,
-            mock.sentinel.end_date,
+            "20260123",  # start date, converted to Collmex' D8 format
+            "20260228",  # end date, converted to Collmex' D8 format
             mock.sentinel.only_non_billed,
             mock.sentinel.billable,
             mock.sentinel.only_non_internal,
+            mock.sentinel.only_changed,
+            "gocept.collmex",
+        )  # system identifier
+
+    def test_get_invoices_should_pass_all_parameters(self):
+        import datetime
+
+        collmex = self.collmex
+        query = collmex._query_objects = mock.Mock()
+        collmex.get_invoices(
+            invoice_id=mock.sentinel.invoice_id,
+            customer_id=mock.sentinel.customer_id,
+            start_date=datetime.date(2026, 1, 23),
+            end_date=datetime.date(2026, 2, 28),
+            only_changed=mock.sentinel.only_changed,
+        )
+        query.assert_called_with(
+            "INVOICE_GET",
+            mock.sentinel.invoice_id,
+            "1",  # Company id
+            mock.sentinel.customer_id,
+            "20260123",  # start date, converted to Collmex' D8 format
+            "20260228",  # end date, converted to Collmex' D8 format
+            0,  # Nur ausgegebene
+            0,  # Rueckgabe-Format
             mock.sentinel.only_changed,
             "gocept.collmex",
         )  # system identifier
@@ -214,3 +370,119 @@ class TestCollmex(unittest.TestCase):
         collmex.create(prod)
         transaction.commit()
         assert "Testmitglied" in [mem["Name"] for mem in collmex.get_members()]
+
+
+class TestSystemIdentifier(unittest.TestCase):
+    """Tests for the configurable system identifier (offline)."""
+
+    def tearDown(self):
+        import transaction
+
+        transaction.abort()
+
+    def make_collmex(self, system_identifier=None):
+        import gocept.collmex.collmex
+
+        if system_identifier is None:
+            return gocept.collmex.collmex.Collmex("any", "any", "any", "any")
+        return gocept.collmex.collmex.Collmex(
+            "any", "any", "any", "any", system_identifier=system_identifier
+        )
+
+    def test_defaults_to_class_attribute(self):
+        self.assertEqual(
+            "gocept.collmex", self.make_collmex().system_identifier
+        )
+
+    def test_overrides_class_attribute(self):
+        collmex = self.make_collmex(system_identifier="test-sync")
+        self.assertEqual("test-sync", collmex.system_identifier)
+
+    def test_too_long_identifier_raises_value_error(self):
+        import gocept.collmex.collmex
+
+        with self.assertRaises(ValueError):
+            gocept.collmex.collmex.Collmex(
+                "any",
+                "any",
+                "any",
+                "any",
+                system_identifier="x" * 21,
+            )
+
+    def test_maximum_length_is_accepted(self):
+        collmex = self.make_collmex(system_identifier="x" * 20)
+        self.assertEqual("x" * 20, collmex.system_identifier)
+
+    def test_identifier_is_sent_with_queries(self):
+        import csv
+        import io
+
+        import gocept.collmex.collmex
+
+        collmex = self.make_collmex(system_identifier="test-sync")
+        collmex._post = mock.Mock(return_value=[["MESSAGE", "S", "0", ""]])
+        collmex.get_invoices()
+        (data,) = collmex._post.call_args[0]
+        [row] = csv.reader(
+            io.StringIO(data), dialect=gocept.collmex.collmex.CollmexDialect
+        )
+        self.assertEqual(
+            [
+                "INVOICE_GET",
+                "(NULL)",  # Rechnungsnummer
+                "any",  # Firma Nr
+                "(NULL)",  # Kunde Nr
+                "(NULL)",  # Rechnungsdatum Von
+                "(NULL)",  # Rechnungsdatum Bis
+                "0",  # Nur ausgegebene
+                "0",  # Rueckgabe-Format
+                "(NULL)",  # Nur geaenderte
+                "test-sync",  # Systemname
+            ],
+            row,
+        )
+
+
+class TestDateToCollmex(unittest.TestCase):
+    """Tests for the D8 conversion in date_to_collmex() (offline)."""
+
+    def test_null_passes_through(self):
+        import gocept.collmex.collmex
+
+        self.assertEqual(
+            gocept.collmex.collmex.Collmex.NULL,
+            gocept.collmex.collmex.date_to_collmex(
+                gocept.collmex.collmex.Collmex.NULL
+            ),
+        )
+
+    def test_date_is_converted(self):
+        import datetime
+
+        import gocept.collmex.collmex
+
+        self.assertEqual(
+            "20260123",
+            gocept.collmex.collmex.date_to_collmex(datetime.date(2026, 1, 23)),
+        )
+
+    def test_datetime_is_converted(self):
+        import datetime
+
+        import gocept.collmex.collmex
+
+        self.assertEqual(
+            "20260123",
+            gocept.collmex.collmex.date_to_collmex(
+                datetime.datetime(2026, 1, 23, 12, 30)
+            ),
+        )
+
+    def test_string_passes_through_unchanged(self):
+        import gocept.collmex.collmex
+
+        self.assertEqual(
+            "20260123",
+            gocept.collmex.collmex.date_to_collmex("20260123"),
+        )

@@ -14,9 +14,13 @@ import gocept.collmex.model
 log = logging.getLogger(__name__)
 
 
-def get_collmex(username=None, password=None):
+def get_collmex(username=None, password=None, system_identifier=None):
     os.environ["collmex_credential_section"] = "test-credentials"
-    return gocept.collmex.collmex.Collmex(username=username, password=password)
+    return gocept.collmex.collmex.Collmex(
+        username=username,
+        password=password,
+        system_identifier=system_identifier,
+    )
 
 
 def cleanup_collmex():
@@ -212,7 +216,12 @@ class ConsoleDump:
         self.create(customer)
 
     def get_invoices(
-        self, invoice_id=NULL, customer_id=NULL, start_date=NULL, end_date=NULL
+        self,
+        invoice_id=NULL,
+        customer_id=NULL,
+        start_date=NULL,
+        end_date=NULL,
+        only_changed=NULL,
     ):
         log.info("get_invoices()")
         return []

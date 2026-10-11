@@ -18,9 +18,13 @@ class ICollmex(zope.interface.Interface):
         """Creates a product for the given IProduct."""
 
     def get_invoices(
-        invoice_id=NULL, customer_id=NULL, start_date=NULL, end_date=NULL
+        invoice_id=NULL,
+        customer_id=NULL,
+        start_date=NULL,
+        end_date=NULL,
+        only_changed=NULL,
     ):
-        """Returns a list of IInvoiceItems maching given criteria."""
+        """Returns a list of IInvoiceItems matching given criteria."""
 
     def get_customers(customer_id=NULL, text=NULL):
         """Returns a list of ICustomers matching given criteria."""

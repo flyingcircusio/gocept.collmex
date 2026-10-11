@@ -71,6 +71,58 @@ class TestActivity(unittest.TestCase):
             self.act(**{"Mitarbeiter Nr": "43 Foo bar employee"}).employee_name,
         )
 
+    def test_maps_export_only_fields(self):
+        from ..model import Activity
+
+        activity = Activity(
+            [
+                "CMXACT",
+                "1 Testprojekt",
+                "1 Sebastian Wehrmann",
+                "1",
+                "1",
+                "allgemeine Tätigkeit",
+                "20120123",
+                "08:07",
+                "14:28",
+                "1:12",
+                "TEST",
+                "",
+            ]
+        )
+        self.assertEqual("TEST", activity["Produkt Nr"])
+        self.assertIsNone(activity["In Rechnung Nr"])
+        self.assertEqual([], activity._unmapped)
+
+    def test_short_rows_leave_export_only_fields_unset(self):
+        from ..model import Activity
+
+        activity = Activity(
+            [
+                "CMXACT",
+                "1 Testprojekt",
+                "1 Sebastian Wehrmann",
+                "1",
+                "1",
+                "allgemeine Tätigkeit",
+                "20120123",
+                "08:07",
+                "14:28",
+                "1:12",
+            ]
+        )
+        self.assertNotIn("Produkt Nr", activity)
+        self.assertNotIn("In Rechnung Nr", activity)
+        self.assertEqual([], activity._unmapped)
+        # Serializing (i.e. iterating) pads missing fields with NULL:
+        self.assertEqual(
+            [
+                gocept.collmex.interfaces.NULL,
+                gocept.collmex.interfaces.NULL,
+            ],
+            list(activity)[-2:],
+        )
+
 
 class TestInvoice(unittest.TestCase):
     def tearDown(self):
