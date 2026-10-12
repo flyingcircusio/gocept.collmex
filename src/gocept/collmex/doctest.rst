@@ -138,6 +138,49 @@ After committing, the invoice is found:
 ...                      start_date=start_date)[0]['Rechnungstext']
 'item text – with non-ascii characters'
 
+Incremental queries: ``only_changed`` and ``system_identifier``
+--------------------------------------------------------------
+
+Collmex stores -- per system name (``Systemname``) and record type -- the
+date and time of the last query server-side. A query with
+``only_changed=1`` ("Nur geänderte") therefore returns only records that
+were changed or newly created since the last query of this record type
+for the system name used. This allows incremental synchronisation.
+
+As the watermark is shared by everyone querying with the same system
+name, tools relying on the delta mechanism should use a dedicated one --
+Collmex restricts it to 20 characters (C20):
+
+>>> sync = gocept.collmex.collmex.Collmex(
+...     system_identifier='collmex-doc-sync')
+>>> changed = sync.get_invoices(only_changed=1)
+>>> len(changed)
+1
+>>> changed[0]['Rechnungstext'] == item['Rechnungstext']
+True
+
+The default system name remains ``'gocept.collmex'``:
+
+>>> collmex.system_identifier
+'gocept.collmex'
+
+A longer name is rejected:
+
+>>> gocept.collmex.collmex.Collmex(
+...     system_identifier='much-too-long-system-name')
+Traceback (most recent call last):
+  ...
+ValueError: system_identifier is restricted to 20 characters by Collmex (C20), got 'much-too-long-system-name' (25 characters).
+
+There are some caveats to keep in mind when using ``only_changed``:
+
+* The watermark is advanced by Collmex when the *query* executes,
+  regardless of whether the caller manages to process the result. If
+  processing fails, the delta is lost -- callers should provide a
+  full-reload fallback.
+
+* Deletions are never reported; a deleted record simply stops existing.
+
 Activities
 ----------
 
