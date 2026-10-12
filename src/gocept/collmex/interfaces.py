@@ -4,7 +4,6 @@
 import zope.interface
 import zope.interface.common.mapping
 
-
 # NULL aka None for Collmex
 NULL = "(NULL)"
 
@@ -18,8 +17,9 @@ class ICollmex(zope.interface.Interface):
     def create_product(product):
         """Creates a product for the given IProduct."""
 
-    def get_invoices(invoice_id=NULL, customer_id=NULL,
-                     start_date=NULL, end_date=NULL):
+    def get_invoices(
+        invoice_id=NULL, customer_id=NULL, start_date=NULL, end_date=NULL
+    ):
         """Returns a list of IInvoiceItems maching given criteria."""
 
     def get_customers(customer_id=NULL, text=NULL):

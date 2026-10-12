@@ -7,11 +7,13 @@
 .pytest_cache/
 .python-version
 .tox
+.venv/
 bin
 collmex.ini
 coverage-report/
 coverage.xml
 develop-eggs
+dist/
 eggs
 include/
 lib
