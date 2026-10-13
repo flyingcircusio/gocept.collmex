@@ -50,6 +50,7 @@ password = testpassword
 KINDS = (
     "customers",
     "products",
+    "product_groups",
     "members",
     "abos",
     "agreements",
@@ -204,6 +205,7 @@ class FauxCollmex:
             "CMXINV": self.create_record,
             "CMXKND": self.create_record,
             "CMXPRD": self.create_record,
+            "PRDGRP": self.create_product_group,
             "CMXMGD": self.create_record,
             "CMXABO": self.create_record,
             "CMXCAG": self.create_record,
@@ -212,6 +214,7 @@ class FauxCollmex:
             "CUSTOMER_GET": self.get_customers,
             "MEMBER_GET": self.get_members,
             "PRODUCT_GET": self.get_products,
+            "PRODUCT_GROUPS_GET": self.get_product_groups,
             "CUSTOMER_AGREEMENT_GET": self.get_agreements,
             "PROJECT_GET": self.get_projects,
             "ACTIVITIES_GET": self.get_activities,
@@ -256,6 +259,7 @@ class FauxCollmex:
         kind = {
             "CMXKND": "customers",
             "CMXPRD": "products",
+            "PRDGRP": "product_groups",
             "CMXMGD": "members",
             "CMXABO": "abos",
             "CMXCAG": "agreements",
@@ -265,6 +269,7 @@ class FauxCollmex:
         key_index = {
             "customers": 1,
             "products": 1,
+            "product_groups": 1,
             "members": 1,
             "agreements": 2,
         }.get(kind)
@@ -276,6 +281,14 @@ class FauxCollmex:
             ]
         self.store.add(kind, line)
         return []
+
+    def create_product_group(self, line):
+        # 'Untergruppe von' is an integer reference to an existing
+        # parent product group; non-numeric values are silently
+        # dropped (Collmex API docs, "Produktgruppe anlegen"):
+        if len(line) > 3 and not line[3].isdigit():
+            line[3] = ""
+        return self.create_record(line)
 
     def create_activity(self, line):
         self.store.add("activities", line)
@@ -340,6 +353,11 @@ class FauxCollmex:
                 continue
             result.append(row)
         return result
+
+    def get_product_groups(self, line):
+        # PRODUCT_GROUPS_GET takes no query parameters beyond the
+        # satzart (Collmex API docs, "Produktgruppen abfragen").
+        return [row for row, _ in self.store.all("product_groups")]
 
     def get_agreements(self, line):
         # CUSTOMER_AGREEMENT_GET;Firma;Kunde;Produkt;...

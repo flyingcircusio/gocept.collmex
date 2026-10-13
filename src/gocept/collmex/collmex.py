@@ -288,9 +288,9 @@ class Collmex:
         )
 
     def get_product_groups(self):
-        return self._query_objects(
-            'PRODUCT_GROUPS_GET',
-            0, self.system_identifier)
+        # PRODUCT_GROUPS_GET takes no query parameters beyond the
+        # satzart (Collmex API docs, "Produktgruppen abfragen").
+        return self._query_objects("PRODUCT_GROUPS_GET")
 
     def get_customer_agreements(
         self,
