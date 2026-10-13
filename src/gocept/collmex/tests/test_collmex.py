@@ -486,3 +486,57 @@ class TestDateToCollmex(unittest.TestCase):
             "20260123",
             gocept.collmex.collmex.date_to_collmex("20260123"),
         )
+
+
+class TestLoginEscaping(unittest.TestCase):
+    """Tests for the CSV escaping of the LOGIN row (offline)."""
+
+    def make_collmex(self, username="any", password="any"):
+        import gocept.collmex.collmex
+
+        return gocept.collmex.collmex.Collmex("any", "any", username, password)
+
+    def post(self, collmex):
+        import io
+
+        with (
+            mock.patch(
+                "gocept.collmex.utils.encode_multipart_formdata"
+            ) as encode,
+            mock.patch(
+                "gocept.collmex.collmex.urllib.request.urlopen"
+            ) as urlopen,
+        ):
+            encode.return_value = ("multipart/form-data; boundary=x", "")
+            urlopen.return_value = io.BytesIO(b"MESSAGE;S;0;\r\n")
+            collmex._post("DATA")
+        (_, files) = encode.call_args[0]
+        return files[0][2]
+
+    def test_semicolons_in_credentials_do_not_break_csv(self):
+        import csv
+        import io
+
+        import gocept.collmex.collmex
+
+        collmex = self.make_collmex(username="us;er", password="pa;ss")
+        data = self.post(collmex)
+        reader = csv.reader(
+            io.StringIO(data), dialect=gocept.collmex.collmex.CollmexDialect
+        )
+        login = next(reader)
+        self.assertEqual(["LOGIN", "us;er", "pa;ss"], login)
+
+    def test_quotes_in_credentials_are_escaped(self):
+        import csv
+        import io
+
+        import gocept.collmex.collmex
+
+        collmex = self.make_collmex(password='pa"ss')
+        data = self.post(collmex)
+        reader = csv.reader(
+            io.StringIO(data), dialect=gocept.collmex.collmex.CollmexDialect
+        )
+        login = next(reader)
+        self.assertEqual(["LOGIN", "any", 'pa"ss'], login)
