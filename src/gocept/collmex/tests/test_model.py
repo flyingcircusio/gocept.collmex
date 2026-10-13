@@ -152,3 +152,41 @@ class TestInvoice(unittest.TestCase):
         inv2 = gocept.collmex.model.InvoiceItem()
         collmex.create_invoice([inv2])
         self.assertEqual(-10001, inv2["Rechnungsnummer"])
+
+
+class TestProductGroup(unittest.TestCase):
+    def test_provides_iproductgroup_interface(self):
+        group = gocept.collmex.model.ProductGroup()
+        self.assertTrue(
+            gocept.collmex.interfaces.IProductGroup.providedBy(group)
+        )
+
+    def test_factory_returns_product_group_for_prdgrp(self):
+        self.assertIs(
+            gocept.collmex.model.ProductGroup,
+            gocept.collmex.model.factory("PRDGRP"),
+        )
+
+    def test_maps_all_documented_fields(self):
+        group = gocept.collmex.model.ProductGroup(
+            ["PRDGRP", "2", "Testproduktgruppe", "1"]
+        )
+        self.assertEqual("PRDGRP", group["Satzart"])
+        self.assertEqual("2", group["Produktgruppe Nr"])
+        self.assertEqual("Testproduktgruppe", group["Bezeichnung"])
+        self.assertEqual("1", group["Untergruppe von"])
+        self.assertEqual([], group._unmapped)
+
+    def test_serialization_pads_missing_fields_with_null(self):
+        group = gocept.collmex.model.ProductGroup()
+        group["Produktgruppe Nr"] = "2"
+        group["Bezeichnung"] = "Testproduktgruppe"
+        self.assertEqual(
+            [
+                "PRDGRP",
+                "2",
+                "Testproduktgruppe",
+                gocept.collmex.interfaces.NULL,
+            ],
+            list(group),
+        )

@@ -330,13 +330,12 @@ class Product(Model):
 
 @zope.interface.implementer(gocept.collmex.interfaces.IProductGroup)
 class ProductGroup(Model):
-
-    satzart = 'PRDGRP'
+    satzart = "PRDGRP"
     fields = (
-        'Satzart',
-        'Produktgruppe Nr',
-        'Bezeichnung',
-        'Untergruppe von',
+        "Satzart",
+        "Produktgruppe Nr",
+        "Bezeichnung",
+        "Untergruppe von",
     )
 
 
