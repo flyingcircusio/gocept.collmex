@@ -56,7 +56,17 @@ dev = [
     "pytest-instafail",
     "pytest-rerunfailures",
     "pytest-timeout",
+    "scriv>=1.8.0",
 ]
+
+[tool.scriv]
+changelog = "CHANGES.rst"
+format = "rst"
+categories = []
+compact_fragments = true
+entry_title_template = "{{ version }} ({{ date.strftime('%Y-%m-%d') }})"
+rst_header_chars = "-~"
+version = "literal: pyproject.toml: project.version"
 
 [tool.setuptools]
 include-package-data = true

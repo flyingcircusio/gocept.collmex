@@ -61,3 +61,9 @@ or, to run a specific environment::
     uvx --from tox --with tox-uv tox -e py313
 
 To build the distribution, use ``uv build``.
+
+The changelog is managed with `scriv <https://scriv.readthedocs.io>`_:
+for each user-visible change, run ``uv run scriv create``, edit the
+fragment created in ``changelog.d/``, and commit it together with your
+change (this avoids merge conflicts in ``CHANGES.rst``). When releasing,
+``uv run scriv collect`` merges all fragments into ``CHANGES.rst``.
