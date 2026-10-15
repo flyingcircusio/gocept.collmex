@@ -328,6 +328,17 @@ class Product(Model):
         self["Firma"] = company_id
 
 
+@zope.interface.implementer(gocept.collmex.interfaces.IProductGroup)
+class ProductGroup(Model):
+    satzart = "PRDGRP"
+    fields = (
+        "Satzart",
+        "Produktgruppe Nr",
+        "Bezeichnung",
+        "Untergruppe von",
+    )
+
+
 @zope.interface.implementer(gocept.collmex.interfaces.ICustomerAgreement)
 class CustomerAgreement(Model):
     satzart = "CMXCAG"
