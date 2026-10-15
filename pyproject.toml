@@ -41,6 +41,15 @@ Homepage = "https://github.com/gocept/gocept.collmex"
 Changelog = "https://github.com/gocept/gocept.collmex/blob/main/CHANGES.rst"
 "Issue Tracker" = "https://github.com/gocept/gocept.collmex/issues"
 
+[project.entry-points."zest.releaser.prereleaser.before"]
+scriv-changelog = "gocept.collmex.releaser:disable_history_update"
+
+[project.entry-points."zest.releaser.prereleaser.middle"]
+scriv-changelog = "gocept.collmex.releaser:collect_changelog"
+
+[project.entry-points."zest.releaser.postreleaser.before"]
+scriv-changelog = "gocept.collmex.releaser:disable_history_update"
+
 [project.optional-dependencies]
 test = [
     "mock >= 1.0",
@@ -57,6 +66,7 @@ dev = [
     "pytest-rerunfailures",
     "pytest-timeout",
     "scriv>=1.8.0",
+    "zest.releaser",
 ]
 
 [tool.scriv]

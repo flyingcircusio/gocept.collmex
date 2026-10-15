@@ -65,5 +65,9 @@ To build the distribution, use ``uv build``.
 The changelog is managed with `scriv <https://scriv.readthedocs.io>`_:
 for each user-visible change, run ``uv run scriv create``, edit the
 fragment created in ``changelog.d/``, and commit it together with your
-change (this avoids merge conflicts in ``CHANGES.rst``). When releasing,
-``uv run scriv collect`` merges all fragments into ``CHANGES.rst``.
+change (this avoids merge conflicts in ``CHANGES.rst``).
+
+Releases are made with `zest.releaser
+<https://zestreleaser.readthedocs.io>`_ via ``uv run fullrelease``. It
+collects the fragments into ``CHANGES.rst`` with the release version
+automatically.

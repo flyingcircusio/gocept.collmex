@@ -16,8 +16,8 @@ Workflow
   and edit the created file in this directory. Commit it together with
   your change.
 
-* When releasing, run::
+* When releasing, ``uv run fullrelease`` (zest.releaser) collects all
+  fragments into ``CHANGES.rst`` automatically. To only collect them
+  manually, run::
 
       uv run scriv collect
-
-  to merge all fragments into ``CHANGES.rst`` and delete them.
