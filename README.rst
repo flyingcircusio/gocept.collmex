@@ -48,11 +48,35 @@ Example::
     password = testpassword
 
 
+Faux Collmex server
+===================
+
+``gocept.collmex.faux`` provides an in-memory server that mimics the parts of
+the Collmex HTTP interface this package uses, including the CSV API and some
+basic HTML/Forms to emulate resetting the environment.
+
+The faux server is available as the session-scoped pytest fixture
+``faux_collmex``. To use it in a project, import it in your
+``conftest.py`` so pytest picks it up::
+
+    from gocept.collmex.faux import faux_collmex  # noqa: F401
+
+and request it in your tests::
+
+    def test_create_product(faux_collmex):
+        ...
+
+The fixture becomes a no-op when the environment variable ``COLLMEX_FAUX=0``
+or ``COLLMEX_TEST_LIVE=1`` is set (tests shall run against the live
+Collmex test system), or when ``COLLMEX_API_URL`` is already set (it is
+left alone, e.g. to run against an externally started faux server).
+
+
 Development
 ===========
 
 We use `uv <https://docs.astral.sh/uv/>`_ and tox for development. To run the
-tests (against the live Collmex test system, see ``collmex.ini-example``)::
+tests::
 
     uvx --from tox --with tox-uv tox
 
@@ -71,3 +95,22 @@ Releases are made with `zest.releaser
 <https://zestreleaser.readthedocs.io>`_ via ``uv run fullrelease``. It
 collects the fragments into ``CHANGES.rst`` with the release version
 automatically.
+
+
+Testing
+=======
+
+By default, the test suite runs against the faux Collmex server shipped
+with this package, see `Faux Collmex server`_. It is wired autouse in
+``conftest.py`` and needs no configuration.
+
+To run the tests against the **live Collmex test system** instead (see
+``collmex.ini-example``), set both ``COLLMEX_FAUX=0`` and
+``COLLMEX_TEST_LIVE=1``. The easiest way is the dedicated tox environment
+(Python 3.12)::
+
+    uvx --from tox --with tox-uv tox -e py312-live
+
+The live test system is a shared resource: concurrent test runs delete each
+other's data and can lock the test account (some tests deliberately use
+invalid credentials). Therefore, serialise all test runs that use it.
