@@ -1,6 +1,7 @@
 import csv
 import io
 import logging
+import os
 import re
 import threading
 import urllib.request
@@ -32,6 +33,19 @@ class CollmexDialect(csv.Dialect):
 
 class APIError(Exception):
     pass
+
+
+def get_api_url():
+    """Returns the base URL of the Collmex server.
+
+    This is ``https://www.collmex.de`` unless overridden by the
+    ``COLLMEX_API_URL`` environment variable, e.g. to run tests against
+    the faux Collmex server shipped with this package
+    (see :mod:`gocept.collmex.faux`).
+    """
+    return os.environ.get("COLLMEX_API_URL", "https://www.collmex.de").rstrip(
+        "/"
+    )
 
 
 @implementer(transaction.interfaces.IDataManager)
@@ -342,7 +356,7 @@ class Collmex:
         * disabled login, due to too many failed logins
 
         """
-        b = webtest.TestApp("https://www.collmex.de").get("/")
+        b = webtest.TestApp(get_api_url()).get("/")
         b.charset = self.encoding
 
         f = b.form
@@ -405,9 +419,9 @@ class Collmex:
             [], [("fileName", "api.csv", data)]
         )
 
-        url = (
-            "https://www.collmex.de/cgi-bin/cgi.exe?%s,0,data_exchange"
-            % self.customer_id
+        url = "%s/cgi-bin/cgi.exe?%s,0,data_exchange" % (
+            get_api_url(),
+            self.customer_id,
         )
         content_type_label = "Content-type"
 
