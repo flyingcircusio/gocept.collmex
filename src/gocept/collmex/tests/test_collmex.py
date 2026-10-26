@@ -273,6 +273,47 @@ class TestCollmex(unittest.TestCase):
             "gocept.collmex",
         )  # system identifier
 
+    def test_get_product_groups_sends_satzart_only(self):
+        # PRODUCT_GROUPS_GET takes no query parameters beyond the
+        # satzart (Collmex API docs, "Produktgruppen abfragen"):
+        collmex = self.collmex
+        query = collmex._query_objects = mock.Mock()
+        collmex.get_product_groups()
+        query.assert_called_with("PRODUCT_GROUPS_GET")
+
+    def test_get_product_groups_roundtrip(self):
+        import transaction
+
+        import gocept.collmex.model
+
+        main = gocept.collmex.model.ProductGroup()
+        main["Produktgruppe Nr"] = "1"
+        main["Bezeichnung"] = "Hauptproduktgruppe"
+        self.collmex.create(main)
+        transaction.commit()
+
+        # 'Untergruppe von' references the parent group by number; the
+        # parent group must already exist:
+        group = gocept.collmex.model.ProductGroup()
+        group["Produktgruppe Nr"] = "2"
+        group["Bezeichnung"] = "Testproduktgruppe"
+        group["Untergruppe von"] = "1"
+        self.collmex.create(group)
+        transaction.commit()
+
+        groups = self.collmex.get_product_groups()
+        # Collmex' server-side processing is asynchronous, so we do not
+        # rely on the exact contents or ordering of the response:
+        self.assertIn("Hauptproduktgruppe", [g["Bezeichnung"] for g in groups])
+        self.assertIn("Testproduktgruppe", [g["Bezeichnung"] for g in groups])
+        # All columns of the PRDGRP responses are mapped:
+        self.assertEqual([], [u for g in groups for u in g._unmapped])
+        group = next(
+            g for g in groups if g["Bezeichnung"] == "Testproduktgruppe"
+        )
+        self.assertEqual("2", group["Produktgruppe Nr"])
+        self.assertEqual("1", group["Untergruppe von"])
+
     def test_collmex__Collmex__get_projects__1(self):
         """It returns same project twice for both configured rates."""
         import transaction

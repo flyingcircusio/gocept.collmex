@@ -93,6 +93,59 @@ class FauxServerTest(unittest.TestCase):
             ["Neu"], [prod["Bezeichnung"] for prod in collmex.get_products()]
         )
 
+    def test_product_groups_can_be_created_and_queried(self):
+        collmex = self.make_collmex()
+        main = gocept.collmex.model.ProductGroup()
+        main["Produktgruppe Nr"] = "1"
+        main["Bezeichnung"] = "Hauptproduktgruppe"
+        collmex.create(main)
+        group = gocept.collmex.model.ProductGroup()
+        group["Produktgruppe Nr"] = "2"
+        group["Bezeichnung"] = "Testproduktgruppe"
+        group["Untergruppe von"] = "1"
+        collmex.create(group)
+        transaction.commit()
+        groups = collmex.get_product_groups()
+        self.assertEqual(
+            ["Hauptproduktgruppe", "Testproduktgruppe"],
+            [group["Bezeichnung"] for group in groups],
+        )
+        self.assertEqual(
+            ["1"],
+            [
+                group["Untergruppe von"]
+                for group in groups
+                if group["Bezeichnung"] == "Testproduktgruppe"
+            ],
+        )
+
+    def test_product_group_replaces_record_with_same_key(self):
+        collmex = self.make_collmex()
+        group = gocept.collmex.model.ProductGroup()
+        group["Produktgruppe Nr"] = "1"
+        group["Bezeichnung"] = "Alt"
+        collmex.create(group)
+        group = gocept.collmex.model.ProductGroup()
+        group["Produktgruppe Nr"] = "1"
+        group["Bezeichnung"] = "Neu"
+        collmex.create(group)
+        transaction.commit()
+        self.assertEqual(
+            ["Neu"],
+            [prod["Bezeichnung"] for prod in collmex.get_product_groups()],
+        )
+
+    def test_product_group_drops_non_numeric_parent(self):
+        collmex = self.make_collmex()
+        group = gocept.collmex.model.ProductGroup()
+        group["Produktgruppe Nr"] = "1"
+        group["Bezeichnung"] = "Testproduktgruppe"
+        group["Untergruppe von"] = "Hauptproduktgruppe"
+        collmex.create(group)
+        transaction.commit()
+        [group] = collmex.get_product_groups()
+        self.assertIsNone(group["Untergruppe von"])
+
     def test_only_changed_reports_new_records(self):
         collmex = self.make_collmex()
         self.assertEqual([], collmex.get_invoices(only_changed=1))
