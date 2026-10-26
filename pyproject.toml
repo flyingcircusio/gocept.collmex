@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gocept.collmex"
-version = "3.0.dev0"
+version = "3.0"
 description = "Python-bindings for the Collmex import/export API"
 readme = "README.rst"
 license = "ZPL-2.1"

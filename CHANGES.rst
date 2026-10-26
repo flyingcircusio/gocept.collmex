@@ -3,6 +3,67 @@ Changes
 
 .. scriv-insert-here
 
+.. _changelog-3.0:
+
+3.0 (2026-10-26)
+----------------
+
+- New: ship a faux Collmex server (``gocept.collmex.faux``) that mimics
+  the data exchange API and the HTML pages used by the test helpers.
+  It is provided as the session-scoped pytest fixture
+  ``faux_collmex`` (to be imported in ``conftest.py``), so test suites
+  of ``gocept.collmex`` and of dependent projects can run without
+  access to the Collmex test system. Set ``COLLMEX_FAUX=0`` and
+  ``COLLMEX_TEST_LIVE=1`` (or use the new ``py3xx-live`` tox
+  environments) to run against the live Collmex test system instead.
+- New: the Collmex base URL can be overridden with the
+  ``COLLMEX_API_URL`` environment variable.
+- CI: the test workflow declares a ``concurrency`` group so pushes,
+  pull requests and scheduled runs cannot use the shared Collmex test
+  system at the same time. The live test runs in a dedicated
+  ``py312-live`` environment; the other environments use the faux
+  server and no longer need the decrypted ``collmex.ini``.
+- Fix: usernames or passwords containing ``;`` or ``"`` produced an
+  invalid LOGIN row (and, with user-supplied credentials, allowed CSV
+  injection). The login is now written through the regular CSV writer,
+  so credentials are quoted and escaped correctly.
+  (Contributed by Florian Best in
+  `#35 <https://github.com/flyingcircusio/gocept.collmex/pull/35>`_)
+- Modernise packaging: use ``pyproject.toml`` (PEP 621) instead of
+  ``setup.py`` and ``setup.cfg``.
+- Convert ``gocept`` to a native (PEP 420) namespace package, this removes
+  the runtime dependency on ``pkg_resources``/``setuptools``.
+- Use uv instead of pip for development, building and CI.
+- Drop support for Python 3.7 - 3.10.
+- Add support for Python 3.12, 3.13, 3.14 and 3.15.
+- New: ``get_invoices()`` supports ``only_changed`` (INVOICE_GET field 9,
+  "Nur geänderte") for incremental queries.
+- New: ``Collmex(..., system_identifier=...)`` overrides the system name
+  sent with queries; the default remains ``'gocept.collmex'``. Collmex
+  stores the date and time of the last query per system name and record
+  type -- the basis of the ``only_changed`` mechanism -- so tools relying
+  on it should use a dedicated name (restricted to 20 characters by
+  Collmex, longer names raise ``ValueError``).
+- Fix: ``get_activities()`` converts ``start_date``/``end_date`` to
+  Collmex' D8 format; ``date_to_collmex()`` now passes strings through
+  unchanged.
+- New: ``Activity`` maps the export-only fields ``Produkt Nr`` and
+  ``In Rechnung Nr``; ``InvoiceItem`` maps the trailing fields
+  ``Kunden-Referenz``, ``Schreibgeschützt``, ``Anzahlung`` and
+  ``Anzahlungsbetrag``, so that live API responses are mapped completely.
+- New: ``ProductGroup`` (PRDGRP) and ``get_product_groups()``. The
+  faux Collmex server supports creating and querying product groups,
+  including the documented behaviour that a non-numeric 'Untergruppe
+  von' is silently dropped.
+  (Contributed by Florian Best in
+  `#33 <https://github.com/flyingcircusio/gocept.collmex/pull/33>`_.)
+- Integrate scriv with zest.releaser: ``fullrelease`` now collects the
+  fragments from ``changelog.d`` into ``CHANGES.rst`` with the release
+  version, and zest.releaser no longer rewrites the changelog itself.
+- Parallelise the GitHub test workflow: only ``py312-live`` (which uses
+  the shared Collmex test system) runs exclusively, all other test
+  environments now run in parallel.
+
 2.1.0 (2024-05-31)
 ------------------
 
