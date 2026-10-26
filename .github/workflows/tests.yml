@@ -11,18 +11,13 @@ on:
   # Allow to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# The live test (py3xx-live) connects to the Collmex test system, which
-# is shared with other projects: never run more than one workflow at a
-# time. GitHub has no resource groups; this is the closest equivalent.
-concurrency:
-  group: collmex-test-account
-  cancel-in-progress: false
-
 jobs:
+  # These envs run against the faux Collmex server shipped with this
+  # package, so there is no shared resource and they can run in
+  # parallel.
   tests:
     strategy:
-      # We cannot run in parallel as we connect to the Collmex API:
-      max-parallel: 1
+      fail-fast: false
       matrix:
         config:
         # [Python version, tox env]
@@ -33,17 +28,10 @@ jobs:
         - ["3.15",   "py315"]
         - ["pypy3.11", "pypy3"]
         - ["3.14",   "coverage"]
-        # The live test uses the shared Collmex test system:
-        - ["3.12",   "py312-live"]
     runs-on: ubuntu-latest
     name: ${{ matrix.config[1] }}
     steps:
     - uses: actions/checkout@v4
-    - name: Decrypt config
-      if: matrix.config[1] == 'py312-live'
-      run: ./.github/scripts/decrypt_collmex_ini.sh
-      env:
-          GPG_PASSWORD_COLLMEX_INI: ${{ secrets.GPG_PASSWORD_COLLMEX_INI }}
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
@@ -58,3 +46,29 @@ jobs:
       run: uvx coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # The live test connects to the Collmex test system, which is shared
+  # with other projects: never run more than one at a time. GitHub has
+  # no resource groups; this job-level concurrency group is the closest
+  # equivalent.
+  tests-live:
+    name: py312-live
+    runs-on: ubuntu-latest
+    concurrency:
+      group: collmex-test-account
+      cancel-in-progress: false
+    steps:
+    - uses: actions/checkout@v4
+    - name: Decrypt config
+      run: ./.github/scripts/decrypt_collmex_ini.sh
+      env:
+        GPG_PASSWORD_COLLMEX_INI: ${{ secrets.GPG_PASSWORD_COLLMEX_INI }}
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        python-version: "3.12"
+        enable-cache: true
+    - name: Install tox
+      run: uv tool install tox --with tox-uv
+    - name: Test
+      run: tox -e py312-live
