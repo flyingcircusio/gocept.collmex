@@ -53,6 +53,7 @@ scriv-changelog = "gocept.collmex.releaser:disable_history_update"
 [project.optional-dependencies]
 test = [
     "mock >= 1.0",
+    "pytest",
     "zope.testing >= 4.0",
 ]
 
