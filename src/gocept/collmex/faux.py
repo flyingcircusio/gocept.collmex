@@ -111,6 +111,45 @@ def format_number(value):
     return f"{value:.2f}".replace(".", ",")
 
 
+# Number of decimal places ("Nachkommastellen") with which Collmex
+# renders quantities, per unit code (Mengeneinheit). These are the
+# defaults of the units Collmex predefines per account (Verwaltung →
+# Mengeneinheiten); custom units and codes not listed here render with
+# DEFAULT_UNIT_DECIMALS.
+UNIT_DECIMALS = {
+    "ANN": 2,  # Jahr (year)
+    "CMT": 3,  # Zentimeter (centimetre)
+    "CS": 0,  # Kiste (case)
+    "DAY": 2,  # Tage (days)
+    "GRM": 3,  # Gramm (gram)
+    "HR": 2,  # Stunden (hours)
+    "KGM": 3,  # Kilogramm (kilogram)
+    "KMT": 3,  # Kilometer (kilometre)
+    "LTR": 3,  # Liter (litre)
+    "MIN": 2,  # Minute (minute)
+    "MM": 3,  # Millimeter (millimetre)
+    "MON": 1,  # Monat (month)
+    "MTR": 3,  # Meter (metre)
+    "P1": 2,  # Prozent (percent)
+    "PA": 3,  # Paket (package)
+    "PCE": 0,  # Stück (pieces)
+    "PF": 0,  # Palette (pallet)
+    "SEC": 3,  # Sekunde (second)
+    "TNE": 3,  # Tonne (tonne, 1000 kg)
+}
+DEFAULT_UNIT_DECIMALS = 2
+
+
+def format_quantity(value, unit):
+    """Formats a quantity the way Collmex exports it for `unit`.
+
+    Collmex renders the quantity with the decimal places of its unit
+    ("Mengeneinheit"), e.g. "2,00" hours but "2" pieces.
+    """
+    decimals = UNIT_DECIMALS.get(unit, DEFAULT_UNIT_DECIMALS)
+    return f"{parse_number(value):.{decimals}f}".replace(".", ",")
+
+
 def format_date(value):
     """Normalises "2012-01-01" / "20120101" to the exported "20120101"."""
     value = str(value)
@@ -316,8 +355,33 @@ class FauxCollmex:
                     continue
                 if is_set(line[5]) and date > line[5]:
                     continue
-            result.append(row)
+            result.append(self.invoice_row(row))
         return result
+
+    def invoice_row(self, row):
+        """Normalises a stored CMXINV row to the exported format."""
+        row = list(row)
+        product = None
+        if is_set(row[69]):  # Produktnummer
+            product = self.find_product(row[69])
+        unit = row[71]  # Mengeneinheit
+        if not is_set(unit) and product is not None and is_set(product[4]):
+            # Collmex takes the unit from the product's base unit if
+            # unset (CMXINV field 72):
+            row[71] = unit = product[4]
+        if is_set(unit) and is_set(row[72]):  # Menge
+            # Collmex renders the quantity with the unit's decimal
+            # places (CMXINV field 73):
+            row[72] = format_quantity(row[72], unit)
+        if not is_set(row[74]):  # Preismenge
+            # The price quantity is taken from the product or defaults
+            # to 1 (CMXINV field 75):
+            row[74] = (
+                product[10]
+                if product is not None and is_set(product[10])
+                else "1"
+            )
+        return row
 
     def get_customers(self, line):
         # CUSTOMER_GET;Kundennummer;Firma;Text;...
@@ -351,8 +415,17 @@ class FauxCollmex:
                 continue
             if is_set(line[4]) and row[13] != line[4]:
                 continue
-            result.append(row)
+            result.append(self.product_row(row))
         return result
+
+    def product_row(self, row):
+        """Normalises a stored CMXPRD row to the exported format."""
+        row = list(row)
+        if not is_set(row[10]):
+            # Collmex defaults the price quantity ("Preismenge") to 1
+            # (CMXPRD field 11):
+            row[10] = "1"
+        return row
 
     def get_product_groups(self, line):
         # PRODUCT_GROUPS_GET takes no query parameters beyond the

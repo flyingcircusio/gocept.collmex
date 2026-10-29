@@ -160,6 +160,97 @@ class FauxServerTest(unittest.TestCase):
         self.assertEqual("9,65", gocept.collmex.faux.format_number(9.65))
         self.assertEqual(9.65, gocept.collmex.faux.parse_number("9,65"))
 
+    def test_quantities_are_rendered_with_their_units_decimals(self):
+        format_quantity = gocept.collmex.faux.format_quantity
+        # Predefined units render with their default decimal places:
+        self.assertEqual("2", format_quantity("2,00", "PCE"))  # Stück
+        self.assertEqual("2,0", format_quantity("2", "MON"))  # Monat
+        self.assertEqual("2,00", format_quantity("2", "HR"))  # Stunden
+        self.assertEqual("2,000", format_quantity("2", "KGM"))  # Kilo.
+        # Unknown (custom) units fall back to two decimals:
+        self.assertEqual("2,00", format_quantity("2", "XYZ"))
+
+    def test_invoice_export_fills_unit_from_product(self):
+        collmex = self.make_collmex()
+        self.create_product(collmex, unit="PCE")
+        self.create_customer(collmex)
+        item = gocept.collmex.model.InvoiceItem()
+        item["Kunden-Nr"] = "10000"
+        item["Produktnummer"] = "TEST"
+        item["Menge"] = "2,00"
+        collmex.create_invoice([item])
+        transaction.commit()
+        [invoice] = collmex.get_invoices()
+        # The unit is filled in from the product's base unit, and the
+        # quantity is rendered with the unit's decimal places, like
+        # Collmex does (CMXINV fields 72 and 73):
+        self.assertEqual("PCE", invoice["Mengeneinheit"])
+        self.assertEqual("2", invoice["Menge"])
+
+    def test_invoice_export_renders_quantity_of_sent_unit(self):
+        collmex = self.make_collmex()
+        self.create_customer(collmex)
+        item = gocept.collmex.model.InvoiceItem()
+        item["Kunden-Nr"] = "10000"
+        item["Produktnummer"] = "TEST"
+        item["Mengeneinheit"] = "PCE"
+        item["Menge"] = "3,00"
+        collmex.create_invoice([item])
+        transaction.commit()
+        [invoice] = collmex.get_invoices()
+        self.assertEqual("PCE", invoice["Mengeneinheit"])
+        self.assertEqual("3", invoice["Menge"])
+
+    def test_invoice_export_renders_hours_with_two_decimals(self):
+        collmex = self.make_collmex()
+        self.create_product(collmex, unit="HR")
+        self.create_customer(collmex)
+        item = gocept.collmex.model.InvoiceItem()
+        item["Kunden-Nr"] = "10000"
+        item["Produktnummer"] = "TEST"
+        item["Menge"] = 3
+        collmex.create_invoice([item])
+        transaction.commit()
+        [invoice] = collmex.get_invoices()
+        self.assertEqual("HR", invoice["Mengeneinheit"])
+        self.assertEqual("3,00", invoice["Menge"])
+
+    def test_product_export_defaults_preismenge_to_one(self):
+        collmex = self.make_collmex()
+        product = gocept.collmex.model.Product()
+        product["Produktnummer"] = "TEST"
+        product["Verkaufs-Preis"] = 5
+        collmex.create(product)
+        transaction.commit()
+        [exported] = collmex.get_products()
+        # Collmex defaults the price quantity to 1 (CMXPRD field 11):
+        self.assertEqual("1", exported["Preismenge"])
+
+    def test_product_export_keeps_explicit_preismenge(self):
+        collmex = self.make_collmex()
+        product = gocept.collmex.model.Product()
+        product["Produktnummer"] = "TEST"
+        product["Preismenge"] = 2
+        collmex.create(product)
+        transaction.commit()
+        [exported] = collmex.get_products()
+        self.assertEqual("2", exported["Preismenge"])
+
+    # -- Helpers -------------------------------------------------------
+
+    def create_product(self, collmex, unit="HR"):
+        product = gocept.collmex.model.Product()
+        product["Produktnummer"] = "TEST"
+        product["Bezeichnung"] = "Testprodukt"
+        product["Basismengeneinheit"] = unit
+        collmex.create(product)
+
+    def create_customer(self, collmex):
+        customer = gocept.collmex.model.Customer()
+        customer["Kundennummer"] = 10000
+        customer["Firma"] = "Testkunden"
+        collmex.create(customer)
+
     def test_dates_are_normalised_to_D8(self):
         self.assertEqual(
             "20120101", gocept.collmex.faux.format_date("2012-01-01")
