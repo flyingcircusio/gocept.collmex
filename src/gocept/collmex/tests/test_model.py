@@ -151,6 +151,67 @@ class TestInvoice(unittest.TestCase):
         self.assertEqual(-10001, inv2["Rechnungsnummer"])
 
 
+class TestProduct(unittest.TestCase):
+    def test_provides_iproduct_interface(self):
+        product = gocept.collmex.model.Product()
+        self.assertTrue(gocept.collmex.interfaces.IProduct.providedBy(product))
+
+    def test_factory_returns_product_for_cmxprd(self):
+        self.assertIs(
+            gocept.collmex.model.Product,
+            gocept.collmex.model.factory("CMXPRD"),
+        )
+
+    def test_maps_all_67_documented_fields(self):
+        # CMXPRD currently has 67 fields; reserved placeholders cannot be
+        # addressed individually, everything else is mapped by position.
+        row = ["CMXPRD"] + [str(i) for i in range(2, 68)]
+        product = gocept.collmex.model.Product(row)
+        expected = {
+            "Produktnummer": "2",
+            "GTIN": "16",
+            "Lohnkosten-Bezugsmenge": "25",
+            "Bemerkung": "26",
+            "Kostenermittlung": "27",
+            "Kosten": "28",
+            "Bezugsmenge-Kosten": "29",
+            "EK-Lieferant": "30",
+            "EK-Steuerklassifikation": "31",
+            "EK-ProdNr d.Lieferanten": "32",
+            "EK-Verpackungseinheit": "33",
+            "EK-Bezeichnung": "34",
+            "EK-Preis": "35",
+            "EK-Preismenge": "36",
+            "EK-Lieferzeit": "37",
+            "EK-Währung": "38",
+            "ProduktNr des Herstellers": "59",
+            "Lieferrelevant": "60",
+            "eBay-Artikelnummer": "62",
+            "Direktlieferung": "63",
+            "Warennummer": "64",
+            "Lagerplatz": "65",
+            "Keine Bestandsführung": "66",
+            "Herkunftsland": "67",
+        }
+        for name, value in expected.items():
+            self.assertEqual(value, product[name], name)
+        self.assertEqual([], product._unmapped)
+
+    def test_serialization_produces_67_columns(self):
+        product = gocept.collmex.model.Product()
+        product["Produktnummer"] = "TEST"
+        product["EK-ProdNr d.Lieferanten"] = "SUP-1"
+        product["Herkunftsland"] = "DE"
+        values = list(product)
+        self.assertEqual(67, len(values))
+        self.assertEqual("TEST", values[1])
+        self.assertEqual("SUP-1", values[31])
+        self.assertEqual(
+            [gocept.collmex.interfaces.NULL] * 6 + ["DE"],
+            values[-7:],
+        )
+
+
 class TestProductGroup(unittest.TestCase):
     def test_provides_iproductgroup_interface(self):
         group = gocept.collmex.model.ProductGroup()
