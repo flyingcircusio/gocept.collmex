@@ -581,3 +581,170 @@ class TestLoginEscaping(unittest.TestCase):
         )
         login = next(reader)
         self.assertEqual(["LOGIN", "any", 'pa"ss'], login)
+
+
+class TestResponseAccess(unittest.TestCase):
+    """Accessing Collmex' response: assigned IDs and raw rows (#31)."""
+
+    def setUp(self):
+        import gocept.collmex.testing
+
+        gocept.collmex.testing.cleanup_collmex()
+
+    def tearDown(self):
+        import transaction
+
+        transaction.abort()
+
+    def make_collmex(self):
+        import gocept.collmex.testing
+
+        return gocept.collmex.testing.get_collmex()
+
+    def test_new_object_ids_helper(self):
+        import gocept.collmex.collmex
+
+        self.assertEqual({}, gocept.collmex.collmex.new_object_ids([]))
+        self.assertEqual(
+            {"-10000": "20000"},
+            gocept.collmex.collmex.new_object_ids(
+                [["NEW_OBJECT_ID", "20000", "-10000", "1"]]
+            ),
+        )
+
+    def test_last_response_is_empty_before_first_post(self):
+        self.assertEqual([], self.make_collmex().last_response)
+
+    def test_customer_without_id_gets_assigned_id_written_back(self):
+        import transaction
+
+        import gocept.collmex.model
+
+        collmex = self.make_collmex()
+        customer = gocept.collmex.model.Customer()
+        customer["Firma"] = "Nummernvergabe"
+        collmex.create(customer)
+        transaction.commit()
+        # A positive number was assigned, replacing the temporary one:
+        assigned = customer["Kundennummer"]
+        self.assertTrue(str(assigned).isdigit())
+        [created] = collmex.get_customers(customer_id=assigned)
+        self.assertEqual("Nummernvergabe", created["Firma"])
+
+    def test_temporary_id_is_replaced_by_assigned_id(self):
+        import transaction
+
+        import gocept.collmex.collmex
+        import gocept.collmex.model
+
+        collmex = self.make_collmex()
+        customer = gocept.collmex.model.Customer()
+        customer["Kundennummer"] = -5
+        customer["Firma"] = "Nummernvergabe"
+        collmex.create(customer)
+        transaction.commit()
+        assigned = customer["Kundennummer"]
+        self.assertTrue(str(assigned).isdigit())
+        self.assertEqual(
+            {"-5": assigned},
+            gocept.collmex.collmex.new_object_ids(collmex.last_response),
+        )
+
+    def test_last_response_persists_until_next_write(self):
+        import transaction
+
+        import gocept.collmex.collmex
+        import gocept.collmex.model
+
+        collmex = self.make_collmex()
+        customer = gocept.collmex.model.Customer()
+        customer["Firma"] = "Erster"
+        collmex.create(customer)
+        transaction.commit()
+        first_ids = gocept.collmex.collmex.new_object_ids(collmex.last_response)
+        self.assertEqual(1, len(first_ids))
+
+        # A transaction without writes does not touch the response:
+        transaction.abort()
+        transaction.commit()
+        self.assertEqual(
+            first_ids,
+            gocept.collmex.collmex.new_object_ids(collmex.last_response),
+        )
+
+        # The next write does:
+        customer = gocept.collmex.model.Customer()
+        customer["Firma"] = "Zweiter"
+        collmex.create(customer)
+        transaction.commit()
+        second_ids = gocept.collmex.collmex.new_object_ids(
+            collmex.last_response
+        )
+        self.assertEqual(1, len(second_ids))
+        self.assertNotEqual(list(first_ids.values()), list(second_ids.values()))
+
+    def test_abort_does_not_write_back(self):
+        import transaction
+
+        import gocept.collmex.model
+
+        collmex = self.make_collmex()
+        customer = gocept.collmex.model.Customer()
+        customer["Kundennummer"] = -5
+        customer["Firma"] = "Nummernvergabe"
+        collmex.create(customer)
+        transaction.abort()
+        self.assertEqual(-5, customer["Kundennummer"])
+        self.assertEqual([], collmex.last_response)
+
+    def test_failed_post_leaves_items_and_response_untouched(self):
+        import transaction
+
+        import gocept.collmex.collmex
+        import gocept.collmex.model
+
+        class Bogus(gocept.collmex.model.Model):
+            satzart = "CMXBOGUS"
+            fields = ("Satzart", "Kundennummer")
+
+        collmex = self.make_collmex()
+        item = Bogus()
+        item["Kundennummer"] = -7
+        collmex.create(item)
+        with self.assertRaises(gocept.collmex.collmex.APIError):
+            transaction.commit()
+        self.assertEqual(-7, item["Kundennummer"])
+        self.assertEqual([], collmex.last_response)
+
+    def test_invoice_positions_get_assigned_number_written_back(self):
+        import transaction
+
+        import gocept.collmex.model
+        import gocept.collmex.testing
+
+        collmex = self.make_collmex()
+        gocept.collmex.testing.create_customer(collmex)
+        gocept.collmex.testing.create_product(collmex)
+        items = []
+        for position, text in enumerate(("Position 1", "Position 2"), start=1):
+            item = gocept.collmex.model.InvoiceItem()
+            item["Position"] = position
+            item["Kunden-Nr"] = "10000"
+            item["Produktnummer"] = "TEST"
+            item["Menge"] = 1
+            item["Rechnungstext"] = text
+            item["Positionstyp"] = 0
+            items.append(item)
+        collmex.create_invoice(items)
+        transaction.commit()
+        # All positions of one invoice share the assigned number:
+        numbers = {item["Rechnungsnummer"] for item in items}
+        self.assertEqual(1, len(numbers))
+        [number] = numbers
+        self.assertTrue(number.isdigit())
+        invoices = collmex.get_invoices(invoice_id=number)
+        # The invoice is found under its assigned number, with both
+        # positions. (Note: live Collmex repeats the last position's
+        # Rechnungstext on all rows, so assert on the position numbers.)
+        self.assertEqual({number}, {inv["Rechnungsnummer"] for inv in invoices})
+        self.assertEqual(["1", "2"], [inv["Position"] for inv in invoices])

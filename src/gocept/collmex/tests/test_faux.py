@@ -156,6 +156,76 @@ class FauxServerTest(unittest.TestCase):
         transaction.commit()
         self.assertEqual(1, len(collmex.get_invoices(only_changed=1)))
 
+    def post_csv(self, data):
+        import csv
+        import io
+
+        import webob
+
+        request = webob.Request.blank(
+            "/cgi-bin/cgi.exe?10001,0,data_exchange",
+            POST={"fileName": data},
+        )
+        response = self.server.application.handle_api(request)
+        return list(
+            csv.reader(
+                io.StringIO(response.text),
+                dialect=gocept.collmex.collmex.CollmexDialect,
+            )
+        )
+
+    def test_internal_numbering_emits_new_object_ids(self):
+        # LOGIN counts as upload line 1, the records follow from line 2:
+        rows = self.post_csv(
+            "LOGIN;fauxuser;fauxpassword\r\n"
+            # Customer without a number: gets one assigned:
+            "CMXKND;;1;Frau;Bertha\r\n"
+            # Customer with a temporary number, followed by a second
+            # row with the same (temporary) number -- the same object,
+            # which replaces the first like a re-import would:
+            "CMXKND;-5;1;Herr;Fritz\r\n"
+            "CMXKND;-5;1;Herr;Mayer\r\n"
+            # Invoice with two positions sharing one temporary number:
+            "CMXINV;-10000;10\r\n"
+            "CMXINV;-10000;20\r\n"
+        )
+        new_object_ids = [row for row in rows if row[0] == "NEW_OBJECT_ID"]
+        self.assertEqual(
+            [
+                ["NEW_OBJECT_ID", "20000", "", "2"],
+                ["NEW_OBJECT_ID", "20001", "-5", "3"],
+                # One record per object, not per position; the invoice
+                # numbering has a counter of its own:
+                ["NEW_OBJECT_ID", "20000", "-10000", "5"],
+            ],
+            new_object_ids,
+        )
+        store = self.server.application.store
+        # The temporary numbers are replaced in the stored records:
+        self.assertEqual(
+            ["20000", "20001", "9999"],
+            sorted(row[1] for row, _ in store.all("customers")),
+        )
+        # ... and all positions of the invoice share the assigned
+        # number:
+        self.assertEqual(
+            ["20000", "20000"],
+            [row[1] for row, _ in store.all("invoices")],
+        )
+
+    def test_external_numbering_emits_no_new_object_id(self):
+        rows = self.post_csv(
+            "LOGIN;fauxuser;fauxpassword\r\n"
+            "CMXKND;10000;1;Frau;Bertha\r\n"
+            "CMXPRD;TEST;Testprodukt\r\n"
+        )
+        self.assertEqual([], [row for row in rows if row[0] == "NEW_OBJECT_ID"])
+        store = self.server.application.store
+        self.assertEqual(
+            {"9999", "10000"}, {row[1] for row, _ in store.all("customers")}
+        )
+        self.assertEqual("TEST", store.all("products")[0][0][1])
+
     def test_numbers_are_exported_with_decimal_comma(self):
         self.assertEqual("9,65", gocept.collmex.faux.format_number(9.65))
         self.assertEqual(9.65, gocept.collmex.faux.parse_number("9,65"))
