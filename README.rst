@@ -48,6 +48,47 @@ Example::
     password = testpassword
 
 
+Assigned IDs and the raw response
+=================================
+
+Collmex can assign IDs for newly created objects itself ("interne
+Nummernvergabe"): pass the ID field of a record empty or negative, and
+Collmex chooses a number. For records of the satzarten ``CMXKND``
+(customers), ``CMXMGD`` (members) and ``CMXINV`` (invoices),
+``gocept.collmex`` substitutes a temporary number automatically when
+the ID field is unset, so the response can be correlated unambiguously.
+
+After the transaction has been committed successfully, the IDs assigned
+by Collmex are written back onto the objects that were passed to
+``create()``::
+
+    customer = gocept.collmex.model.Customer()
+    customer["Firma"] = "New customer"
+    collmex.create(customer)
+    transaction.commit()
+    customer["Kundennummer"]  # ID assigned by Collmex (str)
+
+The same happens for invoices, where ``create_invoice()`` already uses
+temporary numbers: after the commit, all positions of an invoice carry
+the invoice number assigned by Collmex. (Before the commit, the ID
+fields hold the temporary, negative numbers.)
+
+The complete response of the last write is available as
+``collmex.last_response``: a list of the response rows (lists of
+strings) Collmex returned, except the final ``MESSAGE`` row, whose
+status is raised as ``APIError`` on failure. This includes
+``NEW_OBJECT_ID`` records -- use ``gocept.collmex.collmex.new_object_ids()``
+to get a mapping of temporary to assigned IDs -- as well as any
+warning or other records Collmex might introduce. The value is
+thread-local and persists until the next write in this thread; it is
+empty before the first one.
+
+Note that Collmex has already processed the data when the response
+arrives (during ``tpc_vote`` of the transaction): if another data
+manager aborts the transaction afterwards, the data has still been
+imported, but IDs are not written back.
+
+
 Faux Collmex server
 ===================
 

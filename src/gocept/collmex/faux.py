@@ -81,6 +81,16 @@ class Store:
             self.next_employee_nr = 1
             self.next_project_nr = 1
             self.pending_project = None
+            # Counters for internal numbering ("Nummernvergabe"), keyed
+            # by kind. Following the example in the Collmex API docs,
+            # internal numbers live in the 2XXXX range, so they cannot
+            # collide with the external numbers used by the test
+            # helpers:
+            self.next_numbers = {
+                "customers": 20000,
+                "members": 20000,
+                "invoices": 20000,
+            }
             # Watermarks for the "Nur geänderte" mechanism, keyed by
             # (Systemname, GET satzart):
             self.watermarks = {}
@@ -192,16 +202,18 @@ class FauxCollmex:
 
         try:
             rows = []
-            for line in lines[1:]:
-                rows.extend(self.process_record(line))
+            assigned = {}
+            # The LOGIN row counts as upload line 1:
+            for lineno, line in enumerate(lines[1:], start=2):
+                rows.extend(self.process_record(line, lineno, assigned))
         except FauxError as error:
             return self.csv_response(
                 [], status="E", code=error.code, text=error.text
             )
         return self.csv_response(rows)
 
-    def process_record(self, line):
-        handler = {
+    def process_record(self, line, lineno, assigned):
+        create_handlers = {
             "CMXINV": self.create_record,
             "CMXKND": self.create_record,
             "CMXPRD": self.create_record,
@@ -210,6 +222,8 @@ class FauxCollmex:
             "CMXABO": self.create_record,
             "CMXCAG": self.create_record,
             "CMXACT": self.create_activity,
+        }
+        get_handlers = {
             "INVOICE_GET": self.get_invoices,
             "CUSTOMER_GET": self.get_customers,
             "MEMBER_GET": self.get_members,
@@ -218,7 +232,10 @@ class FauxCollmex:
             "CUSTOMER_AGREEMENT_GET": self.get_agreements,
             "PROJECT_GET": self.get_projects,
             "ACTIVITIES_GET": self.get_activities,
-        }.get(line[0])
+        }
+        if line[0] in create_handlers:
+            return create_handlers[line[0]](line, lineno, assigned)
+        handler = get_handlers.get(line[0])
         if handler is None:
             raise FauxError("105001", f"Satzart nicht definiert: {line[0]}")
         return handler(line)
@@ -255,7 +272,48 @@ class FauxCollmex:
             return lambda changed: True
         return lambda changed: watermark is None or changed >= watermark
 
-    def create_record(self, line):
+    # Kinds whose records Collmex numbers internally when the ID is
+    # passed empty or negative (key field index 1 in each case):
+    NUMBERED_KINDS = ("customers", "members", "invoices")
+
+    def assign_number(self, kind, line, assigned, lineno):
+        """Applies internal numbering ("Nummernvergabe") to a record.
+
+        Records of numbered kinds with an empty or negative key get a
+        number from the internal range assigned, like Collmex does; a
+        negative key is assigned once per upload, so several positions
+        of one object (e.g. invoice items) share the number. The
+        record's key is replaced with the assigned number.
+
+        Returns a NEW_OBJECT_ID response row when a number was
+        assigned, None otherwise.
+        """
+        if kind not in self.NUMBERED_KINDS or len(line) < 2:
+            return None
+        temp = line[1]
+        if temp not in (None, ""):
+            try:
+                if int(temp) >= 0:
+                    return None  # external numbering
+            except ValueError:
+                return None  # external (alphanumeric) numbering
+            is_temp = True
+        else:
+            temp = ""
+            is_temp = False
+        if is_temp and temp in assigned:
+            # A later position of an object whose first row already got
+            # a number assigned:
+            line[1] = assigned[temp]
+            return None
+        number = str(self.store.next_numbers[kind])
+        self.store.next_numbers[kind] += 1
+        line[1] = number
+        if is_temp:
+            assigned[temp] = number
+        return ["NEW_OBJECT_ID", number, temp, str(lineno)]
+
+    def create_record(self, line, lineno, assigned):
         kind = {
             "CMXKND": "customers",
             "CMXPRD": "products",
@@ -265,6 +323,7 @@ class FauxCollmex:
             "CMXCAG": "agreements",
             "CMXINV": "invoices",
         }[line[0]]
+        new_object_id = self.assign_number(kind, line, assigned, lineno)
         # Records with an existing key are replaced:
         key_index = {
             "customers": 1,
@@ -280,17 +339,17 @@ class FauxCollmex:
                 if row[key_index] != line[key_index]
             ]
         self.store.add(kind, line)
-        return []
+        return [new_object_id] if new_object_id is not None else []
 
-    def create_product_group(self, line):
+    def create_product_group(self, line, lineno, assigned):
         # 'Untergruppe von' is an integer reference to an existing
         # parent product group; non-numeric values are silently
         # dropped (Collmex API docs, "Produktgruppe anlegen"):
         if len(line) > 3 and not line[3].isdigit():
             line[3] = ""
-        return self.create_record(line)
+        return self.create_record(line, lineno, assigned)
 
-    def create_activity(self, line):
+    def create_activity(self, line, lineno, assigned):
         self.store.add("activities", line)
         return []
 

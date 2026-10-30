@@ -48,10 +48,29 @@ def get_api_url():
     )
 
 
+# Satzarten whose records Collmex numbers internally when the ID is
+# passed empty or negative (Collmex API docs, "Daten importieren:
+# Nummernvergabe"). The ID field is the second field (index 1) for all
+# of them.
+TEMP_ID_SATZARTEN = frozenset({"CMXKND", "CMXMGD", "CMXINV"})
+
+
+def new_object_ids(lines):
+    """Extracts IDs assigned by Collmex from a response.
+
+    Returns a mapping from the temporary IDs passed in the upload to
+    the IDs Collmex assigned, based on the ``NEW_OBJECT_ID`` response
+    records (see the Collmex API documentation, "Daten importieren:
+    Nummernvergabe").
+    """
+    return {line[2]: line[1] for line in lines if line[0] == "NEW_OBJECT_ID"}
+
+
 @implementer(transaction.interfaces.IDataManager)
 class CollmexDataManager:
     def __init__(self, utility):
         self.utility = utility
+        self.response_lines = []
         self._reset()
 
     def _reset(self):
@@ -59,11 +78,20 @@ class CollmexDataManager:
         self._joined = False
         self._transaction = None
         self.voted = False
-        self.utility.reset_invoice_id()
+        # Items registered in the current transaction, so IDs assigned
+        # by Collmex can be written back after a successful commit:
+        self.registered_items = []
+        self.utility.reset_temp_id()
+        # NOTE: response_lines is deliberately not reset here: it holds
+        # the response of the last import (write) POST performed in
+        # this thread, which shall remain accessible after the
+        # transaction has finished.
 
-    def register_data(self, data):
+    def register_data(self, data, item=None):
         """Registers one or more CSV lines for writing."""
         self.data.write(data)
+        if item is not None:
+            self.registered_items.append(item)
         if not self._joined:
             transaction.get().join(self)
             self._joined = True
@@ -85,8 +113,30 @@ class CollmexDataManager:
 
     def tpc_vote(self, transaction):
         assert transaction is self._transaction
-        self.utility._post(self.data.getvalue())
+        self.response_lines = self.utility._post(self.data.getvalue())
         self.voted = True
+        new_ids = new_object_ids(self.response_lines)
+        if self.registered_items and new_ids:
+            transaction.addAfterCommitHook(
+                self._write_back_ids,
+                args=(list(self.registered_items), new_ids),
+            )
+
+    @staticmethod
+    def _write_back_ids(success, items, new_ids):
+        """After-commit hook writing IDs assigned by Collmex back.
+
+        For each registered item whose key field carries one of the
+        temporary numbers Collmex reports on, the temporary number is
+        replaced with the assigned one.
+        """
+        if not success:
+            return
+        for item in items:
+            key_field = item.fields[1]
+            new_id = new_ids.get(str(item.get(key_field)))
+            if new_id is not None:
+                item[key_field] = new_id
 
     def tpc_abort(self, transaction):
         assert transaction is self._transaction
@@ -173,16 +223,36 @@ class Collmex:
         if not getattr(self._local, name, None):
             setattr(self._local, name, None)
 
+    def reset_temp_id(self):
+        """Resets the counter for temporary (negative) object IDs.
+
+        Collmex generates a number for an object if the one passed in
+        is missing or negative; the same negative number in one import
+        call will assign the same generated number. NOTE: the counter
+        needs to start with -10000, -1 does not work.
+        """
+        self._local.temp_id = -10000
+
+    def generate_temp_id(self):
+        """Generates a temporary ID for Collmex' internal numbering.
+
+        Temp IDs are negative numbers that Collmex replaces by an
+        assigned ID and reports back as NEW_OBJECT_ID (see the Collmex
+        API documentation, "Daten importieren: Nummernvergabe"). They
+        are unique within a transaction and reset with each new
+        transaction.
+        """
+        if not hasattr(self._local, "temp_id"):
+            self.reset_temp_id()
+        self._local.temp_id -= 1
+        return self._local.temp_id
+
+    # Backward compatibility:
     def reset_invoice_id(self):
-        # Collmex generates an invoice number if the one passed in is missing
-        # or negative; the same negative number in one import call will assign
-        # the same generated number.
-        # NOTE: we need to start with -10000. -1 does not work.
-        self._local.invoice_id = -10000
+        return self.reset_temp_id()
 
     def generate_invoice_id(self):
-        self._local.invoice_id -= 1
-        return self._local.invoice_id
+        return self.generate_temp_id()
 
     @property
     def connection(self):
@@ -191,18 +261,46 @@ class Collmex:
             self._local.connection = CollmexDataManager(self)
         return self._local.connection
 
+    @property
+    def last_response(self):
+        """The response rows of the last import (write) POST.
+
+        After a transaction containing Collmex writes has been voted,
+        this holds all response rows Collmex returned, except the final
+        MESSAGE row (whose status is raised as APIError on failure).
+        Rows are lists of strings, e.g. ``NEW_OBJECT_ID`` records (see
+        :func:`new_object_ids`), but also any MESSAGE warning rows.
+
+        The value is thread-local; it persists until the next write
+        POST in this thread and is an empty list before the first one.
+        Note that Collmex has already processed the data when this is
+        filled, during ``tpc_vote`` -- other data managers may still
+        abort the transaction afterwards.
+        """
+        return self.connection.response_lines
+
     def create(self, item):
         data = io.StringIO()
         writer = csv.writer(data, dialect=CollmexDialect)
         item.company = self.company_id
+        if item.satzart in TEMP_ID_SATZARTEN and item.get(item.fields[1]) in (
+            None,
+            "",
+            self.NULL,
+        ):
+            # Let Collmex assign an ID ("interne Nummernvergabe"): pass
+            # a temporary negative number so the NEW_OBJECT_ID response
+            # record can be correlated to this item, and so the
+            # assigned ID can be written back after the commit.
+            item[item.fields[1]] = self.generate_temp_id()
         writer.writerow([elem for elem in list(item)])
-        self.connection.register_data(data.getvalue())
+        self.connection.register_data(data.getvalue(), item)
 
     def create_invoice(self, items):
         # Trigger reset of invoice ids if this is a new transaction
         self.connection
 
-        id = self.generate_invoice_id()
+        id = self.generate_temp_id()
         for item in items:
             item["Rechnungsnummer"] = id
             self.create(item)
