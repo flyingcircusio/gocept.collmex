@@ -555,7 +555,7 @@ wheels = [
 
 [[package]]
 name = "gocept-collmex"
-version = "3.0.dev0"
+version = "3.1.dev0"
 source = { editable = "." }
 dependencies = [
     { name = "gocept-cache" },
