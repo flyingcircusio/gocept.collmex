@@ -1,0 +1,11 @@
+.. A new scriv changelog fragment.
+
+- Fix: the faux Collmex server now matches the real Collmex more
+  closely when exporting data. INVOICE_GET fills the unit of measure
+  ("Mengeneinheit") from the product's base unit if not sent, renders
+  the quantity ("Menge") with the decimal places of its unit (the
+  defaults of all units predefined by Collmex are mapped, e.g. "2"
+  for pieces, "2,00" for hours) and defaults the price quantity
+  ("Preismenge") from the product resp. to 1; PRODUCT_GET reports an
+  unset price quantity as 1 instead of the NULL sentinel. Differences
+  observed when pointing fc.directory's test suite at the faux server.
